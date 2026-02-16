@@ -41,47 +41,63 @@ export default function ProductCard({
         type: "spring",
         damping: 25,
         stiffness: 80,
-        delay: index * 0.08,
+        delay: index * 0.06,
       }}
-      whileHover={{ y: -6 }}
-      className="group bg-surface rounded-2xl overflow-hidden border border-transparent hover:border-gold/10 shadow-card hover:shadow-card-hover transition-[border-color,box-shadow] duration-500"
+      className="group relative"
     >
+      {/* Image container */}
       <div
-        className={`relative overflow-hidden ${isFeatured ? "aspect-[4/5]" : "aspect-[4/3]"}`}
+        className={`relative overflow-hidden rounded-2xl ${
+          isFeatured ? "aspect-[4/5]" : "aspect-[3/4]"
+        }`}
       >
         <Image
           src={imageSrc}
           alt={item.name}
           fill
-          sizes={isFeatured ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
-          className="object-cover transition-all duration-700 group-hover:scale-105 saturate-[0.85] group-hover:saturate-100"
+          sizes={
+            isFeatured
+              ? "(max-width: 768px) 100vw, 50vw"
+              : "(max-width: 768px) 50vw, 25vw"
+          }
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
 
-        {/* Quick add button */}
-        <motion.button
-          onClick={handleAdd}
-          initial={false}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.85 }}
-          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center text-lg font-bold opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-gold-light shadow-gold-md"
-        >
-          +
-        </motion.button>
-      </div>
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-display text-cream text-base leading-tight group-hover:text-gold transition-colors duration-300">
+        {/* Price tag */}
+        <div className="absolute top-3 right-3 bg-bg/80 backdrop-blur-sm rounded-full px-3 py-1 border border-gold/20">
+          <span className="text-gold font-display text-sm">${item.price.toFixed(2)}</span>
+        </div>
+
+        {/* Bottom content overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+          <h3 className="font-display text-cream text-base md:text-lg leading-tight mb-1 drop-shadow-lg">
             {item.name}
           </h3>
-          <span className="text-gold font-display text-base whitespace-nowrap glow-text">
-            ${item.price.toFixed(2)}
-          </span>
+          <p className="text-cream/60 text-xs md:text-sm line-clamp-2 leading-relaxed transition-all duration-500 max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100">
+            {item.description}
+          </p>
         </div>
-        <p className="text-cream-muted text-sm line-clamp-2 leading-relaxed">
-          {item.description}
-        </p>
+
+        {/* Add to cart button */}
+        <motion.button
+          onClick={handleAdd}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.85 }}
+          className="absolute bottom-4 right-4 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-gold-md translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </motion.button>
       </div>
     </motion.div>
   );
