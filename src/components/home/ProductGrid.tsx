@@ -16,7 +16,7 @@ export default function ProductGrid({ items, categories }: ProductGridProps) {
   return (
     <section id="menu" className="py-24 bg-bg">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="mb-14">
+        <div className="mb-16">
           <LineReveal>
             <span className="text-gold text-sm tracking-[0.2em] uppercase font-body">
               Full Menu
@@ -45,20 +45,17 @@ export default function ProductGrid({ items, categories }: ProductGridProps) {
               id={`category-${category.slug}`}
               className="mb-20 last:mb-0 scroll-mt-32"
             >
-              {/* Gold accent line */}
-              {catIndex > 0 && (
-                <div className="mb-10 flex items-center gap-4">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-                </div>
-              )}
-
+              {/* Category header with gold line */}
               <LineReveal delay={0.05}>
-                <h3 className="font-display text-xl text-cream mb-8 pb-3 border-b border-cream/8">
-                  {category.name}
-                </h3>
+                <div className="flex items-center gap-4 mb-10">
+                  <h3 className="font-display text-lg md:text-xl text-gold whitespace-nowrap">
+                    {category.name}
+                  </h3>
+                  <div className="h-px flex-1 bg-gradient-to-r from-gold/20 to-transparent" />
+                </div>
               </LineReveal>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
                 {catItems.map((item, i) => (
                   <ProductCard key={item.slug} item={item} index={i} />
                 ))}

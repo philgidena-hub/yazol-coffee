@@ -4,7 +4,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "samosas": "/Images/samosas.jpg",
   "chicken-soup": "/Images/chicken-rice.jpg",
   "vegetable-soup": "/Images/food-2.jpg",
-  "jebena-buna": "/Images/coffee-1.jpg",
+  "jebena-buna": "/Images/Jebena_buna.jpg",
   "chai-tea": "/Images/coffee-2.jpg",
   "falafel": "/Images/fried-rolls.jpg",
   "iced-coffee": "/Images/coffee-corner.jpg",
