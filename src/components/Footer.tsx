@@ -123,8 +123,8 @@ export default function Footer() {
           </p>
           <p className="font-body text-xs text-cream/15">
             Powered by{" "}
-            <a href="https://arifone.com" target="_blank" rel="noopener noreferrer" className="text-cream/30 hover:text-gold transition-colors duration-300">
-              Arifone
+            <a href="https://wezete.com" target="_blank" rel="noopener noreferrer" className="text-cream/30 hover:text-gold transition-colors duration-300">
+              Wezete
             </a>
           </p>
         </div>
