@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { restockInventoryItem } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     const { amount } = await request.json();

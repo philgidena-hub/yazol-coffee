@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllInventoryItems } from "@/lib/dynamodb";
 import { createInventoryItem } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { name, unit, currentStock, lowStockThreshold } = body;

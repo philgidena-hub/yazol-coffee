@@ -75,3 +75,22 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
 }
+
+// ── User Roles ──────────────────────────────────────────────
+
+export type UserRole = "super_admin" | "admin" | "cashier" | "chef";
+
+export interface User {
+  PK: string;
+  SK: string;
+  entityType: string;
+  username: string;
+  passwordHash: string;
+  role: UserRole;
+  name: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SafeUser = Omit<User, "passwordHash" | "PK" | "SK" | "entityType">;

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import Badge from "@/components/ui/Badge";
 
@@ -13,6 +14,7 @@ export default function Navigation() {
   const { scrollY } = useScroll();
   const lastY = useRef(0);
   const { itemCount, openCart } = useCart();
+  const pathname = usePathname();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -25,8 +27,10 @@ export default function Navigation() {
   }, [isMobileMenuOpen]);
 
   const navLinks = [
+    { name: "Home", href: "/" },
     { name: "Menu", href: "/menu" },
     { name: "Our Story", href: "/about" },
+    { name: "Contact", href: "#contact" },
   ];
 
   return (
@@ -35,7 +39,7 @@ export default function Navigation() {
         initial={{ y: 0 }}
         animate={{ y: isHidden ? -100 : 0 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 theme-transition ${
           isScrolled
             ? "bg-bg/80 backdrop-blur-xl border-b border-cream/5 shadow-gold-sm"
             : "bg-transparent"
@@ -46,34 +50,48 @@ export default function Navigation() {
             {/* Logo */}
             <Link
               href="/"
-              className="font-display text-2xl text-cream hover:text-gold transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(212,165,116,0.4)]"
+              className="font-display text-2xl text-cream hover:text-gold transition-colors duration-300 theme-transition"
             >
               Yazol
             </Link>
 
-            {/* Desktop */}
-            <div className="hidden md:flex items-center gap-10">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className="relative font-body text-sm tracking-wider uppercase text-cream/70 hover:text-cream transition-colors group overflow-hidden"
-                >
-                  <span className="inline-block transition-transform duration-300 group-hover:-translate-y-full">
-                    {link.name}
-                  </span>
-                  <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-300 text-gold group-hover:translate-y-0">
-                    {link.name}
-                  </span>
-                </Link>
-              ))}
+            {/* Desktop — Centered pill nav */}
+            <div className="hidden md:flex items-center">
+              <div className="flex items-center gap-1 bg-surface/60 backdrop-blur-xl rounded-full px-2 py-1.5 border border-cream/10 theme-transition">
+                {navLinks.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.name}
+                      href={link.href}
+                      className={`relative font-body text-xs tracking-wider uppercase px-5 py-2 rounded-full transition-colors duration-300 theme-transition ${
+                        isActive
+                          ? "text-bg"
+                          : "text-cream/70 hover:text-cream"
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="nav-pill"
+                          className="absolute inset-0 bg-gold rounded-full theme-transition"
+                          transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{link.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
 
+            {/* Desktop right side */}
+            <div className="hidden md:flex items-center gap-6">
               {/* Cart icon */}
               <motion.button
                 onClick={openCart}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative text-cream/70 hover:text-cream transition-colors"
+                className="relative text-cream/70 hover:text-cream transition-colors theme-transition"
                 aria-label="Open cart"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -87,7 +105,7 @@ export default function Navigation() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   href="/menu"
-                  className="inline-block px-6 py-2.5 bg-gold text-bg font-body text-sm tracking-wider uppercase rounded-full hover:bg-gold-light hover:shadow-gold-md transition-all duration-300"
+                  className="inline-block px-6 py-2.5 bg-gold text-bg font-body text-sm tracking-wider uppercase rounded-full hover:bg-gold-light hover:shadow-gold-md transition-all duration-300 theme-transition"
                 >
                   Order Now
                 </Link>
@@ -99,7 +117,7 @@ export default function Navigation() {
               <motion.button
                 onClick={openCart}
                 whileTap={{ scale: 0.9 }}
-                className="relative text-cream/70 hover:text-cream transition-colors"
+                className="relative text-cream/70 hover:text-cream transition-colors theme-transition"
                 aria-label="Open cart"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -143,7 +161,7 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-40 bg-bg/98 backdrop-blur-xl md:hidden flex flex-col justify-center px-12"
+            className="fixed inset-0 z-40 bg-bg/98 backdrop-blur-xl md:hidden flex flex-col justify-center px-12 theme-transition"
           >
             <nav className="space-y-2">
               {navLinks.map((link, i) => (
@@ -162,7 +180,7 @@ export default function Navigation() {
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="block font-display text-display-md text-cream hover:text-gold transition-colors py-2"
+                      className="block font-display text-display-md text-cream hover:text-gold transition-colors py-2 theme-transition"
                     >
                       {link.name}
                     </Link>
@@ -179,7 +197,7 @@ export default function Navigation() {
                 <Link
                   href="/menu"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="inline-block px-8 py-4 bg-gold text-bg font-display text-xl rounded-full shadow-gold-md"
+                  className="inline-block px-8 py-4 bg-gold text-bg font-display text-xl rounded-full shadow-gold-md theme-transition"
                 >
                   Order Now
                 </Link>

@@ -1,58 +1,50 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "@/lib/theme-context";
+import { HERO_PRODUCTS } from "@/lib/hero-products";
+import WaveDivider from "@/components/ui/WaveDivider";
 
-const SLIDES = [
-  {
-    image: "/Images/storefront-wide.jpg",
-    subtitle: "Welcome to",
-    title: "Yazol Coffee",
-    description: "East African flavors in the heart of Toronto",
-  },
-  {
-    image: "/Images/hero-spread.jpg",
-    subtitle: "Crafted with love",
-    title: "A taste of home.",
-    description: "Authentic dishes passed down through generations",
-  },
-  {
-    image: "/Images/coffee-1.jpg",
-    subtitle: "Traditional brew",
-    title: "Jebena Buna",
-    description: "Ethiopian coffee ceremony, brewed fresh for you",
-  },
-  {
-    image: "/Images/ambiance-1.jpg",
-    subtitle: "Warm & inviting",
-    title: "Your neighborhood spot.",
-    description: "Order online, pick up on Danforth Ave",
-  },
-];
+const springTransition = {
+  type: "spring" as const,
+  damping: 25,
+  stiffness: 80,
+};
+
+const imageVariants = {
+  enter: { opacity: 0, scale: 0.88, y: 30 },
+  center: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 1.05, y: -20 },
+};
+
+const textVariants = {
+  enter: { opacity: 0, y: 30 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -15 },
+};
 
 export default function HeroSection() {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const contentY = useTransform(scrollYProgress, [0, 0.5], ["0%", "20%"]);
+  const { setTheme } = useTheme();
+
+  const product = HERO_PRODUCTS[current];
 
   const goTo = useCallback(
     (index: number) => {
-      setDirection(index > current ? 1 : -1);
       setCurrent(index);
+      setTheme(HERO_PRODUCTS[index].categorySlug);
     },
-    [current]
+    [setTheme]
   );
 
   const next = useCallback(() => {
-    setDirection(1);
-    setCurrent((prev) => (prev + 1) % SLIDES.length);
-  }, []);
+    const nextIndex = (current + 1) % HERO_PRODUCTS.length;
+    goTo(nextIndex);
+  }, [current, goTo]);
 
   // Auto-advance
   useEffect(() => {
@@ -62,160 +54,215 @@ export default function HeroSection() {
     };
   }, [next]);
 
-  // Pause on interaction
   const resetTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(next, 6000);
   };
 
-  const slide = SLIDES[current];
+  const handleSelect = (index: number) => {
+    goTo(index);
+    resetTimer();
+  };
 
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[700px] overflow-hidden bg-bg">
-      {/* Background slides */}
-      <AnimatePresence initial={false} custom={direction}>
-        <motion.div
-          key={current}
-          custom={direction}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0"
-        >
-          <Image
-            src={slide.image}
-            alt={slide.title}
-            fill
-            priority={current === 0}
-            sizes="100vw"
-            className="object-cover"
-          />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/70 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-bg/30" />
-      <div className="absolute inset-0 bg-bg/20" />
-
-      {/* Content */}
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-bg theme-transition">
+      {/* Floating gradient blobs */}
       <motion.div
-        style={{ opacity: contentOpacity, y: contentY }}
-        className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-20 max-w-4xl"
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <span className="inline-block text-gold text-sm tracking-[0.3em] uppercase font-body mb-6">
-              {slide.subtitle}
-            </span>
+        animate={{ y: [0, -30, 0], x: [0, 15, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full opacity-[0.07] blur-3xl theme-transition"
+        style={{ background: "rgb(var(--theme-accent))" }}
+      />
+      <motion.div
+        animate={{ y: [0, 20, 0], x: [0, -10, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.05] blur-3xl theme-transition"
+        style={{ background: "rgb(var(--theme-accent))" }}
+      />
 
-            <h1 className="font-display text-display-lg text-cream leading-[0.95] mb-6">
-              {slide.title}
-            </h1>
-
-            <p className="text-cream-muted text-lg md:text-xl font-body max-w-lg leading-relaxed mb-10">
-              {slide.description}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="flex flex-wrap gap-4">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
-            <Link
-              href="/menu"
-              className="inline-block px-8 py-3.5 bg-gold text-bg font-display text-sm rounded-full hover:bg-gold-light transition-colors"
+      {/* Main content */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-32 lg:py-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Left — Text content */}
+          <div className="lg:col-span-5 order-2 lg:order-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, ...springTransition }}
             >
-              Order Now
-            </Link>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
-            <Link
-              href="#menu"
-              className="inline-block px-8 py-3.5 border border-cream/30 text-cream font-display text-sm rounded-full hover:border-cream/60 hover:bg-cream/5 transition-all"
-            >
-              View Menu
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
+              <span className="inline-block text-gold text-sm tracking-[0.3em] uppercase font-body mb-6 theme-transition">
+                Taste the tradition
+              </span>
+            </motion.div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-10 left-6 md:left-12 lg:left-20 z-20 flex items-center gap-3">
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              goTo(i);
-              resetTimer();
-            }}
-            className="group relative h-10 flex items-center"
-            aria-label={`Go to slide ${i + 1}`}
-          >
-            <div className="relative w-12 h-[2px] bg-cream/20 overflow-hidden rounded-full">
-              {i === current && (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={product.slug}
+                variants={textVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <h1 className="font-display text-display-lg text-cream leading-[0.95] mb-4 theme-transition">
+                  {product.name}
+                </h1>
+                <p className="text-cream-muted text-lg md:text-xl font-body max-w-md leading-relaxed mb-8 theme-transition">
+                  {product.tagline}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, ...springTransition }}
+              className="flex flex-wrap gap-4"
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Link
+                  href="/menu"
+                  className="inline-block px-8 py-3.5 bg-gold text-bg font-display text-sm rounded-full hover:bg-gold-light transition-colors theme-transition"
+                >
+                  Order Now
+                </Link>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Link
+                  href="#menu"
+                  className="inline-block px-8 py-3.5 border border-cream/30 text-cream font-display text-sm rounded-full hover:border-cream/60 hover:bg-cream/5 transition-all theme-transition"
+                >
+                  View Menu
+                </Link>
+              </motion.div>
+            </motion.div>
+
+            {/* Reviews indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex items-center gap-3 mt-10"
+            >
+              <div className="flex -space-x-2">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full border-2 border-bg bg-surface flex items-center justify-center text-[10px] text-cream-muted font-body theme-transition"
+                  >
+                    {["Y", "A", "Z", "O"][i]}
+                  </div>
+                ))}
+              </div>
+              <span className="text-cream-muted text-sm font-body theme-transition">
+                100+ happy customers
+              </span>
+            </motion.div>
+          </div>
+
+          {/* Center — Large product image */}
+          <div className="lg:col-span-5 order-1 lg:order-2 flex justify-center">
+            <div className="relative w-[280px] h-[340px] sm:w-[320px] sm:h-[400px] md:w-[380px] md:h-[460px] lg:w-[420px] lg:h-[520px]">
+              <AnimatePresence mode="wait">
                 <motion.div
-                  key={`progress-${current}`}
-                  className="absolute inset-y-0 left-0 bg-gold"
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 6, ease: "linear" }}
-                />
-              )}
-              {i < current && <div className="absolute inset-0 bg-cream/40" />}
+                  key={product.slug}
+                  variants={imageVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={springTransition}
+                  className="absolute inset-0"
+                >
+                  <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      priority
+                      sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 380px, 420px"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg/40 via-transparent to-transparent" />
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Decorative ring */}
+              <div
+                className="absolute -inset-4 rounded-[2rem] border border-gold/10 pointer-events-none theme-transition"
+              />
             </div>
-          </button>
-        ))}
-        <span className="text-cream/40 text-xs font-body ml-2 tabular-nums">
-          {String(current + 1).padStart(2, "0")} / {String(SLIDES.length).padStart(2, "0")}
-        </span>
+          </div>
+
+          {/* Right — Product thumbnails */}
+          <div className="lg:col-span-2 order-3 flex lg:flex-col items-center justify-center gap-3 lg:gap-4">
+            {HERO_PRODUCTS.map((p, i) => (
+              <button
+                key={p.slug}
+                onClick={() => handleSelect(i)}
+                className="relative group"
+                aria-label={`Select ${p.name}`}
+              >
+                <div
+                  className={`relative w-14 h-14 md:w-16 md:h-16 rounded-xl overflow-hidden transition-all duration-300 ${
+                    i === current
+                      ? "ring-2 ring-gold ring-offset-2 ring-offset-bg scale-110"
+                      : "opacity-50 hover:opacity-80 hover:scale-105"
+                  }`}
+                >
+                  <Image
+                    src={p.image}
+                    alt={p.name}
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                </div>
+                {i === current && (
+                  <motion.div
+                    layoutId="hero-thumb-ring"
+                    className="absolute -inset-1 rounded-xl border-2 border-gold theme-transition"
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Floating accent badges */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="hidden lg:block"
-      >
-        <motion.div
-          animate={{ y: [0, -12, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[22%] right-[10%] glass px-5 py-2.5 rounded-full"
-        >
-          <span className="text-gold text-xs font-body tracking-wider">Danforth Ave</span>
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute top-[58%] right-[6%] glass px-5 py-2.5 rounded-full"
-        >
-          <span className="text-cream text-xs font-body tracking-wider">Family Owned</span>
-        </motion.div>
-      </motion.div>
+      {/* Dot pagination */}
+      <div className="absolute bottom-24 md:bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        {HERO_PRODUCTS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => handleSelect(i)}
+            className="group relative p-1"
+            aria-label={`Go to slide ${i + 1}`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                i === current
+                  ? "bg-gold w-6"
+                  : "bg-cream/30 hover:bg-cream/50"
+              }`}
+            />
+          </button>
+        ))}
+      </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
-        className="absolute bottom-8 right-8 md:right-12 flex flex-col items-center gap-2"
-      >
-        <span className="text-cream-muted text-[10px] tracking-[0.3em] uppercase font-body">
-          Scroll
-        </span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="w-px h-10 bg-gradient-to-b from-gold/60 to-transparent"
-        />
-      </motion.div>
+      {/* Wave divider */}
+      <div className="text-surface theme-transition">
+        <WaveDivider />
+      </div>
     </section>
   );
 }

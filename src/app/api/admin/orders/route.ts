@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getActiveOrders } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requirePermission(request, "view_live_orders");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const orders = await getActiveOrders();
     return NextResponse.json({ orders });

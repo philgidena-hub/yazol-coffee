@@ -43,7 +43,7 @@ export default function StorySection() {
   const imgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section ref={ref} className="relative bg-cream overflow-hidden">
+    <section ref={ref} className="relative overflow-hidden theme-transition" style={{ backgroundColor: "rgb(var(--theme-cream))" }}>
       {/* Header */}
       <div className="px-6 md:px-12 lg:px-20 pt-28 md:pt-40 pb-16 md:pb-20">
         <div className="max-w-7xl mx-auto">

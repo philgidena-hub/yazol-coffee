@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
-import type { Order } from "@/lib/types";
+import type { Order, UserRole } from "@/lib/types";
 import OrderCard from "./OrderCard";
 import OrderFilters from "./OrderFilters";
 import { useToast } from "./AdminToast";
@@ -18,9 +18,10 @@ const STATUS_PRIORITY: Record<Order["status"], number> = {
 
 interface LiveOrdersProps {
   onOrderUpdate: () => void;
+  role: UserRole;
 }
 
-export default function LiveOrders({ onOrderUpdate }: LiveOrdersProps) {
+export default function LiveOrders({ onOrderUpdate, role }: LiveOrdersProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -204,6 +205,7 @@ export default function LiveOrders({ onOrderUpdate }: LiveOrdersProps) {
                 key={order.orderId}
                 order={order}
                 onStatusChange={handleStatusChange}
+                role={role}
               />
             ))}
           </AnimatePresence>

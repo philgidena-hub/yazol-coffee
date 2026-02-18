@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateInventoryItem, deleteInventoryItem } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     const body = await request.json();
@@ -30,9 +34,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     await deleteInventoryItem(slug);

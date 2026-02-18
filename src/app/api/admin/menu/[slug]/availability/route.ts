@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { toggleMenuItemAvailability } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_menu");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     const { isAvailable } = await request.json();

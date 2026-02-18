@@ -1,7 +1,7 @@
 import { docClient, TABLE_NAME, getMenuItem } from "./dynamodb";
 import type { MenuItem, InventoryItem } from "./dynamodb";
 import { QueryCommand, GetCommand, UpdateCommand, PutCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
-import type { Order } from "./types";
+import type { Order, User, UserRole } from "./types";
 
 function slugify(name: string): string {
   return name
@@ -429,6 +429,136 @@ export async function deleteInventoryItem(slug: string): Promise<void> {
     new DeleteCommand({
       TableName: TABLE_NAME,
       Key: { PK: `INV#${slug}`, SK: "METADATA" },
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+// ============================================================
+// ORDER HISTORY
+// ============================================================
+
+// ============================================================
+// USER MANAGEMENT
+// ============================================================
+
+/** Get a user by username */
+export async function getUserByUsername(username: string): Promise<User | null> {
+  const command = new GetCommand({
+    TableName: TABLE_NAME,
+    Key: {
+      PK: `USER#${username}`,
+      SK: "METADATA",
+    },
+  });
+
+  const response = await docClient.send(command);
+  return (response.Item as User) || null;
+}
+
+/** Create a new user */
+export async function createUser(data: {
+  username: string;
+  passwordHash: string;
+  role: UserRole;
+  name: string;
+}): Promise<User> {
+  const now = new Date().toISOString();
+
+  const item = {
+    PK: `USER#${data.username}`,
+    SK: "METADATA",
+    entityType: "User",
+    username: data.username,
+    passwordHash: data.passwordHash,
+    role: data.role,
+    name: data.name,
+    active: true,
+    createdAt: now,
+    updatedAt: now,
+    GSI1PK: "USERS",
+    GSI1SK: `ROLE#${data.role}#${data.username}`,
+  };
+
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(PK)",
+    })
+  );
+
+  return item as User;
+}
+
+/** Get all users (for user management UI) */
+export async function getAllUsers(): Promise<User[]> {
+  const command = new QueryCommand({
+    TableName: TABLE_NAME,
+    IndexName: "GSI1",
+    KeyConditionExpression: "GSI1PK = :pk",
+    ExpressionAttributeValues: {
+      ":pk": "USERS",
+    },
+  });
+
+  const response = await docClient.send(command);
+  return (response.Items as User[]) || [];
+}
+
+/** Update a user (role, name, active status, password) */
+export async function updateUser(
+  username: string,
+  data: {
+    role?: UserRole;
+    name?: string;
+    active?: boolean;
+    passwordHash?: string;
+  }
+): Promise<void> {
+  const expressions: string[] = ["updatedAt = :now"];
+  const values: Record<string, unknown> = { ":now": new Date().toISOString() };
+  const names: Record<string, string> = {};
+
+  if (data.role !== undefined) {
+    expressions.push("#r = :role");
+    names["#r"] = "role";
+    values[":role"] = data.role;
+    expressions.push("GSI1SK = :gsi1sk");
+    values[":gsi1sk"] = `ROLE#${data.role}#${username}`;
+  }
+  if (data.name !== undefined) {
+    expressions.push("#n = :name");
+    names["#n"] = "name";
+    values[":name"] = data.name;
+  }
+  if (data.active !== undefined) {
+    expressions.push("active = :active");
+    values[":active"] = data.active;
+  }
+  if (data.passwordHash !== undefined) {
+    expressions.push("passwordHash = :hash");
+    values[":hash"] = data.passwordHash;
+  }
+
+  await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `USER#${username}`, SK: "METADATA" },
+      UpdateExpression: `SET ${expressions.join(", ")}`,
+      ...(Object.keys(names).length > 0 && { ExpressionAttributeNames: names }),
+      ExpressionAttributeValues: values,
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+/** Delete a user */
+export async function deleteUser(username: string): Promise<void> {
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `USER#${username}`, SK: "METADATA" },
       ConditionExpression: "attribute_exists(PK)",
     })
   );

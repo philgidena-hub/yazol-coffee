@@ -30,7 +30,7 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
   if (featured.length === 0) return null;
 
   return (
-    <section className="py-24 bg-bg overflow-hidden">
+    <section className="py-24 bg-bg overflow-hidden theme-transition">
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex items-end justify-between mb-12">

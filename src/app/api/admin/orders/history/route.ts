@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCompletedOrders } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  const auth = await requirePermission(request, "view_order_history");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "50", 10);

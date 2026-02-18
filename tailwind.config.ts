@@ -9,23 +9,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: "#0D0906",
+        bg: "rgb(var(--theme-bg) / <alpha-value>)",
         surface: {
-          DEFAULT: "#1A110B",
-          light: "#261A12",
-          lighter: "#3D2A1A",
+          DEFAULT: "rgb(var(--theme-bg-light) / <alpha-value>)",
+          light: "rgb(var(--theme-bg-lighter) / <alpha-value>)",
+          lighter: "rgb(var(--theme-bg-lighter) / <alpha-value>)",
         },
         cream: {
-          DEFAULT: "#fef7e6",
-          muted: "#d4c4a8",
-          dark: "#8b7355",
+          DEFAULT: "rgb(var(--theme-cream) / <alpha-value>)",
+          muted: "rgb(var(--theme-cream-muted) / <alpha-value>)",
+          dark: "rgb(var(--theme-cream-dark) / <alpha-value>)",
         },
         gold: {
-          DEFAULT: "#d4a574",
-          light: "#f4e4bc",
-          dark: "#8b4513",
+          DEFAULT: "rgb(var(--theme-accent) / <alpha-value>)",
+          light: "rgb(var(--theme-accent-light) / <alpha-value>)",
+          dark: "rgb(var(--theme-accent-dark) / <alpha-value>)",
         },
-        accent: "#b8941f",
+        accent: "rgb(var(--theme-accent) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-playfair)", "serif"],
@@ -38,11 +38,11 @@ const config: Config = {
         "display-sm": ["clamp(1.5rem, 3vw, 3rem)", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
       },
       boxShadow: {
-        "gold-sm": "0 2px 12px rgba(212, 165, 116, 0.08)",
-        "gold-md": "0 4px 24px rgba(212, 165, 116, 0.12), 0 0 0 1px rgba(212, 165, 116, 0.06)",
-        "gold-lg": "0 8px 40px rgba(212, 165, 116, 0.16), 0 0 0 1px rgba(212, 165, 116, 0.08)",
+        "gold-sm": "0 2px 12px rgb(var(--theme-accent) / 0.08)",
+        "gold-md": "0 4px 24px rgb(var(--theme-accent) / 0.12), 0 0 0 1px rgb(var(--theme-accent) / 0.06)",
+        "gold-lg": "0 8px 40px rgb(var(--theme-accent) / 0.16), 0 0 0 1px rgb(var(--theme-accent) / 0.08)",
         "card": "0 2px 20px rgba(0, 0, 0, 0.3)",
-        "card-hover": "0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(212, 165, 116, 0.1)",
+        "card-hover": "0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgb(var(--theme-accent) / 0.1)",
       },
       animation: {
         "marquee": "marquee 30s linear infinite",

@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import type { Order } from "@/lib/types";
+import type { Order, UserRole } from "@/lib/types";
+import { getNextStatusActions } from "@/lib/permissions";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
 
@@ -15,13 +16,6 @@ const STATUS_CONFIG: Record<
   preparing: { label: "Preparing", color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/30" },
   ready: { label: "Ready", color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/30" },
   completed: { label: "Completed", color: "text-slate-500", bg: "bg-slate-500/10 border-slate-500/30" },
-};
-
-const NEXT_STATUS: Partial<Record<Order["status"], { status: Order["status"]; label: string; confirmMsg: string }>> = {
-  pending: { status: "confirmed", label: "Confirm", confirmMsg: "Confirm this order? The customer will be notified." },
-  confirmed: { status: "preparing", label: "Start Preparing", confirmMsg: "Start preparing this order? Inventory will be deducted." },
-  preparing: { status: "ready", label: "Mark Ready", confirmMsg: "Mark this order as ready for pickup?" },
-  ready: { status: "completed", label: "Complete", confirmMsg: "Complete this order? It will be moved to history." },
 };
 
 function getOrderAge(createdAt: string): { text: string; color: string } {
@@ -39,14 +33,16 @@ function getOrderAge(createdAt: string): { text: string; color: string } {
 interface OrderCardProps {
   order: Order;
   onStatusChange: (orderId: string, newStatus: Order["status"]) => Promise<boolean>;
+  role: UserRole;
 }
 
-export default function OrderCard({ order, onStatusChange }: OrderCardProps) {
+export default function OrderCard({ order, onStatusChange, role }: OrderCardProps) {
   const [updating, setUpdating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const { toast } = useToast();
   const config = STATUS_CONFIG[order.status];
-  const next = NEXT_STATUS[order.status];
+  const nextActions = getNextStatusActions(order.status, role);
+  const next = nextActions.length > 0 ? nextActions[0] : null;
   const age = useMemo(() => getOrderAge(order.createdAt), [order.createdAt]);
 
   const handleStatusChange = async () => {

@@ -14,7 +14,7 @@ export default function ProductGrid({ items, categories }: ProductGridProps) {
   const sorted = [...categories].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <section id="menu" className="py-24 bg-bg">
+    <section id="menu" className="py-24 bg-bg scroll-mt-[140px]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="mb-16">
           <LineReveal>
@@ -43,7 +43,7 @@ export default function ProductGrid({ items, categories }: ProductGridProps) {
             <div
               key={category.slug}
               id={`category-${category.slug}`}
-              className="mb-20 last:mb-0 scroll-mt-32"
+              className="mb-20 last:mb-0 scroll-mt-[140px]"
             >
               {/* Category header with gold line */}
               <LineReveal delay={0.05}>

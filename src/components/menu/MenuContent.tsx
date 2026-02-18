@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/types";
 import MenuCard from "./MenuCard";
+import { useTheme, type ThemeKey } from "@/lib/theme-context";
 
 interface MenuContentProps {
   menuItems: MenuItem[];
@@ -15,6 +16,7 @@ export default function MenuContent({
   categories,
 }: MenuContentProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { setTheme } = useTheme();
 
   const sortedCategories = [...categories].sort(
     (a, b) => a.sortOrder - b.sortOrder
@@ -53,7 +55,7 @@ export default function MenuContent({
         className="flex flex-wrap justify-center gap-3 mb-12"
       >
         <button
-          onClick={() => setSelectedCategory(null)}
+          onClick={() => { setSelectedCategory(null); setTheme("drinks"); }}
           className="relative px-6 py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
         >
           {selectedCategory === null && (
@@ -76,7 +78,7 @@ export default function MenuContent({
         {sortedCategories.map((category) => (
           <button
             key={category.slug}
-            onClick={() => setSelectedCategory(category.slug)}
+            onClick={() => { setSelectedCategory(category.slug); setTheme(category.slug as ThemeKey); }}
             className="relative px-6 py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
           >
             {selectedCategory === category.slug && (

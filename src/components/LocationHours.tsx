@@ -11,7 +11,7 @@ export default function LocationHours() {
   const imgY = useTransform(scrollYProgress, [0, 1], [30, -30]);
 
   return (
-    <section ref={ref} className="relative bg-cream overflow-hidden">
+    <section ref={ref} className="relative overflow-hidden theme-transition" style={{ backgroundColor: "rgb(var(--theme-cream))" }}>
       {/* Divider */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
         <div className="border-t border-bg/8" />

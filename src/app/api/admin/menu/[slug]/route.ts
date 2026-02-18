@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateMenuItem, deleteMenuItem } from "@/lib/admin-db";
+import { requirePermission } from "@/lib/api-auth";
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_menu");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     const body = await request.json();
     const { name, description, category, categorySlug, price, isAvailable, imageKey, ingredients } = body;
 
-    // At least one field must be provided
     if (
       name === undefined &&
       description === undefined &&
@@ -50,9 +53,12 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const auth = await requirePermission(request, "manage_menu");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { slug } = await params;
     await deleteMenuItem(slug);
