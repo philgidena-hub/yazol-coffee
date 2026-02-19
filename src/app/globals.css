@@ -3,20 +3,10 @@
 @tailwind utilities;
 
 :root {
-  /* Theme tokens — RGB channels for Tailwind alpha support */
-  --theme-bg: 13 9 6;
-  --theme-bg-light: 26 17 11;
-  --theme-bg-lighter: 38 26 18;
-  --theme-accent: 212 165 116;
-  --theme-accent-light: 244 228 188;
-  --theme-accent-dark: 139 69 19;
-  --theme-cream: 254 247 230;
-  --theme-cream-muted: 212 196 168;
-  --theme-cream-dark: 139 115 85;
-
-  /* Transition timing for theme changes */
-  --theme-speed: 0.8s;
-  --theme-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --bg: #0D0906;
+  --surface: #1A110B;
+  --cream: #fef7e6;
+  --gold: #d4a574;
 }
 
 * {
@@ -31,20 +21,17 @@ html {
 }
 
 body {
-  color: rgb(var(--theme-cream));
-  background: rgb(var(--theme-bg));
+  color: var(--cream);
+  background: var(--bg);
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition:
-    background-color var(--theme-speed) var(--theme-ease),
-    color var(--theme-speed) var(--theme-ease);
 }
 
 ::selection {
-  background: rgb(var(--theme-accent));
-  color: rgb(var(--theme-bg));
+  background: var(--gold);
+  color: var(--bg);
 }
 
 /* Scrollbar */
@@ -55,11 +42,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--theme-accent) / 0.2);
+  background: rgba(212, 165, 116, 0.2);
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--theme-accent) / 0.5);
+  background: rgba(212, 165, 116, 0.5);
 }
 
 /* Noise overlay for texture — GPU-composited layer */
@@ -105,17 +92,8 @@ img {
   content-visibility: auto;
 }
 
-/* Theme transition utility */
+/* Utility classes */
 @layer utilities {
-  .theme-transition {
-    transition:
-      background-color var(--theme-speed) var(--theme-ease),
-      color var(--theme-speed) var(--theme-ease),
-      border-color var(--theme-speed) var(--theme-ease),
-      box-shadow var(--theme-speed) var(--theme-ease),
-      fill var(--theme-speed) var(--theme-ease);
-  }
-
   .text-balance {
     text-wrap: balance;
   }
@@ -142,24 +120,24 @@ img {
 
   /* Glass effect */
   .glass {
-    background: rgb(var(--theme-bg-light) / 0.6);
+    background: rgba(26, 17, 11, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgb(var(--theme-cream) / 0.06);
+    border: 1px solid rgba(254, 247, 230, 0.06);
   }
 
   /* Glow text */
   .glow-text {
-    text-shadow: 0 0 40px rgb(var(--theme-accent) / 0.3), 0 0 80px rgb(var(--theme-accent) / 0.1);
+    text-shadow: 0 0 40px rgba(212, 165, 116, 0.3), 0 0 80px rgba(212, 165, 116, 0.1);
   }
 
   /* Shimmer animation for loading states */
   .shimmer {
     background: linear-gradient(
       90deg,
-      rgb(var(--theme-accent) / 0) 0%,
-      rgb(var(--theme-accent) / 0.1) 50%,
-      rgb(var(--theme-accent) / 0) 100%
+      rgba(212, 165, 116, 0) 0%,
+      rgba(212, 165, 116, 0.1) 50%,
+      rgba(212, 165, 116, 0) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
@@ -167,11 +145,11 @@ img {
 
   /* Gold glow effects */
   .glow-gold {
-    box-shadow: 0 0 20px rgb(var(--theme-accent) / 0.15), 0 0 60px rgb(var(--theme-accent) / 0.05);
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.15), 0 0 60px rgba(212, 165, 116, 0.05);
   }
 
   .glow-gold-lg {
-    box-shadow: 0 0 30px rgb(var(--theme-accent) / 0.2), 0 0 80px rgb(var(--theme-accent) / 0.08);
+    box-shadow: 0 0 30px rgba(212, 165, 116, 0.2), 0 0 80px rgba(212, 165, 116, 0.08);
   }
 
   /* Mask both edges for horizontal scroll */
@@ -183,7 +161,7 @@ img {
 
 /* Focus visible for accessibility */
 :focus-visible {
-  outline: 2px solid rgb(var(--theme-accent));
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -203,8 +181,8 @@ img {
 }
 
 @keyframes gold-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgb(var(--theme-accent) / 0.2); }
-  50% { box-shadow: 0 0 40px rgb(var(--theme-accent) / 0.4), 0 0 80px rgb(var(--theme-accent) / 0.1); }
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 165, 116, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(212, 165, 116, 0.4), 0 0 80px rgba(212, 165, 116, 0.1); }
 }
 
 @keyframes shimmer-sweep {

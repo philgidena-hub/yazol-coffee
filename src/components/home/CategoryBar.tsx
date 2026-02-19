@@ -1,42 +1,32 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import type { Category } from "@/lib/types";
-import { useTheme, type ThemeKey } from "@/lib/theme-context";
 
 interface CategoryBarProps {
   categories: Category[];
 }
 
-const NAV_HEIGHT = 72;
-const CATEGORY_BAR_HEIGHT = 52;
-const SCROLL_OFFSET = NAV_HEIGHT + CATEGORY_BAR_HEIGHT + 16;
-
 export default function CategoryBar({ categories }: CategoryBarProps) {
   const [active, setActive] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  const [navHidden, setNavHidden] = useState(false);
   const { scrollY } = useScroll();
-  const { setTheme } = useTheme();
-  const lastY = useRef(0);
 
-  // Show after scrolling past hero, and track nav hide/show
+  // Only show after scrolling past hero
   useMotionValueEvent(scrollY, "change", (latest) => {
     setVisible(latest > 600);
-    // Mirror the Navigation's hide-on-scroll-down logic
-    setNavHidden(latest > lastY.current && latest > 100);
-    lastY.current = latest;
   });
 
   useEffect(() => {
+    // Update active category based on scroll position
     const handleScroll = () => {
       const sections = document.querySelectorAll("[id^='category-']");
       let current: string | null = null;
 
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        if (rect.top <= SCROLL_OFFSET + 40) {
+        if (rect.top <= 200) {
           current = section.id.replace("category-", "");
         }
       });
@@ -48,21 +38,14 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToElement = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
-    window.scrollTo({ top, behavior: "smooth" });
-  };
-
   const handleClick = (slug: string | null) => {
     setActive(slug);
     if (slug) {
-      setTheme(slug as ThemeKey);
-      scrollToElement(`category-${slug}`);
+      const el = document.getElementById(`category-${slug}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      setTheme("drinks");
-      scrollToElement("menu");
+      const el = document.getElementById("menu");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -71,18 +54,15 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
     ...categories.sort((a, b) => a.sortOrder - b.sortOrder).map((c) => ({ slug: c.slug, name: c.name })),
   ];
 
-  // Hide when nav is hidden (scroll down) or before hero scroll threshold
-  const shouldShow = visible && !navHidden;
-
   return (
     <motion.div
       initial={false}
       animate={{
-        y: shouldShow ? 0 : -100,
-        opacity: shouldShow ? 1 : 0,
+        y: visible ? 0 : -100,
+        opacity: visible ? 1 : 0,
       }}
       transition={{ type: "spring", damping: 30, stiffness: 300 }}
-      className="fixed top-[72px] left-0 right-0 z-40 bg-bg/90 backdrop-blur-xl border-b border-cream/5 theme-transition"
+      className="fixed top-[72px] left-0 right-0 z-40 bg-bg/90 backdrop-blur-xl border-b border-cream/5"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide mask-fade-x">

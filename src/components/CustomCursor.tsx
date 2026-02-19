@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export default function CustomCursor() {
@@ -58,34 +58,24 @@ export default function CustomCursor() {
     <>
       {/* Outer ring */}
       <motion.div
-        style={{
-          x,
-          y,
-          borderColor: isHovering
-            ? "rgb(var(--theme-accent) / 0.6)"
-            : "rgb(var(--theme-accent) / 0.3)",
-        }}
+        style={{ x, y }}
         animate={{
           width: isHovering ? 48 : 32,
           height: isHovering ? 48 : 32,
+          borderColor: isHovering ? "rgba(212, 165, 116, 0.6)" : "rgba(212, 165, 116, 0.3)",
         }}
         transition={{ duration: 0.2 }}
-        className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none z-[9999] mix-blend-difference theme-transition"
+        className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full border pointer-events-none z-[9999] mix-blend-difference"
       />
       {/* Inner dot */}
       <motion.div
-        style={{
-          x: cursorX,
-          y: cursorY,
-          backgroundColor: isHovering
-            ? "rgb(var(--theme-accent))"
-            : "rgb(var(--theme-cream))",
-        }}
+        style={{ x: cursorX, y: cursorY }}
         animate={{
           width: isHovering ? 6 : 4,
           height: isHovering ? 6 : 4,
+          backgroundColor: isHovering ? "#d4a574" : "#fef7e6",
         }}
-        className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-[9999] theme-transition"
+        className="fixed top-0 left-0 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-[9999]"
       />
     </>
   );
