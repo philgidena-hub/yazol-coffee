@@ -34,15 +34,32 @@ export default function MenuContent({
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         className="text-center mb-16"
       >
-        <h1 className="font-display text-5xl md:text-6xl lg:text-7xl text-cream mb-4">
+        <motion.span
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="inline-block text-gold text-xs tracking-[0.3em] uppercase font-body mb-4"
+        >
+          Coffee & Ice Cream
+        </motion.span>
+        <h1 className="font-display text-display-md md:text-display-lg text-cream mb-5">
           Our Menu
         </h1>
-        <p className="text-cream-muted text-lg md:text-xl max-w-2xl mx-auto">
-          Authentic East African flavors, crafted with care and tradition
+        <p className="text-cream/40 text-base md:text-lg max-w-xl mx-auto font-body leading-relaxed">
+          Authentic East African flavors, crafted with care and tradition.
+          Order online for pickup at 2857 Danforth Ave.
         </p>
+
+        {/* Decorative line */}
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ delay: 0.5, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-8 mx-auto w-16 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent"
+        />
       </motion.div>
 
       {/* Category Filter Bar */}
@@ -50,11 +67,11 @@ export default function MenuContent({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="flex flex-wrap justify-center gap-3 mb-12"
+        className="flex flex-wrap justify-center gap-2 md:gap-3 mb-14"
       >
         <button
           onClick={() => setSelectedCategory(null)}
-          className="relative px-6 py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
+          className="relative px-5 md:px-6 py-2 md:py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
         >
           {selectedCategory === null && (
             <motion.div
@@ -66,8 +83,8 @@ export default function MenuContent({
           <span
             className={`relative z-10 transition-colors duration-200 ${
               selectedCategory === null
-                ? "text-bg"
-                : "text-cream-muted hover:text-cream"
+                ? "text-bg font-medium"
+                : "text-cream/50 hover:text-cream"
             }`}
           >
             All
@@ -77,7 +94,7 @@ export default function MenuContent({
           <button
             key={category.slug}
             onClick={() => setSelectedCategory(category.slug)}
-            className="relative px-6 py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
+            className="relative px-5 md:px-6 py-2 md:py-2.5 rounded-full font-body text-sm whitespace-nowrap transition-colors duration-300"
           >
             {selectedCategory === category.slug && (
               <motion.div
@@ -89,8 +106,8 @@ export default function MenuContent({
             <span
               className={`relative z-10 transition-colors duration-200 ${
                 selectedCategory === category.slug
-                  ? "text-bg"
-                  : "text-cream-muted hover:text-cream"
+                  ? "text-bg font-medium"
+                  : "text-cream/50 hover:text-cream"
               }`}
             >
               {category.name}
@@ -99,15 +116,25 @@ export default function MenuContent({
         ))}
       </motion.div>
 
+      {/* Items count */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="text-cream/20 text-xs tracking-[0.2em] uppercase font-body mb-8 text-center md:text-left"
+      >
+        {filteredItems.length} {filteredItems.length === 1 ? "item" : "items"}
+      </motion.p>
+
       {/* Menu Items Grid */}
       <AnimatePresence mode="wait">
         <motion.div
           key={selectedCategory || "all"}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"
         >
           {filteredItems.map((item, index) => (
             <MenuCard key={item.PK} item={item} index={index} />
@@ -122,8 +149,11 @@ export default function MenuContent({
           animate={{ opacity: 1, y: 0 }}
           className="text-center py-20"
         >
-          <p className="text-cream-muted text-xl font-body">
-            No items found in this category
+          <p className="text-cream/30 text-xl font-display">
+            No items found
+          </p>
+          <p className="text-cream/20 text-sm font-body mt-2">
+            Try selecting a different category
           </p>
         </motion.div>
       )}

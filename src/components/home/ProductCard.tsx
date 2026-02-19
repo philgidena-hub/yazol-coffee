@@ -40,6 +40,7 @@ export default function ProductCard({
         delay: index * 0.06,
       }}
       className="group"
+      whileHover={{ y: -6 }}
     >
       {/* Image */}
       <div className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3">
@@ -54,12 +55,12 @@ export default function ProductCard({
         {/* Subtle hover overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
 
-        {/* Add to cart - appears on hover */}
+        {/* Add to cart - always visible on mobile, hover-reveal on desktop */}
         <motion.button
           onClick={handleAdd}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.85 }}
-          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-gold-md translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
+          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-gold-md md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
         >
           <svg
             className="w-5 h-5"

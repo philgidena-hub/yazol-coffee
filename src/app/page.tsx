@@ -1,6 +1,7 @@
 import { getAllCategories, getAllMenuItems } from "@/lib/dynamodb";
 import HeroSection from "@/components/home/HeroSection";
 import CategoryBar from "@/components/home/CategoryBar";
+import ScrollText from "@/components/home/ScrollText";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ProductGrid from "@/components/home/ProductGrid";
 import PromoBanner from "@/components/home/PromoBanner";
@@ -17,6 +18,7 @@ export default async function Home() {
   return (
     <main>
       <HeroSection />
+      <ScrollText />
       <CategoryBar categories={categories} />
       <FeaturedProducts items={availableItems} />
       <ProductGrid items={availableItems} categories={categories} />

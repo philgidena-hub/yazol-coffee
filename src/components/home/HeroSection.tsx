@@ -20,15 +20,15 @@ const SLIDES = [
   },
   {
     image: "/Images/coffee-1.jpg",
-    subtitle: "Traditional brew",
-    title: "Jebena Buna",
-    description: "Ethiopian coffee ceremony, brewed fresh for you",
+    subtitle: "Scoop Stop",
+    title: "Coffee & Ice Cream",
+    description: "Your neighborhood spot for brews and scoops",
   },
   {
-    image: "/Images/ambiance-1.jpg",
-    subtitle: "Warm & inviting",
-    title: "Your neighborhood spot.",
-    description: "Order online, pick up on Danforth Ave",
+    image: "/Images/ambiance-2.jpg",
+    subtitle: "Order online",
+    title: "Skip the line.",
+    description: "Order online, pick up fresh on Danforth Ave",
   },
 ];
 
@@ -71,16 +71,16 @@ export default function HeroSection() {
   const slide = SLIDES[current];
 
   return (
-    <section ref={ref} className="relative h-[100svh] min-h-[700px] overflow-hidden bg-bg">
-      {/* Background slides */}
+    <section ref={ref} className="relative h-[100svh] min-h-[600px] overflow-hidden bg-bg">
+      {/* Background slides with Ken Burns */}
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={current}
           custom={direction}
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, scale: 1.15 }}
+          animate={{ opacity: 1, scale: 1.05 }}
+          exit={{ opacity: 0, scale: 1 }}
+          transition={{ opacity: { duration: 1.2, ease: [0.22, 1, 0.36, 1] }, scale: { duration: 6, ease: "linear" } }}
           className="absolute inset-0"
         >
           <Image
@@ -98,6 +98,7 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/70 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-bg/30" />
       <div className="absolute inset-0 bg-bg/20" />
+      <div className="absolute inset-0 shadow-[inset_0_0_120px_40px_rgba(13,9,6,0.4)]" />
 
       {/* Content */}
       <motion.div
@@ -112,25 +113,25 @@ export default function HeroSection() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-block text-gold text-sm tracking-[0.3em] uppercase font-body mb-6">
+            <span className="inline-block text-gold text-xs md:text-sm tracking-[0.3em] uppercase font-body mb-4 md:mb-6">
               {slide.subtitle}
             </span>
 
-            <h1 className="font-display text-display-lg text-cream leading-[0.95] mb-6">
+            <h1 className="font-display text-[clamp(2.5rem,8vw,7rem)] text-cream leading-[0.95] mb-4 md:mb-6">
               {slide.title}
             </h1>
 
-            <p className="text-cream-muted text-lg md:text-xl font-body max-w-lg leading-relaxed mb-10">
+            <p className="text-cream-muted text-base md:text-xl font-body max-w-lg leading-relaxed mb-8 md:mb-10">
               {slide.description}
             </p>
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3 md:gap-4">
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
             <Link
               href="/menu"
-              className="inline-block px-8 py-3.5 bg-gold text-bg font-display text-sm rounded-full hover:bg-gold-light transition-colors"
+              className="inline-block px-7 md:px-8 py-3 md:py-3.5 bg-gold text-bg font-display text-sm rounded-full hover:bg-gold-light shadow-gold-md hover:shadow-gold-lg transition-all duration-300"
             >
               Order Now
             </Link>
@@ -138,7 +139,7 @@ export default function HeroSection() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
             <Link
               href="#menu"
-              className="inline-block px-8 py-3.5 border border-cream/30 text-cream font-display text-sm rounded-full hover:border-cream/60 hover:bg-cream/5 transition-all"
+              className="inline-block px-7 md:px-8 py-3 md:py-3.5 border border-cream/30 text-cream font-display text-sm rounded-full hover:border-cream/60 hover:bg-cream/5 transition-all"
             >
               View Menu
             </Link>
@@ -146,8 +147,8 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-10 left-6 md:left-12 lg:left-20 z-20 flex items-center gap-3">
+      {/* Slide indicators - compact on mobile */}
+      <div className="absolute bottom-8 md:bottom-10 left-6 md:left-12 lg:left-20 z-20 flex items-center gap-2 md:gap-3">
         {SLIDES.map((_, i) => (
           <button
             key={i}
@@ -158,7 +159,7 @@ export default function HeroSection() {
             className="group relative h-10 flex items-center"
             aria-label={`Go to slide ${i + 1}`}
           >
-            <div className="relative w-12 h-[2px] bg-cream/20 overflow-hidden rounded-full">
+            <div className="relative w-8 md:w-12 h-[2px] bg-cream/20 overflow-hidden rounded-full">
               {i === current && (
                 <motion.div
                   key={`progress-${current}`}
@@ -172,12 +173,12 @@ export default function HeroSection() {
             </div>
           </button>
         ))}
-        <span className="text-cream/40 text-xs font-body ml-2 tabular-nums">
+        <span className="text-cream/40 text-[10px] md:text-xs font-body ml-1 md:ml-2 tabular-nums">
           {String(current + 1).padStart(2, "0")} / {String(SLIDES.length).padStart(2, "0")}
         </span>
       </div>
 
-      {/* Floating accent badges */}
+      {/* Floating accent badges - desktop only */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -200,12 +201,12 @@ export default function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator - hidden on small mobile */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
-        className="absolute bottom-8 right-8 md:right-12 flex flex-col items-center gap-2"
+        className="hidden sm:flex absolute bottom-8 right-8 md:right-12 flex-col items-center gap-2"
       >
         <span className="text-cream-muted text-[10px] tracking-[0.3em] uppercase font-body">
           Scroll

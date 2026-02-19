@@ -4,8 +4,6 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import TextReveal from "@/components/ui/TextReveal";
-import { LineReveal } from "@/components/ui/TextReveal";
 
 function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -37,75 +35,111 @@ function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
   );
 }
 
+const wordReveal = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.04 },
+  },
+};
+
+const wordChild = {
+  hidden: { opacity: 0, y: 20, rotateX: -40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: { type: "spring" as const, damping: 20, stiffness: 100 },
+  },
+};
+
+function AnimatedHeading({ text, className }: { text: string; className?: string }) {
+  const words = text.split(" ");
+  return (
+    <motion.h2
+      variants={wordReveal}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-40px" }}
+      className={className}
+    >
+      {words.map((word, i) => (
+        <motion.span key={i} variants={wordChild} className="inline-block mr-[0.3em]">
+          {word}
+        </motion.span>
+      ))}
+    </motion.h2>
+  );
+}
+
 export default function StorySection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const imgY = useTransform(scrollYProgress, [0, 1], [80, -80]);
+  const imgRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: imgRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const imgScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.08, 1, 1.02]);
 
   return (
-    <section ref={ref} className="relative bg-bg overflow-hidden">
-      {/* Hero image with parallax */}
-      <div className="relative h-[70vh] md:h-[80vh] overflow-hidden">
-        <motion.div style={{ y: imgY }} className="absolute inset-0 scale-[1.3]">
-          <Image
-            src="/Images/coffee-station.jpg"
-            alt="Yazol Coffee preparation"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </motion.div>
-        <div className="absolute inset-0 bg-bg/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/30 to-transparent" />
-
-        {/* Overlay heading */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12 lg:px-20 pb-16">
-          <div className="max-w-7xl mx-auto">
-            <LineReveal>
-              <p className="font-body text-[10px] md:text-xs tracking-[0.4em] uppercase text-gold mb-4">
-                Our Story
-              </p>
-            </LineReveal>
-            <TextReveal
-              as="h2"
-              className="font-display text-[clamp(2rem,5vw,5rem)] leading-[0.9] tracking-[-0.02em] text-cream"
-              delay={0.1}
-            >
-              Where tradition meets heart
-            </TextReveal>
-          </div>
-        </div>
-      </div>
-
-      {/* Story content */}
-      <div className="bg-cream py-24 md:py-36 px-6 md:px-12 lg:px-20">
+    <section className="relative bg-cream overflow-hidden">
+      {/* Main content */}
+      <div className="px-6 md:px-12 lg:px-20 py-20 md:py-32">
         <div className="max-w-7xl mx-auto">
+          {/* Section label */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", damping: 20 }}
+            className="font-body text-[10px] md:text-xs tracking-[0.4em] uppercase text-gold-dark mb-6"
+          >
+            Our Story
+          </motion.p>
+
           {/* Two column layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             {/* Left — story text */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 flex flex-col justify-center">
+              <AnimatedHeading
+                text="Where tradition meets heart"
+                className="font-display text-[clamp(2rem,4vw,3.5rem)] leading-[1] tracking-[-0.02em] text-bg mb-8"
+              />
+
               <motion.p
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ type: "spring", damping: 20, stiffness: 80 }}
-                className="font-body text-bg/70 text-lg md:text-xl leading-[1.8]"
+                transition={{ delay: 0.2, type: "spring", damping: 20, stiffness: 80 }}
+                className="font-body text-bg/60 text-base md:text-lg leading-[1.8] mb-8"
               >
                 We&apos;re a small family taking our first steps toward a dream&mdash;making
                 a living doing what we love while creating food that feels like home.
                 Our kitchen is where tradition meets creativity, bridging cultures
                 where flavors spark memories and bring comfort.
               </motion.p>
+
+              {/* Quote */}
+              <motion.blockquote
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, type: "spring", damping: 20 }}
+                className="relative pl-6 border-l-2 border-gold-dark mb-8"
+              >
+                <p className="font-display text-xl md:text-2xl text-bg/70 italic leading-snug">
+                  &ldquo;A customer told us our sponge cake reminded them of their mother&apos;s baking back home.&rdquo;
+                </p>
+              </motion.blockquote>
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.3, type: "spring", damping: 20 }}
-                className="mt-10"
+                transition={{ delay: 0.4, type: "spring", damping: 20 }}
               >
                 <Link
                   href="/about"
-                  className="group inline-flex items-center gap-3 font-body text-xs tracking-[0.2em] uppercase text-bg/40 hover:text-bg transition-colors"
+                  className="group inline-flex items-center gap-3 font-body text-xs tracking-[0.2em] uppercase text-bg/40 hover:text-gold-dark transition-colors duration-300"
                 >
                   Read our story
                   <svg className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -115,92 +149,71 @@ export default function StorySection() {
               </motion.div>
             </div>
 
-            {/* Right — images + quote */}
-            <div className="lg:col-span-7">
-              {/* Image mosaic */}
-              <div className="grid grid-cols-2 gap-4 mb-12">
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.1, type: "spring", damping: 20 }}
-                  className="relative aspect-[3/4] rounded-2xl overflow-hidden"
-                >
-                  <Image
-                    src="/Images/ambiance-2.jpg"
-                    alt="Yazol ambiance"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.2, type: "spring", damping: 20 }}
-                  className="relative aspect-[3/4] rounded-2xl overflow-hidden mt-8"
-                >
-                  <Image
-                    src="/Images/culture-decor.jpg"
-                    alt="Cultural decor"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                </motion.div>
-              </div>
-
-              {/* Quote */}
-              <motion.blockquote
-                initial={{ opacity: 0, y: 20 }}
+            {/* Right — image with parallax */}
+            <div ref={imgRef} className="lg:col-span-7">
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2, type: "spring", damping: 20 }}
-                className="relative pl-8 border-l-2 border-gold mb-10"
+                transition={{ delay: 0.1, type: "spring", damping: 20 }}
+                className="relative rounded-2xl overflow-hidden aspect-[4/3] lg:aspect-[5/4]"
               >
-                <p className="font-display text-2xl md:text-3xl text-bg/80 italic leading-snug">
-                  &ldquo;A customer told us our sponge cake reminded them of their mother&apos;s baking back home.&rdquo;
-                </p>
-              </motion.blockquote>
+                <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
+                  <Image
+                    src="/Images/hero-spread.jpg"
+                    alt="Yazol Coffee food spread"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 60vw"
+                  />
+                </motion.div>
+              </motion.div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
+              {/* Small barista image overlapping */}
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.3, type: "spring", damping: 20 }}
-                className="font-body text-bg/60 text-lg leading-[1.8]"
+                className="relative -mt-16 md:-mt-24 ml-6 md:ml-12 w-40 md:w-56 rounded-xl overflow-hidden shadow-card border-4 border-cream z-10"
               >
-                Whether it&apos;s Erteb that reminds us of busy mornings, Ambasha
-                passed down through generations, or Jebena Buna brewed with
-                care&mdash;every dish tells a story.
-              </motion.p>
-
-              {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4, type: "spring", damping: 20 }}
-                className="grid grid-cols-3 gap-8 mt-12 pt-10 border-t border-bg/10"
-              >
-                {[
-                  { number: 17, suffix: "+", label: "Menu items" },
-                  { number: 5, suffix: "", label: "Categories" },
-                  { number: 1, suffix: "", label: "Family" },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <p className="font-display text-4xl md:text-5xl text-bg">
-                      <CountUp target={stat.number} suffix={stat.suffix} />
-                    </p>
-                    <p className="font-body text-[10px] tracking-[0.2em] uppercase text-bg/40 mt-1">
-                      {stat.label}
-                    </p>
-                  </div>
-                ))}
+                <div className="aspect-[3/4] relative">
+                  <Image
+                    src="/Images/barista.jpg"
+                    alt="Yazol barista"
+                    fill
+                    className="object-cover"
+                    sizes="224px"
+                  />
+                </div>
               </motion.div>
             </div>
           </div>
+
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, type: "spring", damping: 20 }}
+            className="grid grid-cols-3 md:grid-cols-4 gap-8 mt-16 md:mt-24 pt-12 border-t border-bg/10"
+          >
+            {[
+              { number: 17, suffix: "+", label: "Menu items" },
+              { number: 5, suffix: "", label: "Categories" },
+              { number: 1, suffix: "", label: "Family" },
+              { number: 2857, suffix: "", label: "Danforth Ave", hideOnMobile: true },
+            ].map((stat) => (
+              <div key={stat.label} className={stat.hideOnMobile ? "hidden md:block" : ""}>
+                <p className="font-display text-3xl md:text-5xl text-bg tabular-nums">
+                  <CountUp target={stat.number} suffix={stat.suffix} />
+                </p>
+                <p className="font-body text-[10px] tracking-[0.2em] uppercase text-bg/35 mt-1">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>

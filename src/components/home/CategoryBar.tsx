@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import type { Category } from "@/lib/types";
+
+const NAV_HEIGHT = 72;
+const BAR_HEIGHT = 52;
+const SCROLL_OFFSET = NAV_HEIGHT + BAR_HEIGHT + 16;
 
 interface CategoryBarProps {
   categories: Category[];
@@ -11,22 +15,25 @@ interface CategoryBarProps {
 export default function CategoryBar({ categories }: CategoryBarProps) {
   const [active, setActive] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const { scrollY } = useScroll();
+  const lastY = useRef(0);
 
-  // Only show after scrolling past hero
+  // Show after scrolling past hero, hide with nav on scroll-down
   useMotionValueEvent(scrollY, "change", (latest) => {
     setVisible(latest > 600);
+    setNavHidden(latest > lastY.current && latest > 100);
+    lastY.current = latest;
   });
 
   useEffect(() => {
-    // Update active category based on scroll position
     const handleScroll = () => {
       const sections = document.querySelectorAll("[id^='category-']");
       let current: string | null = null;
 
       sections.forEach((section) => {
         const rect = section.getBoundingClientRect();
-        if (rect.top <= 200) {
+        if (rect.top <= SCROLL_OFFSET + 40) {
           current = section.id.replace("category-", "");
         }
       });
@@ -40,26 +47,29 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
 
   const handleClick = (slug: string | null) => {
     setActive(slug);
-    if (slug) {
-      const el = document.getElementById(`category-${slug}`);
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    } else {
-      const el = document.getElementById("menu");
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const targetId = slug ? `category-${slug}` : "menu";
+    const el = document.getElementById(targetId);
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET;
+      window.scrollTo({ top, behavior: "smooth" });
     }
   };
 
   const allItems = [
     { slug: null, name: "All" },
-    ...categories.sort((a, b) => a.sortOrder - b.sortOrder).map((c) => ({ slug: c.slug, name: c.name })),
+    ...categories
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((c) => ({ slug: c.slug, name: c.name })),
   ];
+
+  const shouldShow = visible && !navHidden;
 
   return (
     <motion.div
       initial={false}
       animate={{
-        y: visible ? 0 : -100,
-        opacity: visible ? 1 : 0,
+        y: shouldShow ? 0 : -100,
+        opacity: shouldShow ? 1 : 0,
       }}
       transition={{ type: "spring", damping: 30, stiffness: 300 }}
       className="fixed top-[72px] left-0 right-0 z-40 bg-bg/90 backdrop-blur-xl border-b border-cream/5"

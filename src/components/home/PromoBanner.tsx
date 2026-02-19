@@ -2,11 +2,49 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import Link from "next/link";
-import TextReveal from "@/components/ui/TextReveal";
-import { LineReveal } from "@/components/ui/TextReveal";
+import Image from "next/image";
+
+const FILMSTRIP_IMAGES = [
+  { src: "/Images/hero-spread.jpg", alt: "Food spread" },
+  { src: "/Images/Jebena_buna.jpg", alt: "Jebena Buna" },
+  { src: "/Images/gallery-4.jpg", alt: "Ice cream flavors" },
+  { src: "/Images/ambasha.jpg", alt: "Ambasha bread" },
+  { src: "/Images/barista.jpg", alt: "Barista at work" },
+  { src: "/Images/samosas.jpg", alt: "Samosas" },
+  { src: "/Images/sponge-cake.jpg", alt: "Sponge cake" },
+  { src: "/Images/croissant.jpg", alt: "Croissant" },
+];
+
+function PhotoFilmstrip({ reverse = false }: { reverse?: boolean }) {
+  const images = [...FILMSTRIP_IMAGES, ...FILMSTRIP_IMAGES];
+  return (
+    <div className="flex overflow-hidden">
+      <div
+        className={`flex shrink-0 gap-3 md:gap-4 ${
+          reverse ? "animate-marquee-reverse" : "animate-marquee"
+        }`}
+      >
+        {images.map((img, i) => (
+          <div
+            key={i}
+            className="relative w-48 md:w-64 h-32 md:h-44 rounded-xl overflow-hidden flex-shrink-0"
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-cover"
+              sizes="256px"
+            />
+            <div className="absolute inset-0 bg-bg/20" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function PromoBanner() {
   const { itemCount, openCart } = useCart();
@@ -15,69 +53,76 @@ export default function PromoBanner() {
     target: ref,
     offset: ["start end", "end start"],
   });
-  const imgY = useTransform(scrollYProgress, [0, 1], [40, -40]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
+  const y = useTransform(scrollYProgress, [0, 1], [40, -40]);
 
   return (
-    <section ref={ref} className="relative py-4 px-4 md:px-8 lg:px-12">
-      <motion.div style={{ scale }} className="relative rounded-3xl overflow-hidden min-h-[500px] md:min-h-[600px] flex items-center">
-        {/* Parallax background */}
-        <motion.div style={{ y: imgY }} className="absolute inset-0 scale-[1.3]">
-          <Image
-            src="/Images/interior-wide.jpg"
-            alt="Yazol Coffee interior"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-        </motion.div>
-        <div className="absolute inset-0 bg-bg/60 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-bg/80 via-bg/40 to-transparent" />
+    <section ref={ref} className="relative overflow-hidden bg-bg">
+      {/* Photo filmstrip — visual break */}
+      <div className="py-6 md:py-8 space-y-3 md:space-y-4">
+        <PhotoFilmstrip />
+        <PhotoFilmstrip reverse />
+      </div>
 
-        {/* Content */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-8 md:px-16 py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <LineReveal>
-              <span className="text-gold text-sm tracking-[0.2em] uppercase font-body">
-                Order Online
-              </span>
-            </LineReveal>
+      {/* CTA content */}
+      <div className="relative py-20 md:py-32 lg:py-40">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,165,116,0.04)_0%,transparent_70%)]" />
 
-            <TextReveal
-              as="h2"
-              className="font-display text-display-md text-cream mt-4 mb-5"
-              delay={0.1}
+        <motion.div style={{ y }} className="relative z-10">
+          <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", damping: 20 }}
+              className="text-gold text-xs md:text-sm tracking-[0.3em] uppercase font-body mb-6"
             >
-              Ready to order?
-            </TextReveal>
+              Order for Pickup
+            </motion.p>
 
-            <LineReveal delay={0.3}>
-              <p className="text-cream-muted font-body text-lg mb-10 max-w-md leading-relaxed">
-                Place your order online and pick up fresh at our Danforth Ave location. Skip the wait, savor the taste.
-              </p>
-            </LineReveal>
+            <motion.h2
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1, type: "spring", damping: 20, stiffness: 80 }}
+              className="font-display text-display-md md:text-display-lg text-cream leading-[0.95] mb-6"
+            >
+              Skip the line.
+              <br />
+              <span className="italic text-gold">Savor every sip.</span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, type: "spring", damping: 20 }}
+              className="text-cream/50 font-body text-base md:text-lg max-w-lg mx-auto leading-relaxed mb-10"
+            >
+              Place your order online and pick up fresh at our
+              Danforth Ave location. Ready in ~15 minutes.
+            </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.5, type: "spring", damping: 20, stiffness: 100 }}
-              className="flex flex-wrap gap-4"
+              transition={{ delay: 0.4, type: "spring", damping: 20 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               {itemCount > 0 ? (
                 <motion.button
                   onClick={openCart}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
-                  className="px-10 py-4 bg-gold text-bg font-display text-sm rounded-full shadow-gold-md hover:shadow-gold-lg transition-shadow"
+                  className="px-10 py-4 bg-gold text-bg font-display text-sm rounded-full shadow-gold-lg hover:bg-gold-light transition-all duration-300"
                 >
-                  View Cart ({itemCount} {itemCount === 1 ? "item" : "items"})
+                  View Cart ({itemCount})
                 </motion.button>
               ) : (
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/menu"
-                    className="inline-block px-10 py-4 bg-gold text-bg font-display text-sm rounded-full shadow-gold-md hover:shadow-gold-lg transition-shadow"
+                    className="inline-block px-10 py-4 bg-gold text-bg font-display text-sm rounded-full shadow-gold-lg hover:bg-gold-light transition-all duration-300"
                   >
                     Start Your Order
                   </Link>
@@ -86,38 +131,18 @@ export default function PromoBanner() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   href="tel:+14166905423"
-                  className="inline-block px-10 py-4 border border-cream/20 text-cream font-display text-sm rounded-full hover:border-cream/50 hover:bg-cream/5 transition-all"
+                  className="inline-flex items-center gap-2 px-8 py-4 border border-cream/15 text-cream/70 font-body text-sm rounded-full hover:border-gold/30 hover:text-cream transition-all duration-300"
                 >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                  </svg>
                   Call Us
                 </Link>
               </motion.div>
             </motion.div>
           </div>
-
-          {/* Right side decorative stats */}
-          <div className="hidden lg:flex flex-col items-end gap-6">
-            {[
-              { label: "Pickup Time", value: "~15 min" },
-              { label: "Location", value: "Danforth Ave" },
-              { label: "Menu Items", value: "17+" },
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.15, type: "spring", damping: 20 }}
-                className="bg-cream/5 backdrop-blur-sm border border-cream/10 rounded-2xl px-8 py-5 text-right"
-              >
-                <p className="text-cream/40 text-[10px] tracking-[0.2em] uppercase font-body mb-1">
-                  {stat.label}
-                </p>
-                <p className="font-display text-2xl text-cream">{stat.value}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </section>
   );
 }

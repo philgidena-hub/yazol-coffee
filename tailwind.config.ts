@@ -25,6 +25,12 @@ const config: Config = {
           light: "#f4e4bc",
           dark: "#8b4513",
         },
+        plum: {
+          DEFAULT: "#8B5A6B",
+          light: "#B4718A",
+          dark: "#6B3A4E",
+        },
+        berry: "#C4688A",
         accent: "#b8941f",
       },
       fontFamily: {
