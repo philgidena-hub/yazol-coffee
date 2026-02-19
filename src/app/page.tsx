@@ -6,6 +6,7 @@ import ProductGrid from "@/components/home/ProductGrid";
 import PromoBanner from "@/components/home/PromoBanner";
 import StorySection from "@/components/StorySection";
 import LocationHours from "@/components/LocationHours";
+import Marquee from "@/components/ui/Marquee";
 
 export default async function Home() {
   const [categories, menuItems] = await Promise.all([
@@ -19,8 +20,10 @@ export default async function Home() {
       <HeroSection />
       <CategoryBar categories={categories} />
       <FeaturedProducts items={availableItems} />
+      <Marquee>Coffee &middot; Soups &middot; Food &middot; Bakery &middot; Desserts</Marquee>
       <ProductGrid items={availableItems} categories={categories} />
       <PromoBanner />
+      <Marquee reverse>Taste the Tradition &middot; Made with Love &middot; East African Inspired</Marquee>
       <StorySection />
       <LocationHours />
     </main>

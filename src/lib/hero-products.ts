@@ -10,38 +10,27 @@ export interface HeroProduct {
 
 export const HERO_PRODUCTS: HeroProduct[] = [
   {
-    slug: "jebena-buna",
-    name: "Jebena Buna",
-    tagline: "Ethiopian ceremony, brewed fresh for you",
-    categorySlug: "drinks",
-    image: "/Images/Jebena_buna.jpg",
-  },
-  {
-    slug: "yazol-soup",
-    name: "Yazol Soup",
-    tagline: "Warm, hearty, and made with love",
-    categorySlug: "soups",
-    image: "/Images/yazol-soup.jpg",
-  },
-  {
-    slug: "ambasha",
-    name: "Ambasha",
-    tagline: "Traditional bread, passed down through generations",
+    slug: "yazol-coffee",
+    name: "Yazol's Coffee",
+    tagline:
+      "Ethiopian ceremony coffee, brewed fresh with tradition in every cup.",
     categorySlug: "bakery-snacks",
-    image: "/Images/ambasha.jpg",
+    image: "/Yazol_coffee.png",
   },
   {
-    slug: "yazol-dessert-cup",
-    name: "Yazol Dessert Cup",
-    tagline: "A sweet taste of East African delight",
+    slug: "yazol-coffee-2",
+    name: "Yazol's To-Go",
+    tagline:
+      "Premium takeaway coffee. The same rich taste, wherever you go.",
+    categorySlug: "drinks",
+    image: "/Yazol_coffee_2.png",
+  },
+  {
+    slug: "yazol-icecream",
+    name: "Yazol's Ice Cream",
+    tagline:
+      "Swedish Apple Pie — a sweet taste of East African delight.",
     categorySlug: "desserts",
-    image: "/Images/dessert-1.jpg",
-  },
-  {
-    slug: "foul",
-    name: "Foul",
-    tagline: "Rich, savory, and packed with flavor",
-    categorySlug: "food",
-    image: "/Images/food-1.jpg",
+    image: "/Yazol_icecream.png",
   },
 ];

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import type { MenuItem } from "@/lib/types";
 import { getProductImage } from "@/lib/image-map";
@@ -27,13 +28,25 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
     items.find((i) => i.slug === slug)
   ).filter(Boolean) as MenuItem[];
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollXProgress } = useScroll({ container: scrollRef });
+  const progressWidth = useTransform(scrollXProgress, [0, 1], ["0%", "100%"]);
+
   if (featured.length === 0) return null;
 
   return (
-    <section className="py-24 bg-bg overflow-hidden theme-transition">
+    <section className="relative py-24 md:py-32 bg-bg overflow-hidden theme-transition">
+      {/* Soft gradient bleed from hero cream wave into dark bg */}
+      <div
+        className="absolute top-0 left-0 right-0 h-32 pointer-events-none theme-transition"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgb(var(--theme-cream) / 0.06), transparent)",
+        }}
+      />
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex items-end justify-between mb-12">
+        <div className="flex items-end justify-between mb-14">
           <div>
             <LineReveal>
               <span className="text-gold text-sm tracking-[0.2em] uppercase font-body">
@@ -48,48 +61,55 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
               Our Favorites
             </TextReveal>
           </div>
-          <LineReveal delay={0.2}>
-            <a
-              href="/menu"
-              className="hidden md:inline-flex items-center gap-2 font-body text-xs tracking-[0.2em] uppercase text-cream-muted hover:text-gold transition-colors"
-            >
-              View All
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+          <div className="hidden md:flex items-center gap-6">
+            <LineReveal delay={0.2}>
+              <a
+                href="/menu"
+                className="inline-flex items-center gap-2 font-body text-xs tracking-[0.2em] uppercase text-cream-muted hover:text-gold transition-colors"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </a>
-          </LineReveal>
+                View All
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </a>
+            </LineReveal>
+          </div>
         </div>
       </div>
 
-      {/* Horizontal scroll carousel */}
+      {/* Carousel */}
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+        <div
+          ref={scrollRef}
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-2 px-2"
+        >
           {featured.map((item, i) => (
             <FeaturedCard key={item.slug} item={item} index={i} />
           ))}
-          {/* End spacer for scroll padding */}
           <div className="flex-shrink-0 w-1" aria-hidden="true" />
         </div>
 
-        {/* Scroll hint - mobile */}
-        <div className="flex items-center justify-center gap-1.5 mt-6 md:hidden">
-          {featured.map((_, i) => (
-            <div
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-cream/20"
+        {/* Scroll progress bar */}
+        <div className="mt-8 flex items-center gap-4">
+          <div className="flex-1 h-px bg-cream/10 relative overflow-hidden rounded-full">
+            <motion.div
+              style={{ width: progressWidth }}
+              className="absolute inset-y-0 left-0 bg-gold/60 rounded-full"
             />
-          ))}
+          </div>
+          <span className="text-cream/20 font-body text-[10px] tracking-widest uppercase flex-shrink-0">
+            Scroll
+          </span>
         </div>
       </div>
     </section>
@@ -128,7 +148,11 @@ function FeaturedCard({
       }}
       className="flex-shrink-0 w-[280px] md:w-[340px] lg:w-[380px] snap-start group"
     >
-      <div className="relative overflow-hidden rounded-2xl aspect-[3/4]">
+      <motion.div
+        whileHover={{ y: -8 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="relative overflow-hidden rounded-2xl aspect-[3/4]"
+      >
         <Image
           src={imageSrc}
           alt={item.name}
@@ -138,35 +162,34 @@ function FeaturedCard({
         />
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/5" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
         {/* Editorial number */}
-        <span className="absolute top-5 left-6 font-display text-cream/10 text-7xl leading-none select-none pointer-events-none">
+        <span className="absolute top-5 left-6 font-display text-cream/[0.06] text-8xl leading-none select-none pointer-events-none">
           {String(index + 1).padStart(2, "0")}
         </span>
 
         {/* Price badge */}
-        <div className="absolute top-5 right-5 bg-bg/60 backdrop-blur-sm rounded-full px-3.5 py-1.5 border border-gold/20">
+        <div className="absolute top-5 right-5 bg-bg/50 backdrop-blur-md rounded-full px-3.5 py-1.5 border border-gold/20">
           <span className="text-gold font-display text-sm">
             ${item.price.toFixed(2)}
           </span>
         </div>
 
-        {/* Content - always visible */}
+        {/* Content */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="font-display text-cream text-xl md:text-2xl leading-tight mb-2">
+          <h3 className="font-display text-cream text-xl md:text-2xl leading-tight mb-1.5">
             {item.name}
           </h3>
-          <p className="text-cream/50 text-sm leading-relaxed line-clamp-2 mb-5">
+          <p className="text-cream/40 text-sm leading-relaxed line-clamp-2 mb-5 font-body">
             {item.description}
           </p>
 
-          {/* Add to cart button */}
           <motion.button
             onClick={handleAdd}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold px-5 py-2.5 rounded-full text-sm font-body tracking-wide hover:bg-gold hover:text-bg transition-all duration-300"
+            className="inline-flex items-center gap-2 bg-cream/10 backdrop-blur-sm border border-cream/20 text-cream px-5 py-2.5 rounded-full text-sm font-body tracking-wide hover:bg-gold hover:border-gold hover:text-bg transition-all duration-300"
           >
             <svg
               className="w-4 h-4"
@@ -184,7 +207,7 @@ function FeaturedCard({
             Add to Cart
           </motion.button>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 }

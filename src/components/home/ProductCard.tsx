@@ -42,7 +42,11 @@ export default function ProductCard({
       className="group"
     >
       {/* Image */}
-      <div className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3">
+      <motion.div
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3"
+      >
         <Image
           src={imageSrc}
           alt={item.name}
@@ -51,15 +55,22 @@ export default function ProductCard({
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
-        {/* Subtle hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
+        {/* Hover overlay with gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Add to cart - appears on hover */}
+        {/* Price tag — always visible */}
+        <div className="absolute top-3 right-3 bg-bg/50 backdrop-blur-md rounded-full px-2.5 py-1 border border-gold/15">
+          <span className="text-gold font-display text-xs">
+            ${item.price.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Add to cart — appears on hover */}
         <motion.button
           onClick={handleAdd}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.85 }}
-          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-gold-md translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
+          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-lg translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
         >
           <svg
             className="w-5 h-5"
@@ -75,17 +86,14 @@ export default function ProductCard({
             />
           </svg>
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* Content below image */}
       <div className="px-0.5">
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <h3 className="font-display text-cream text-sm md:text-base leading-snug">
+          <h3 className="font-display text-cream text-sm md:text-base leading-snug group-hover:text-gold transition-colors duration-300">
             {item.name}
           </h3>
-          <span className="text-gold font-display text-sm flex-shrink-0">
-            ${item.price.toFixed(2)}
-          </span>
         </div>
         <p className="text-cream-muted text-xs leading-relaxed line-clamp-1">
           {item.description}

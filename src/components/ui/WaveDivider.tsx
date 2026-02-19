@@ -3,7 +3,10 @@ interface WaveDividerProps {
   flip?: boolean;
 }
 
-export default function WaveDivider({ className = "", flip = false }: WaveDividerProps) {
+export default function WaveDivider({
+  className = "",
+  flip = false,
+}: WaveDividerProps) {
   return (
     <div
       className={`absolute left-0 right-0 w-full overflow-hidden leading-[0] ${
@@ -11,14 +14,14 @@ export default function WaveDivider({ className = "", flip = false }: WaveDivide
       } ${className}`}
     >
       <svg
-        viewBox="0 0 1440 120"
+        viewBox="0 0 1440 320"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="relative block w-full h-[60px] md:h-[80px] lg:h-[120px]"
+        className="relative block w-full h-[120px] md:h-[180px] lg:h-[220px]"
         preserveAspectRatio="none"
       >
         <path
-          d="M0,40 C360,120 720,0 1080,80 C1260,110 1380,60 1440,40 L1440,120 L0,120 Z"
+          d="M0,160 C180,260 360,100 540,180 C720,260 900,120 1080,200 C1200,240 1360,160 1440,180 L1440,320 L0,320 Z"
           fill="currentColor"
         />
       </svg>
