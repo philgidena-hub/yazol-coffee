@@ -2,9 +2,11 @@ import { getAllCategories, getAllMenuItems } from "@/lib/dynamodb";
 import HeroSection from "@/components/home/HeroSection";
 import CategoryBar from "@/components/home/CategoryBar";
 import ScrollText from "@/components/home/ScrollText";
+import WhyChooseSection from "@/components/home/WhyChooseSection";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import ProductGrid from "@/components/home/ProductGrid";
 import PromoBanner from "@/components/home/PromoBanner";
+import GalleryStrip from "@/components/home/GalleryStrip";
 import StorySection from "@/components/StorySection";
 import LocationHours from "@/components/LocationHours";
 
@@ -19,10 +21,12 @@ export default async function Home() {
     <main>
       <HeroSection />
       <ScrollText />
+      <WhyChooseSection />
       <CategoryBar categories={categories} />
       <FeaturedProducts items={availableItems} />
       <ProductGrid items={availableItems} categories={categories} />
       <PromoBanner />
+      <GalleryStrip />
       <StorySection />
       <LocationHours />
     </main>

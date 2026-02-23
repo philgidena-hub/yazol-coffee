@@ -18,17 +18,17 @@ export default function QuantitySelector({
       <button
         onClick={() => onChange(Math.max(min, quantity - 1))}
         disabled={quantity <= min}
-        className="w-8 h-8 rounded-full bg-surface-light text-cream flex items-center justify-center text-sm font-medium transition-colors hover:bg-gold hover:text-bg disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-cream"
+        className="w-8 h-8 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown"
       >
         &minus;
       </button>
-      <span className="w-8 text-center text-cream font-body text-sm tabular-nums">
+      <span className="w-8 text-center text-brown font-body text-sm tabular-nums">
         {quantity}
       </span>
       <button
         onClick={() => onChange(Math.min(max, quantity + 1))}
         disabled={quantity >= max}
-        className="w-8 h-8 rounded-full bg-surface-light text-cream flex items-center justify-center text-sm font-medium transition-colors hover:bg-gold hover:text-bg disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-cream"
+        className="w-8 h-8 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown"
       >
         +
       </button>

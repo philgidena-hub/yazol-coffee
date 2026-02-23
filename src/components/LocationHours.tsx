@@ -4,6 +4,22 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import TextReveal from "@/components/ui/TextReveal";
+import { LineReveal, FadeUp } from "@/components/ui/TextReveal";
+
+const infoVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.12,
+      type: "spring" as const,
+      damping: 20,
+      stiffness: 80,
+    },
+  }),
+};
 
 export default function LocationHours() {
   const imgRef = useRef<HTMLDivElement>(null);
@@ -13,12 +29,19 @@ export default function LocationHours() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Cream bg section with storefront + info */}
-      <div className="bg-cream px-6 md:px-12 lg:px-20 pb-20 md:pb-32">
+      {/* Light section with storefront + info */}
+      <div className="bg-bg px-5 sm:px-6 md:px-12 lg:px-20 pb-16 sm:pb-20 md:pb-32">
         <div className="max-w-7xl mx-auto">
-          {/* Storefront image — contained, not full-bleed */}
-          <div ref={imgRef} className="relative rounded-2xl overflow-hidden mb-16 md:mb-24">
-            <div className="aspect-[21/9] md:aspect-[3/1] relative">
+          {/* Storefront image with clip-path reveal */}
+          <motion.div
+            ref={imgRef}
+            initial={{ opacity: 0, clipPath: "inset(5% 5% 5% 5% round 16px)" }}
+            whileInView={{ opacity: 1, clipPath: "inset(0% 0% 0% 0% round 16px)" }}
+            viewport={{ once: true }}
+            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+            className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-12 sm:mb-16 md:mb-24"
+          >
+            <div className="aspect-[16/9] sm:aspect-[21/9] md:aspect-[3/1] relative">
               <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
                 <Image
                   src="/Images/storefront-wide.jpg"
@@ -29,63 +52,49 @@ export default function LocationHours() {
                 />
               </motion.div>
             </div>
-            {/* Subtle overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-bg/20 to-transparent" />
-          </div>
+          </motion.div>
 
           {/* Info grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="font-body text-[10px] md:text-xs tracking-[0.4em] uppercase text-gold-dark mb-5"
+              <LineReveal>
+                <p className="font-body text-[10px] md:text-xs tracking-[0.4em] uppercase text-gold mb-4 sm:mb-5">
+                  Visit us
+                </p>
+              </LineReveal>
+              <TextReveal
+                as="h2"
+                className="font-display text-[clamp(1.8rem,4vw,4rem)] leading-[0.95] tracking-[-0.02em] text-brown mb-4 sm:mb-6"
               >
-                Visit us
-              </motion.p>
-              <motion.h2
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="font-display text-[clamp(2rem,4vw,4rem)] leading-[0.95] tracking-[-0.02em] text-bg mb-6"
-              >
-                Stop by for
-                <br />
-                <span className="italic text-gold-dark">takeout</span>
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="font-body text-bg/50 text-base md:text-lg leading-relaxed max-w-md"
-              >
-                Grab your favourite coffee, ice cream, and treats on the go.
-                Bringing flavor and convenience to the neighborhood.
-              </motion.p>
+                Stop by for takeout
+              </TextReveal>
+              <FadeUp delay={0.2}>
+                <p className="font-body text-brown/60 text-sm sm:text-base md:text-lg leading-relaxed max-w-md">
+                  Grab your favourite coffee, ice cream, and treats on the go.
+                  Bringing flavor and convenience to the neighborhood.
+                </p>
+              </FadeUp>
             </div>
 
-            <div className="lg:col-span-6 lg:col-start-7">
+            <motion.div
+              className="lg:col-span-6 lg:col-start-7"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-40px" }}
+            >
               {/* Address */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="py-6 md:py-8 border-b border-bg/10"
-              >
-                <div className="flex items-start justify-between">
+              <motion.div custom={0} variants={infoVariants} className="py-5 sm:py-6 md:py-8 border-b border-black/8">
+                <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="font-body text-[10px] tracking-[0.2em] uppercase text-bg/30 mb-3">Address</p>
-                    <p className="font-display text-xl md:text-2xl text-bg">2857 Danforth Ave</p>
-                    <p className="font-body text-bg/50 mt-1 text-sm">Toronto, ON M4C 1M2</p>
+                    <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-2 sm:mb-3">Address</p>
+                    <p className="font-display text-lg sm:text-xl md:text-2xl text-brown">2857 Danforth Ave</p>
+                    <p className="font-body text-brown/50 mt-1 text-sm">Toronto, ON M4C 1M2</p>
                   </div>
                   <Link
                     href="https://maps.google.com/?q=2857+Danforth+Ave+Toronto"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-body text-[10px] tracking-[0.15em] uppercase text-gold-dark hover:text-bg transition-colors flex items-center gap-1"
+                    className="font-body text-[10px] tracking-[0.15em] uppercase text-gold hover:text-brown transition-colors flex items-center gap-1 flex-shrink-0"
                   >
                     Directions
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -96,52 +105,40 @@ export default function LocationHours() {
               </motion.div>
 
               {/* Hours */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="py-6 md:py-8 border-b border-bg/10"
-              >
-                <p className="font-body text-[10px] tracking-[0.2em] uppercase text-bg/30 mb-4">Hours</p>
+              <motion.div custom={1} variants={infoVariants} className="py-5 sm:py-6 md:py-8 border-b border-black/8">
+                <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-3 sm:mb-4">Hours</p>
                 <div className="grid grid-cols-2 gap-4 md:gap-6">
                   <div>
-                    <p className="font-display text-lg md:text-xl text-bg">Mon — Fri</p>
-                    <p className="font-body text-gold-dark text-sm mt-1">8:00 AM — 6:00 PM</p>
+                    <p className="font-display text-base sm:text-lg md:text-xl text-brown">Mon — Fri</p>
+                    <p className="font-body text-gold text-sm mt-1">8:00 AM — 6:00 PM</p>
                   </div>
                   <div>
-                    <p className="font-display text-lg md:text-xl text-bg">Sat — Sun</p>
-                    <p className="font-body text-gold-dark text-sm mt-1">9:00 AM — 5:00 PM</p>
+                    <p className="font-display text-base sm:text-lg md:text-xl text-brown">Sat — Sun</p>
+                    <p className="font-body text-gold text-sm mt-1">9:00 AM — 5:00 PM</p>
                   </div>
                 </div>
               </motion.div>
 
               {/* Contact */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="py-6 md:py-8"
-              >
-                <p className="font-body text-[10px] tracking-[0.2em] uppercase text-bg/30 mb-4">Contact</p>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8">
-                  <Link href="tel:+14166905423" className="font-display text-lg md:text-xl text-bg hover:text-gold-dark transition-colors">
+              <motion.div custom={2} variants={infoVariants} className="py-5 sm:py-6 md:py-8">
+                <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-3 sm:mb-4">Contact</p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8">
+                  <Link href="tel:+14166905423" className="font-display text-base sm:text-lg md:text-xl text-brown hover:text-gold transition-colors">
                     (416) 690-5423
                   </Link>
-                  <Link href="mailto:yazolcoffee@gmail.com" className="font-body text-bg/50 hover:text-bg transition-colors text-sm">
+                  <Link href="mailto:yazolcoffee@gmail.com" className="font-body text-brown/50 hover:text-brown transition-colors text-sm">
                     yazolcoffee@gmail.com
                   </Link>
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
 
-      {/* Full-width dark CTA — flows into footer */}
-      <div className="bg-bg">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-20 md:py-28">
+      {/* CTA section */}
+      <div className="bg-brown">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 py-16 sm:py-20 md:py-28">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -149,27 +146,32 @@ export default function LocationHours() {
             transition={{ type: "spring", damping: 20 }}
             className="text-center"
           >
-            <p className="font-display text-[clamp(1.5rem,4vw,3.5rem)] leading-[1] text-cream mb-8">
+            <TextReveal
+              as="p"
+              className="font-display text-[clamp(1.3rem,4vw,3.5rem)] leading-[1] text-white mb-6 sm:mb-8"
+            >
               Ready for a cup?
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                <Link
-                  href="/menu"
-                  className="group relative inline-block px-10 py-4 bg-gold text-bg font-display text-sm rounded-full overflow-hidden shadow-gold-md hover:shadow-gold-lg transition-shadow duration-300"
-                >
-                  <span className="relative z-10">Order for Pickup</span>
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                <Link
-                  href="/menu"
-                  className="inline-block px-10 py-4 border border-cream/15 text-cream/70 font-display text-sm rounded-full hover:border-gold/30 hover:text-cream transition-all duration-300"
-                >
-                  View Menu
-                </Link>
-              </motion.div>
-            </div>
+            </TextReveal>
+            <FadeUp delay={0.2}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                  <Link
+                    href="/menu"
+                    className="inline-block w-full sm:w-auto text-center px-8 sm:px-10 py-3.5 sm:py-4 bg-white text-brown font-display text-sm rounded-full hover:bg-bg transition-colors duration-300"
+                  >
+                    Order for Pickup
+                  </Link>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                  <Link
+                    href="/menu"
+                    className="inline-block w-full sm:w-auto text-center px-8 sm:px-10 py-3.5 sm:py-4 border border-white/30 text-white/80 font-display text-sm rounded-full hover:border-white/60 hover:text-white transition-all duration-300"
+                  >
+                    View Menu
+                  </Link>
+                </motion.div>
+              </div>
+            </FadeUp>
           </motion.div>
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function ProductCard({
       whileHover={{ y: -6 }}
     >
       {/* Image */}
-      <div className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3">
+      <div className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3 bg-surface-light">
         <Image
           src={imageSrc}
           alt={item.name}
@@ -52,15 +52,12 @@ export default function ProductCard({
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
-        {/* Subtle hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500" />
-
-        {/* Add to cart - always visible on mobile, hover-reveal on desktop */}
+        {/* Add to cart */}
         <motion.button
           onClick={handleAdd}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.85 }}
-          className="absolute bottom-3 right-3 w-10 h-10 bg-gold text-bg rounded-full flex items-center justify-center shadow-gold-md md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-gold-light"
+          className="absolute bottom-3 right-3 w-10 h-10 bg-brown text-white rounded-full flex items-center justify-center shadow-soft-md md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-brown-light"
         >
           <svg
             className="w-5 h-5"
@@ -81,14 +78,14 @@ export default function ProductCard({
       {/* Content below image */}
       <div className="px-0.5">
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <h3 className="font-display text-cream text-sm md:text-base leading-snug">
+          <h3 className="font-display text-brown text-sm md:text-base leading-snug">
             {item.name}
           </h3>
           <span className="text-gold font-display text-sm flex-shrink-0">
             ${item.price.toFixed(2)}
           </span>
         </div>
-        <p className="text-cream-muted text-xs leading-relaxed line-clamp-1">
+        <p className="text-brown/50 text-xs leading-relaxed line-clamp-1">
           {item.description}
         </p>
       </div>

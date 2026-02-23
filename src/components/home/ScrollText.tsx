@@ -3,58 +3,46 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
+const WORDS = [
+  "Coffee",
+  "Ice Cream",
+  "East African Flavors",
+  "Family Owned",
+  "Scoop Stop",
+  "Danforth Ave",
+  "Order Online",
+];
+
 export default function ScrollText() {
-  const ref = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: sectionRef,
     offset: ["start end", "end start"],
   });
-
-  const x1 = useTransform(scrollYProgress, [0, 1], ["10%", "-40%"]);
-  const x2 = useTransform(scrollYProgress, [0, 1], ["-30%", "10%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+  const scaleX = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.95, 1, 1, 0.95]);
 
   return (
-    <section
-      ref={ref}
-      className="relative py-16 md:py-24 bg-bg overflow-hidden select-none"
+    <motion.section
+      ref={sectionRef}
+      style={{ scaleX }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+      className="relative py-10 md:py-14 bg-brown overflow-hidden origin-center"
     >
-      {/* Subtle gold glow in center */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,165,116,0.03)_0%,transparent_60%)]" />
-
-      <motion.div style={{ opacity }} className="space-y-2 md:space-y-4">
-        {/* Line 1 — scrolls left */}
-        <motion.div style={{ x: x1 }} className="flex items-center gap-4 md:gap-8 whitespace-nowrap">
-          {["Coffee", "&", "Ice Cream", "·", "East African Flavors", "·", "2857 Danforth Ave", "·", "Coffee", "&", "Ice Cream"].map((word, i) => (
-            <span
-              key={i}
-              className={`font-display tracking-[-0.02em] ${
-                word === "·" || word === "&"
-                  ? "text-gold/30 text-4xl md:text-6xl"
-                  : "text-cream/[0.07] text-6xl md:text-[8rem] leading-none"
-              }`}
-            >
-              {word}
+      <div className="flex overflow-hidden">
+        <div className="flex shrink-0 gap-8 md:gap-12 animate-marquee items-center whitespace-nowrap">
+          {[...WORDS, ...WORDS].map((word, i) => (
+            <span key={i} className="flex items-center gap-8 md:gap-12">
+              <span className="font-display text-2xl md:text-4xl text-white/90 tracking-wide">
+                {word}
+              </span>
+              <span className="text-brown-warm text-2xl md:text-4xl">·</span>
             </span>
           ))}
-        </motion.div>
-
-        {/* Line 2 — scrolls right */}
-        <motion.div style={{ x: x2 }} className="flex items-center gap-4 md:gap-8 whitespace-nowrap">
-          {["Family Owned", "·", "Scoop Stop", "·", "Tradition Meets Heart", "·", "Order Online", "·", "Family Owned", "·", "Scoop Stop"].map((word, i) => (
-            <span
-              key={i}
-              className={`font-display tracking-[-0.02em] ${
-                word === "·"
-                  ? "text-gold/30 text-4xl md:text-6xl"
-                  : "text-cream/[0.07] text-6xl md:text-[8rem] leading-none"
-              }`}
-            >
-              {word}
-            </span>
-          ))}
-        </motion.div>
-      </motion.div>
-    </section>
+        </div>
+      </div>
+    </motion.section>
   );
 }

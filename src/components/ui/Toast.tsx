@@ -42,7 +42,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              className="bg-surface border border-gold/20 text-cream px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 pointer-events-auto backdrop-blur-sm"
+              className="bg-white border border-black/10 text-brown px-5 py-3 rounded-xl shadow-soft-lg flex items-center gap-3 pointer-events-auto"
             >
               <span className="text-sm font-body">{toast.text}</span>
               {toast.action && (

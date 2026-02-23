@@ -35,7 +35,7 @@ export default function MenuContent({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="text-center mb-16"
+        className="text-center mb-10 sm:mb-12 md:mb-16"
       >
         <motion.span
           initial={{ opacity: 0, y: 10 }}
@@ -45,10 +45,10 @@ export default function MenuContent({
         >
           Coffee & Ice Cream
         </motion.span>
-        <h1 className="font-display text-display-md md:text-display-lg text-cream mb-5">
+        <h1 className="font-display text-display-md md:text-display-lg text-brown mb-5">
           Our Menu
         </h1>
-        <p className="text-cream/40 text-base md:text-lg max-w-xl mx-auto font-body leading-relaxed">
+        <p className="text-brown/50 text-base md:text-lg max-w-xl mx-auto font-body leading-relaxed">
           Authentic East African flavors, crafted with care and tradition.
           Order online for pickup at 2857 Danforth Ave.
         </p>
@@ -67,7 +67,7 @@ export default function MenuContent({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="flex flex-wrap justify-center gap-2 md:gap-3 mb-14"
+        className="flex flex-wrap justify-center gap-2 md:gap-3 mb-8 sm:mb-10 md:mb-14"
       >
         <button
           onClick={() => setSelectedCategory(null)}
@@ -76,15 +76,15 @@ export default function MenuContent({
           {selectedCategory === null && (
             <motion.div
               layoutId="menu-category-pill"
-              className="absolute inset-0 bg-gold rounded-full"
+              className="absolute inset-0 bg-brown rounded-full"
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
             />
           )}
           <span
             className={`relative z-10 transition-colors duration-200 ${
               selectedCategory === null
-                ? "text-bg font-medium"
-                : "text-cream/50 hover:text-cream"
+                ? "text-white font-medium"
+                : "text-brown/50 hover:text-brown"
             }`}
           >
             All
@@ -99,15 +99,15 @@ export default function MenuContent({
             {selectedCategory === category.slug && (
               <motion.div
                 layoutId="menu-category-pill"
-                className="absolute inset-0 bg-gold rounded-full"
+                className="absolute inset-0 bg-brown rounded-full"
                 transition={{ type: "spring", stiffness: 350, damping: 30 }}
               />
             )}
             <span
               className={`relative z-10 transition-colors duration-200 ${
                 selectedCategory === category.slug
-                  ? "text-bg font-medium"
-                  : "text-cream/50 hover:text-cream"
+                  ? "text-white font-medium"
+                  : "text-brown/50 hover:text-brown"
               }`}
             >
               {category.name}
@@ -121,7 +121,7 @@ export default function MenuContent({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="text-cream/20 text-xs tracking-[0.2em] uppercase font-body mb-8 text-center md:text-left"
+        className="text-brown/40 text-xs tracking-[0.2em] uppercase font-body mb-8 text-center md:text-left"
       >
         {filteredItems.length} {filteredItems.length === 1 ? "item" : "items"}
       </motion.p>
@@ -149,10 +149,10 @@ export default function MenuContent({
           animate={{ opacity: 1, y: 0 }}
           className="text-center py-20"
         >
-          <p className="text-cream/30 text-xl font-display">
+          <p className="text-brown/50 text-xl font-display">
             No items found
           </p>
-          <p className="text-cream/20 text-sm font-body mt-2">
+          <p className="text-brown/40 text-sm font-body mt-2">
             Try selecting a different category
           </p>
         </motion.div>

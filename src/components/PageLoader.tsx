@@ -28,7 +28,7 @@ export default function PageLoader() {
               {LETTERS.map((letter, i) => (
                 <span key={i} className="inline-block overflow-hidden">
                   <motion.span
-                    className="inline-block text-cream"
+                    className="inline-block text-brown"
                     initial={{ y: "110%" }}
                     animate={{ y: "0%" }}
                     transition={{
@@ -63,7 +63,7 @@ export default function PageLoader() {
           </div>
 
           {/* Loading bar */}
-          <div className="mt-12 w-48 h-px bg-cream/10 overflow-hidden rounded-full">
+          <div className="mt-12 w-48 h-px bg-black/10 overflow-hidden rounded-full">
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: "0%" }}

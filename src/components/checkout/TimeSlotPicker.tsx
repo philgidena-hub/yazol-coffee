@@ -114,8 +114,8 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
             }}
             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-body transition-colors ${
               selectedDay === i
-                ? "bg-gold text-bg"
-                : "bg-surface border border-cream/10 text-cream-muted hover:border-gold/30"
+                ? "bg-brown text-white"
+                : "bg-white border border-black/10 text-brown/50 hover:border-brown/30"
             }`}
           >
             {day.label}
@@ -141,8 +141,8 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
                   onClick={() => onChange(slot.value)}
                   className={`py-2.5 px-2 rounded-xl text-sm font-body text-center transition-colors ${
                     value === slot.value
-                      ? "bg-gold text-bg"
-                      : "bg-surface border border-cream/10 text-cream-muted hover:border-gold/30 hover:text-cream"
+                      ? "bg-brown text-white"
+                      : "bg-white border border-black/10 text-brown/50 hover:border-brown/30 hover:text-brown"
                   }`}
                 >
                   {slot.display}
@@ -150,7 +150,7 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
               ))}
             </div>
           ) : (
-            <p className="text-cream-muted text-sm font-body text-center py-8">
+            <p className="text-brown/50 text-sm font-body text-center py-8">
               No available time slots for this day
             </p>
           )}

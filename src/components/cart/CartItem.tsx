@@ -19,7 +19,7 @@ export default function CartItemRow({ item }: CartItemProps) {
   const lineTotal = item.menuItem.price * item.quantity;
 
   return (
-    <div className="flex gap-3 py-4 border-b border-cream/10">
+    <div className="flex gap-3 py-4 border-b border-black/5">
       <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
         <Image
           src={imageSrc}
@@ -32,12 +32,12 @@ export default function CartItemRow({ item }: CartItemProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-display text-cream text-sm leading-tight truncate">
+          <h4 className="font-display text-brown text-sm leading-tight truncate">
             {item.menuItem.name}
           </h4>
           <button
             onClick={() => removeItem(item.menuItem.slug)}
-            className="text-cream-muted hover:text-cream text-xs flex-shrink-0 transition-colors"
+            className="text-brown/50 hover:text-brown text-xs flex-shrink-0 transition-colors"
             aria-label={`Remove ${item.menuItem.name}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -59,13 +59,13 @@ export default function CartItemRow({ item }: CartItemProps) {
 
         <button
           onClick={() => setShowNotes(!showNotes)}
-          className="text-cream-muted text-xs font-body hover:text-gold transition-colors mt-1.5"
+          className="text-brown/50 text-xs font-body hover:text-gold transition-colors mt-1.5"
         >
           {item.allergyNotes ? "Edit allergy notes" : "Add allergy notes"}
         </button>
 
         {!showNotes && item.allergyNotes && (
-          <p className="text-cream-muted text-xs font-body mt-1 truncate italic">
+          <p className="text-brown/50 text-xs font-body mt-1 truncate italic">
             {item.allergyNotes}
           </p>
         )}
@@ -84,7 +84,7 @@ export default function CartItemRow({ item }: CartItemProps) {
                 placeholder="e.g., nut allergy, dairy-free..."
                 rows={2}
                 maxLength={200}
-                className="w-full bg-surface border border-cream/10 rounded-xl px-3 py-2 text-cream font-body text-xs focus:outline-none focus:border-gold/50 transition-colors resize-none mt-2"
+                className="w-full bg-surface-light border border-black/5 rounded-xl px-3 py-2 text-brown font-body text-xs focus:outline-none focus:border-gold/50 transition-colors resize-none mt-2"
               />
             </motion.div>
           )}

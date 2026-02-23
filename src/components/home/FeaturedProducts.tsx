@@ -35,55 +35,47 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
   if (featured.length === 0) return null;
 
   return (
-    <section className="py-24 md:py-32 bg-bg overflow-hidden">
+    <section className="py-16 sm:py-20 md:py-28 bg-bg overflow-hidden">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex items-end justify-between mb-12 md:mb-14">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-12">
+        <div className="flex items-end justify-between mb-8 sm:mb-10 md:mb-12">
           <div>
             <LineReveal>
-              <span className="text-gold text-sm tracking-[0.2em] uppercase font-body">
+              <span className="text-gold text-[10px] sm:text-xs md:text-sm tracking-[0.2em] uppercase font-body block mb-2">
                 Popular
               </span>
             </LineReveal>
             <TextReveal
               as="h2"
-              className="font-display text-display-sm text-cream mt-2"
+              className="font-display text-display-sm text-brown"
               delay={0.1}
             >
               Our Favorites
             </TextReveal>
           </div>
           <div className="hidden md:flex items-center gap-6">
-            <LineReveal delay={0.2}>
-              <a
-                href="/menu"
-                className="inline-flex items-center gap-2 font-body text-xs tracking-[0.2em] uppercase text-cream-muted hover:text-gold transition-colors"
-              >
-                View All
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </a>
-            </LineReveal>
+            <motion.a
+              href="/menu"
+              initial={{ opacity: 0, x: 10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 font-body text-xs tracking-[0.2em] uppercase text-brown/50 hover:text-gold transition-colors"
+            >
+              View All
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </motion.a>
           </div>
         </div>
       </div>
 
       {/* Horizontal scroll carousel */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-12">
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-2 px-2"
+          className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-2 px-2"
         >
           {featured.map((item, i) => (
             <FeaturedCard key={item.slug} item={item} index={i} />
@@ -92,16 +84,29 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
         </div>
 
         {/* Scroll progress bar */}
-        <div className="mt-8 flex items-center gap-4">
-          <div className="flex-1 h-px bg-cream/10 relative overflow-hidden rounded-full">
+        <div className="mt-6 sm:mt-8 flex items-center gap-4">
+          <div className="flex-1 h-px bg-black/10 relative overflow-hidden rounded-full">
             <motion.div
               style={{ width: progressWidth }}
               className="absolute inset-y-0 left-0 bg-gold/60 rounded-full"
             />
           </div>
-          <span className="text-cream/20 font-body text-[10px] tracking-widest uppercase flex-shrink-0">
+          <span className="text-brown/30 font-body text-[10px] tracking-widest uppercase flex-shrink-0">
             Scroll
           </span>
+        </div>
+
+        {/* Mobile view all link */}
+        <div className="md:hidden mt-6 text-center">
+          <a
+            href="/menu"
+            className="inline-flex items-center gap-2 font-body text-xs tracking-[0.2em] uppercase text-brown/50 hover:text-gold transition-colors"
+          >
+            View All
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
         </div>
       </div>
     </section>
@@ -138,42 +143,35 @@ function FeaturedCard({
         stiffness: 80,
         delay: index * 0.08,
       }}
-      className="flex-shrink-0 w-[280px] md:w-[340px] lg:w-[380px] snap-start group"
+      className="flex-shrink-0 w-[240px] sm:w-[280px] md:w-[340px] lg:w-[380px] snap-start group"
     >
       <motion.div
         whileHover={{ y: -8 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative overflow-hidden rounded-2xl aspect-[3/4]"
+        className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-black/5 shadow-card hover:shadow-card-hover transition-shadow duration-500"
       >
-        <Image
-          src={imageSrc}
-          alt={item.name}
-          fill
-          sizes="(max-width: 768px) 280px, (max-width: 1024px) 340px, 380px"
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-        />
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/5" />
-
-        {/* Editorial number */}
-        <span className="absolute top-5 left-6 font-display text-cream/[0.06] text-8xl leading-none select-none pointer-events-none">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-
-        {/* Price badge */}
-        <div className="absolute top-5 right-5 bg-bg/50 backdrop-blur-md rounded-full px-3.5 py-1.5 border border-gold/20">
-          <span className="text-gold font-display text-sm">
-            ${item.price.toFixed(2)}
-          </span>
+        {/* Image */}
+        <div className="relative aspect-[4/3] overflow-hidden">
+          <Image
+            src={imageSrc}
+            alt={item.name}
+            fill
+            sizes="(max-width: 640px) 240px, (max-width: 768px) 280px, (max-width: 1024px) 340px, 380px"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
         </div>
 
         {/* Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="font-display text-cream text-xl md:text-2xl leading-tight mb-2 group-hover:text-gold transition-colors duration-300">
-            {item.name}
-          </h3>
-          <p className="text-cream/50 text-sm leading-relaxed line-clamp-2 mb-5 font-body">
+        <div className="p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-2">
+            <h3 className="font-display text-base sm:text-lg text-brown leading-tight group-hover:text-gold transition-colors duration-300">
+              {item.name}
+            </h3>
+            <span className="text-gold font-display text-base sm:text-lg flex-shrink-0">
+              ${item.price.toFixed(2)}
+            </span>
+          </div>
+          <p className="text-brown/50 text-xs sm:text-sm leading-relaxed line-clamp-2 mb-3 sm:mb-4 font-body">
             {item.description}
           </p>
 
@@ -181,20 +179,10 @@ function FeaturedCard({
             onClick={handleAdd}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold px-5 py-2.5 rounded-full text-sm font-body tracking-wide hover:bg-gold hover:text-bg transition-all duration-300"
+            className="inline-flex items-center gap-2 bg-brown text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-body tracking-wide hover:bg-brown-light transition-all duration-300"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4v16m8-8H4"
-              />
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Add to Cart
           </motion.button>

@@ -19,7 +19,6 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
   const { scrollY } = useScroll();
   const lastY = useRef(0);
 
-  // Show after scrolling past hero, hide with nav on scroll-down
   useMotionValueEvent(scrollY, "change", (latest) => {
     setVisible(latest > 600);
     setNavHidden(latest > lastY.current && latest > 100);
@@ -72,9 +71,9 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
         opacity: shouldShow ? 1 : 0,
       }}
       transition={{ type: "spring", damping: 30, stiffness: 300 }}
-      className="fixed top-[72px] left-0 right-0 z-40 bg-bg/90 backdrop-blur-xl border-b border-cream/5"
+      className="fixed top-[72px] left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/5"
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
         <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide mask-fade-x">
           {allItems.map((item) => (
             <button
@@ -85,15 +84,15 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
               {active === item.slug && (
                 <motion.div
                   layoutId="category-pill"
-                  className="absolute inset-0 bg-gold/15 border border-gold/30 rounded-full"
+                  className="absolute inset-0 bg-brown rounded-full"
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 />
               )}
               <span
                 className={`relative z-10 transition-colors duration-200 ${
                   active === item.slug
-                    ? "text-gold"
-                    : "text-cream-muted hover:text-cream"
+                    ? "text-white"
+                    : "text-brown/50 hover:text-brown"
                 }`}
               >
                 {item.name}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import Badge from "@/components/ui/Badge";
 
@@ -13,6 +14,11 @@ export default function Navigation() {
   const { scrollY } = useScroll();
   const lastY = useRef(0);
   const { itemCount, openCart } = useCart();
+  const pathname = usePathname();
+
+  // Only use transparent/white text on the homepage hero
+  const isHomepage = pathname === "/";
+  const isTransparent = isHomepage && !isScrolled;
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -33,13 +39,13 @@ export default function Navigation() {
   return (
     <>
       <motion.nav
-        initial={{ y: 0 }}
-        animate={{ y: isHidden ? -100 : 0 }}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: isHidden ? -100 : 0, opacity: 1 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? "bg-bg/80 backdrop-blur-xl border-b border-cream/5 shadow-gold-sm"
-            : "bg-transparent"
+          isTransparent
+            ? "bg-transparent"
+            : "bg-white/90 backdrop-blur-xl border-b border-black/5 shadow-soft-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
@@ -47,7 +53,11 @@ export default function Navigation() {
             {/* Logo */}
             <Link
               href="/"
-              className="font-display text-2xl text-cream hover:text-gold transition-colors duration-300 hover:drop-shadow-[0_0_8px_rgba(212,165,116,0.4)]"
+              className={`font-display text-2xl transition-colors duration-300 ${
+                isTransparent
+                  ? "text-white hover:text-white/80"
+                  : "text-brown hover:text-gold"
+              }`}
             >
               Yazol
             </Link>
@@ -58,14 +68,13 @@ export default function Navigation() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="relative font-body text-sm tracking-wider uppercase text-cream/70 hover:text-cream transition-colors group overflow-hidden"
+                  className={`font-body text-sm tracking-wider uppercase transition-colors duration-300 ${
+                    isTransparent
+                      ? "text-white/70 hover:text-white"
+                      : "text-brown/50 hover:text-brown"
+                  }`}
                 >
-                  <span className="inline-block transition-transform duration-300 group-hover:-translate-y-full">
-                    {link.name}
-                  </span>
-                  <span className="absolute left-0 top-0 inline-block translate-y-full transition-transform duration-300 text-gold group-hover:translate-y-0">
-                    {link.name}
-                  </span>
+                  {link.name}
                 </Link>
               ))}
 
@@ -74,7 +83,11 @@ export default function Navigation() {
                 onClick={openCart}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="relative text-cream/70 hover:text-cream transition-colors"
+                className={`relative transition-colors ${
+                  isTransparent
+                    ? "text-white/70 hover:text-white"
+                    : "text-brown/50 hover:text-brown"
+                }`}
                 aria-label="Open cart"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -88,7 +101,11 @@ export default function Navigation() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   href="/menu"
-                  className="inline-block px-6 py-2.5 bg-gold text-bg font-body text-sm tracking-wider uppercase rounded-full hover:bg-gold-light hover:shadow-gold-md transition-all duration-300"
+                  className={`inline-block px-6 py-2.5 font-body text-sm tracking-wider uppercase rounded-full transition-all duration-300 ${
+                    isTransparent
+                      ? "bg-white/15 backdrop-blur-sm text-white border border-white/20 hover:bg-white/25"
+                      : "bg-brown text-white hover:bg-brown-light"
+                  }`}
                 >
                   Order Now
                 </Link>
@@ -100,7 +117,11 @@ export default function Navigation() {
               <motion.button
                 onClick={openCart}
                 whileTap={{ scale: 0.9 }}
-                className="relative text-cream/70 hover:text-cream transition-colors"
+                className={`relative transition-colors ${
+                  isTransparent
+                    ? "text-white/70 hover:text-white"
+                    : "text-brown/50 hover:text-brown"
+                }`}
                 aria-label="Open cart"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -119,16 +140,22 @@ export default function Navigation() {
                 <motion.span
                   animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="w-full h-px bg-cream block"
+                  className={`w-full h-px block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                  }`}
                 />
                 <motion.span
                   animate={{ opacity: isMobileMenuOpen ? 0 : 1 }}
-                  className="w-full h-px bg-cream block"
+                  className={`w-full h-px block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                  }`}
                 />
                 <motion.span
                   animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="w-full h-px bg-cream block"
+                  className={`w-full h-px block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                  }`}
                 />
               </button>
             </div>
@@ -163,7 +190,7 @@ export default function Navigation() {
                     <Link
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className="block font-display text-display-md text-cream hover:text-gold transition-colors py-2"
+                      className="block font-display text-display-md text-brown hover:text-gold transition-colors py-2"
                     >
                       {link.name}
                     </Link>
@@ -180,7 +207,7 @@ export default function Navigation() {
                 <Link
                   href="/menu"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="inline-block px-8 py-4 bg-gold text-bg font-display text-xl rounded-full shadow-gold-md"
+                  className="inline-block px-8 py-4 bg-brown text-white font-display text-xl rounded-full shadow-soft-lg"
                 >
                   Order Now
                 </Link>

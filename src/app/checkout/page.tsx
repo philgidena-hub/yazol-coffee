@@ -68,32 +68,32 @@ export default function CheckoutPage() {
   if (orderConfirm) {
     return (
       <main className="min-h-screen bg-bg pt-32 pb-20">
-        <div className="max-w-xl mx-auto px-6 text-center">
+        <div className="max-w-xl mx-auto px-5 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gold">
+            <div className="w-16 h-16 bg-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-green">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h1 className="font-display text-3xl md:text-4xl text-cream mb-3">
+            <h1 className="font-display text-3xl md:text-4xl text-brown mb-3">
               Order Confirmed!
             </h1>
-            <p className="text-cream-muted font-body mb-2">
+            <p className="text-brown/50 font-body mb-2">
               Order #{orderConfirm.orderId.slice(0, 8).toUpperCase()}
             </p>
             <p className="text-gold font-display text-2xl mb-6">
               Total: ${orderConfirm.total.toFixed(2)}
             </p>
-            <p className="text-cream-muted font-body text-sm mb-8 max-w-sm mx-auto">
+            <p className="text-brown/50 font-body text-sm mb-8 max-w-sm mx-auto">
               We&apos;ll have your order ready for pickup. You&apos;ll receive a confirmation at {form.email || "your email"}.
             </p>
             <Link
               href="/"
-              className="inline-block px-8 py-3.5 bg-gold text-bg font-display text-sm rounded-full hover:bg-gold-light transition-colors"
+              className="inline-block px-8 py-3.5 bg-brown text-white font-display text-sm rounded-full hover:bg-brown-light transition-colors"
             >
               Back to Home
             </Link>
@@ -107,14 +107,14 @@ export default function CheckoutPage() {
   if (state.items.length === 0 && !orderConfirm) {
     return (
       <main className="min-h-screen bg-bg pt-32 pb-20">
-        <div className="max-w-xl mx-auto px-6 text-center">
-          <h1 className="font-display text-3xl text-cream mb-4">Checkout</h1>
-          <p className="text-cream-muted font-body mb-8">
+        <div className="max-w-xl mx-auto px-5 sm:px-6 text-center">
+          <h1 className="font-display text-3xl text-brown mb-4">Checkout</h1>
+          <p className="text-brown/50 font-body mb-8">
             Your cart is empty. Add some items before checking out.
           </p>
           <Link
             href="/menu"
-            className="inline-block px-8 py-3.5 border border-gold text-gold font-display text-sm rounded-full hover:bg-gold hover:text-bg transition-colors"
+            className="inline-block px-8 py-3.5 border border-brown text-brown font-display text-sm rounded-full hover:bg-brown hover:text-white transition-colors"
           >
             Browse Menu
           </Link>
@@ -125,11 +125,11 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen bg-bg pt-32 pb-20">
-      <div className="max-w-5xl mx-auto px-6 lg:px-12">
+      <div className="max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-display text-3xl md:text-4xl text-cream mb-12"
+          className="font-display text-3xl md:text-4xl text-brown mb-12"
         >
           Checkout
         </motion.h1>
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
             className="lg:col-span-3 space-y-6"
           >
             <div>
-              <label className="block text-cream-muted text-sm font-body mb-2">
+              <label className="block text-brown/50 text-sm font-body mb-2">
                 Name *
               </label>
               <input
@@ -152,14 +152,14 @@ export default function CheckoutPage() {
                 required
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full bg-surface border border-cream/10 rounded-xl px-4 py-3 text-cream font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
+                className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-brown font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
                 placeholder="Your full name"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-cream-muted text-sm font-body mb-2">
+                <label className="block text-brown/50 text-sm font-body mb-2">
                   Phone *
                 </label>
                 <input
@@ -167,12 +167,12 @@ export default function CheckoutPage() {
                   required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full bg-surface border border-cream/10 rounded-xl px-4 py-3 text-cream font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
+                  className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-brown font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
                   placeholder="(416) 000-0000"
                 />
               </div>
               <div>
-                <label className="block text-cream-muted text-sm font-body mb-2">
+                <label className="block text-brown/50 text-sm font-body mb-2">
                   Email *
                 </label>
                 <input
@@ -180,14 +180,14 @@ export default function CheckoutPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full bg-surface border border-cream/10 rounded-xl px-4 py-3 text-cream font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
+                  className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-brown font-body text-sm focus:outline-none focus:border-gold/50 transition-colors"
                   placeholder="you@email.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-cream-muted text-sm font-body mb-2">
+              <label className="block text-brown/50 text-sm font-body mb-2">
                 Pickup Time *
               </label>
               <TimeSlotPicker
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
             </div>
 
             <div>
-              <label className="block text-cream-muted text-sm font-body mb-2">
+              <label className="block text-brown/50 text-sm font-body mb-2">
                 Special Instructions
               </label>
               <textarea
@@ -206,19 +206,19 @@ export default function CheckoutPage() {
                   setForm({ ...form, instructions: e.target.value })
                 }
                 rows={3}
-                className="w-full bg-surface border border-cream/10 rounded-xl px-4 py-3 text-cream font-body text-sm focus:outline-none focus:border-gold/50 transition-colors resize-none"
+                className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 text-brown font-body text-sm focus:outline-none focus:border-gold/50 transition-colors resize-none"
                 placeholder="Any additional requests..."
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm font-body">{error}</p>
+              <p className="text-red-500 text-sm font-body">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-4 bg-gold text-bg font-display text-base rounded-xl hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-brown text-white font-display text-base rounded-xl hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}
             </button>
@@ -231,8 +231,8 @@ export default function CheckoutPage() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            <div className="bg-surface rounded-2xl p-6 sticky top-24">
-              <h2 className="font-display text-lg text-cream mb-4">
+            <div className="bg-white rounded-2xl p-6 sticky top-24 border border-black/5">
+              <h2 className="font-display text-lg text-brown mb-4">
                 Order Summary
               </h2>
 
@@ -249,36 +249,36 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-cream text-sm font-body truncate">
+                      <p className="text-brown text-sm font-body truncate">
                         {item.menuItem.name}
                       </p>
-                      <p className="text-cream-muted text-xs">
+                      <p className="text-brown/50 text-xs">
                         x{item.quantity}
                       </p>
                       {item.allergyNotes && (
-                        <p className="text-cream-muted text-xs italic truncate">
+                        <p className="text-brown/50 text-xs italic truncate">
                           {item.allergyNotes}
                         </p>
                       )}
                     </div>
-                    <p className="text-cream text-sm font-body">
+                    <p className="text-brown text-sm font-body">
                       ${(item.menuItem.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-cream/10 pt-4 space-y-2">
+              <div className="border-t border-black/5 pt-4 space-y-2">
                 <div className="flex justify-between text-sm font-body">
-                  <span className="text-cream-muted">Subtotal</span>
-                  <span className="text-cream">${subtotal.toFixed(2)}</span>
+                  <span className="text-brown/50">Subtotal</span>
+                  <span className="text-brown">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm font-body">
-                  <span className="text-cream-muted">HST (13%)</span>
-                  <span className="text-cream">${tax.toFixed(2)}</span>
+                  <span className="text-brown/50">HST (13%)</span>
+                  <span className="text-brown">${tax.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-base font-display pt-2 border-t border-cream/10">
-                  <span className="text-cream">Total</span>
+                <div className="flex justify-between text-base font-display pt-2 border-t border-black/5">
+                  <span className="text-brown">Total</span>
                   <span className="text-gold">${total.toFixed(2)}</span>
                 </div>
               </div>

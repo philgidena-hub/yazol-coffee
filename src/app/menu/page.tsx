@@ -16,12 +16,8 @@ export default async function MenuPage() {
 
   return (
     <main className="min-h-screen bg-bg relative overflow-hidden">
-      {/* Subtle background pattern */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(212,165,116,0.03)_0%,transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(139,90,107,0.03)_0%,transparent_50%)]" />
-
       <div className="relative z-10 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
           <MenuContent menuItems={menuItems} categories={categories} />
         </div>
       </div>

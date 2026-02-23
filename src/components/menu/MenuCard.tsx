@@ -43,15 +43,15 @@ export default function MenuCard({ item, index = 0 }: MenuCardProps) {
       <motion.div
         whileHover={soldOut ? {} : { y: -6 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className={`relative bg-surface rounded-2xl overflow-hidden border border-cream/[0.04] transition-all duration-500 ${
+        className={`relative bg-white rounded-2xl overflow-hidden border border-black/5 transition-all duration-500 ${
           soldOut
             ? "opacity-50"
-            : "hover:border-gold/15 hover:shadow-card-hover"
+            : "hover:shadow-card-hover"
         }`}
       >
         {/* Sold Out Badge */}
         {soldOut && (
-          <div className="absolute top-4 right-4 z-20 bg-red-600/90 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-sm">
+          <div className="absolute top-4 right-4 z-20 bg-red-600/90 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
             Sold Out
           </div>
         )}
@@ -67,26 +67,25 @@ export default function MenuCard({ item, index = 0 }: MenuCardProps) {
               soldOut ? "grayscale" : "group-hover:scale-105"
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
 
           {/* Price badge */}
-          <div className="absolute top-4 left-4 bg-bg/60 backdrop-blur-md rounded-full px-3 py-1 border border-gold/15">
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md rounded-full px-3 py-1 border border-black/5">
             <span className="text-gold font-display text-sm">${item.price.toFixed(2)}</span>
           </div>
         </div>
 
         {/* Item Details */}
-        <div className="p-5">
+        <div className="p-4 sm:p-5">
           <div className="mb-3">
-            <span className="inline-block text-gold/50 text-[10px] tracking-[0.15em] uppercase font-body mb-1.5">
+            <span className="inline-block text-gold/60 text-[10px] tracking-[0.15em] uppercase font-body mb-1.5">
               {item.category}
             </span>
-            <h3 className="font-display text-lg text-cream group-hover:text-gold transition-colors duration-300">
+            <h3 className="font-display text-lg text-brown group-hover:text-gold transition-colors duration-300">
               {item.name}
             </h3>
           </div>
 
-          <p className="text-cream/35 text-sm leading-relaxed mb-5 line-clamp-2 font-body">
+          <p className="text-brown/50 text-sm leading-relaxed mb-5 line-clamp-2 font-body">
             {item.description}
           </p>
 
@@ -97,8 +96,8 @@ export default function MenuCard({ item, index = 0 }: MenuCardProps) {
             whileTap={soldOut ? {} : { scale: 0.98 }}
             className={`w-full py-3 font-body text-sm rounded-xl flex items-center justify-center gap-2 transition-all duration-300 ${
               soldOut
-                ? "bg-surface-light text-cream/20 cursor-not-allowed"
-                : "bg-gold/10 border border-gold/20 text-gold hover:bg-gold hover:text-bg"
+                ? "bg-surface-light text-brown/40 cursor-not-allowed"
+                : "bg-brown text-white hover:bg-brown-light"
             }`}
           >
             <span>{soldOut ? "Sold Out" : "Add to Cart"}</span>
