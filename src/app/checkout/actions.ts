@@ -1,6 +1,6 @@
 "use server";
 
-import { createOrder } from "@/lib/dynamodb";
+import { createOrder, getMenuItem } from "@/lib/dynamodb";
 
 interface PlaceOrderInput {
   customerName: string;
@@ -8,6 +8,7 @@ interface PlaceOrderInput {
   customerEmail: string;
   pickupTime: string;
   specialInstructions: string;
+  paymentMethod: "online" | "pay_at_pickup";
   items: Array<{
     slug: string;
     name: string;
@@ -26,10 +27,22 @@ interface PlaceOrderResult {
 
 export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResult> {
   try {
-    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions } = input;
+    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions, paymentMethod } = input;
 
     if (!customerName || !customerPhone || !customerEmail || !items?.length || !pickupTime) {
       return { success: false, error: "Missing required fields" };
+    }
+
+    // Validate all items are available
+    const unavailableItems: string[] = [];
+    for (const item of items) {
+      const menuItem = await getMenuItem(item.slug);
+      if (!menuItem || !menuItem.isAvailable) {
+        unavailableItems.push(item.name || item.slug);
+      }
+    }
+    if (unavailableItems.length > 0) {
+      return { success: false, error: `The following items are unavailable: ${unavailableItems.join(", ")}` };
     }
 
     const subtotal = items.reduce(
@@ -59,6 +72,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       total,
       pickupTime,
       specialInstructions: specialInstructions || "",
+      paymentMethod,
       status: "pending",
       createdAt: now,
       updatedAt: now,

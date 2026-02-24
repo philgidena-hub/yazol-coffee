@@ -9,6 +9,7 @@ import MenuManager from "./MenuManager";
 import DashboardStats from "./DashboardStats";
 import OrderHistory from "./OrderHistory";
 import UserManager from "./UserManager";
+import LowStockBanner from "./LowStockBanner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { getVisibleTabs, hasPermission, type AdminTab } from "@/lib/permissions";
 
@@ -97,6 +98,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Low stock alerts — visible to all staff */}
+        <LowStockBanner />
+
         {/* Desktop: grid layout */}
         <div className="hidden lg:grid lg:grid-cols-5 lg:gap-6">
           <div className={`${hasPermission(role, "manage_inventory") ? "col-span-3" : "col-span-5"} space-y-6`}>
@@ -108,7 +112,7 @@ export default function AdminDashboard() {
           </div>
           {hasPermission(role, "manage_inventory") && (
             <div className="col-span-2 space-y-6">
-              <InventoryManager refreshKey={refreshKey} />
+              <InventoryManager refreshKey={refreshKey} role={role} />
               {hasPermission(role, "manage_menu") && <MenuManager />}
             </div>
           )}
@@ -120,7 +124,7 @@ export default function AdminDashboard() {
             <LiveOrders onOrderUpdate={handleOrderUpdate} role={role} />
           )}
           {activeTab === "inventory" && (
-            <InventoryManager refreshKey={refreshKey} />
+            <InventoryManager refreshKey={refreshKey} role={role} />
           )}
           {activeTab === "menu" && <MenuManager />}
           {activeTab === "history" && <OrderHistory />}

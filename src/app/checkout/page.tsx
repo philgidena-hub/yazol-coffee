@@ -17,6 +17,7 @@ export default function CheckoutPage() {
     email: "",
     pickupTime: "",
     instructions: "",
+    paymentMethod: "" as "online" | "pay_at_pickup" | "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [orderConfirm, setOrderConfirm] = useState<{
@@ -34,6 +35,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!form.paymentMethod) {
+      setError("Please select a payment method");
+      return;
+    }
+
     setSubmitting(true);
     setError("");
 
@@ -44,6 +50,7 @@ export default function CheckoutPage() {
         customerEmail: form.email,
         pickupTime: form.pickupTime,
         specialInstructions: form.instructions,
+        paymentMethod: form.paymentMethod as "online" | "pay_at_pickup",
         items: state.items.map((i) => ({
           slug: i.menuItem.slug,
           name: i.menuItem.name,
@@ -89,14 +96,22 @@ export default function CheckoutPage() {
               Total: ${orderConfirm.total.toFixed(2)}
             </p>
             <p className="text-brown/50 font-body text-sm mb-8 max-w-sm mx-auto">
-              We&apos;ll have your order ready for pickup. You&apos;ll receive a confirmation at {form.email || "your email"}.
+              We&apos;ll have your order ready for pickup. You can track your order status in real time.
             </p>
-            <Link
-              href="/"
-              className="inline-block px-8 py-3.5 bg-brown text-white font-display text-sm rounded-full hover:bg-brown-light transition-colors"
-            >
-              Back to Home
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href={`/order/${orderConfirm.orderId}`}
+                className="inline-block px-8 py-3.5 bg-gold text-white font-display text-sm rounded-full hover:bg-gold/90 transition-colors"
+              >
+                Track Your Order
+              </Link>
+              <Link
+                href="/"
+                className="inline-block px-8 py-3.5 border border-brown text-brown font-display text-sm rounded-full hover:bg-brown hover:text-white transition-colors"
+              >
+                Back to Home
+              </Link>
+            </div>
           </motion.div>
         </div>
       </main>
@@ -194,6 +209,36 @@ export default function CheckoutPage() {
                 value={form.pickupTime}
                 onChange={(value) => setForm({ ...form, pickupTime: value })}
               />
+            </div>
+
+            <div>
+              <label className="block text-brown/50 text-sm font-body mb-2">
+                Payment Method *
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, paymentMethod: "online" })}
+                  className={`p-3 rounded-xl border text-sm font-body transition-colors ${
+                    form.paymentMethod === "online"
+                      ? "border-gold bg-gold/5 text-brown"
+                      : "border-black/10 text-brown/50 hover:border-black/20"
+                  }`}
+                >
+                  Pay Now (Online)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, paymentMethod: "pay_at_pickup" })}
+                  className={`p-3 rounded-xl border text-sm font-body transition-colors ${
+                    form.paymentMethod === "pay_at_pickup"
+                      ? "border-gold bg-gold/5 text-brown"
+                      : "border-black/10 text-brown/50 hover:border-black/20"
+                  }`}
+                >
+                  Pay at Pickup
+                </button>
+              </div>
             </div>
 
             <div>

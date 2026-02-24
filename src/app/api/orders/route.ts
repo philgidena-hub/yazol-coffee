@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createOrder } from "@/lib/dynamodb";
+import { createOrder, getMenuItem } from "@/lib/dynamodb";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions } = body;
+    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions, paymentMethod } = body;
 
     if (!customerName || !customerPhone || !customerEmail || !items?.length || !pickupTime) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
+      );
+    }
+
+    // Validate all items are available
+    const unavailableItems: string[] = [];
+    for (const item of items) {
+      const menuItem = await getMenuItem(item.slug);
+      if (!menuItem || !menuItem.isAvailable) {
+        unavailableItems.push(item.name || item.slug);
+      }
+    }
+    if (unavailableItems.length > 0) {
+      return NextResponse.json(
+        { error: `The following items are unavailable: ${unavailableItems.join(", ")}` },
+        { status: 409 }
       );
     }
 
@@ -41,6 +56,7 @@ export async function POST(request: NextRequest) {
       total,
       pickupTime,
       specialInstructions: specialInstructions || "",
+      paymentMethod: paymentMethod || "pay_at_pickup",
       status: "pending",
       createdAt: now,
       updatedAt: now,

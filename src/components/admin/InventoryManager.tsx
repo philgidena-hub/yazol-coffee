@@ -11,9 +11,10 @@ type SortDir = "asc" | "desc";
 
 interface InventoryManagerProps {
   refreshKey: number;
+  role?: string;
 }
 
-export default function InventoryManager({ refreshKey }: InventoryManagerProps) {
+export default function InventoryManager({ refreshKey, role }: InventoryManagerProps) {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState<SortField>("name");
@@ -21,11 +22,15 @@ export default function InventoryManager({ refreshKey }: InventoryManagerProps) 
   const [restockSlug, setRestockSlug] = useState<string | null>(null);
   const [restockAmount, setRestockAmount] = useState("");
   const [restocking, setRestocking] = useState(false);
+  const [setStockSlug, setSetStockSlug] = useState<string | null>(null);
+  const [setStockValue, setSetStockValue] = useState("");
+  const [settingStock, setSettingStock] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<InventoryItem | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
+  const isAdmin = role === "super_admin" || role === "admin";
 
   const fetchInventory = async () => {
     try {
@@ -102,6 +107,41 @@ export default function InventoryManager({ refreshKey }: InventoryManagerProps) 
       toast(err instanceof Error ? err.message : "Restock failed", "error");
     } finally {
       setRestocking(false);
+    }
+  };
+
+  const handleSetStock = async (slug: string) => {
+    const value = parseFloat(setStockValue);
+    if (isNaN(value) || value < 0) {
+      toast("Enter a valid non-negative number", "error");
+      return;
+    }
+
+    setSettingStock(true);
+    try {
+      const res = await fetch(`/api/admin/inventory/${slug}/set-stock`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock: value }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to set stock");
+      }
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.slug === slug ? { ...item, currentStock: value } : item
+        )
+      );
+      toast(`Stock set to ${value}`, "success");
+      setSetStockSlug(null);
+      setSetStockValue("");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Set stock failed", "error");
+    } finally {
+      setSettingStock(false);
     }
   };
 
@@ -272,6 +312,40 @@ export default function InventoryManager({ refreshKey }: InventoryManagerProps) 
                               x
                             </button>
                           </div>
+                        ) : setStockSlug === item.slug ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="number"
+                              value={setStockValue}
+                              onChange={(e) => setSetStockValue(e.target.value)}
+                              placeholder="Value"
+                              className="w-16 px-2 py-1 text-xs bg-slate-800 border border-amber-700 rounded text-white text-right focus:outline-none focus:border-amber-500"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSetStock(item.slug);
+                                if (e.key === "Escape") {
+                                  setSetStockSlug(null);
+                                  setSetStockValue("");
+                                }
+                              }}
+                            />
+                            <button
+                              onClick={() => handleSetStock(item.slug)}
+                              disabled={settingStock}
+                              className="px-2 py-1 text-[10px] font-body font-medium bg-amber-600 text-white rounded hover:bg-amber-500 disabled:opacity-50"
+                            >
+                              {settingStock ? "..." : "Set"}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSetStockSlug(null);
+                                setSetStockValue("");
+                              }}
+                              className="px-1.5 py-1 text-[10px] font-body text-slate-500 hover:text-slate-300"
+                            >
+                              x
+                            </button>
+                          </div>
                         ) : (
                           <div className="flex items-center justify-center gap-1">
                             <button
@@ -298,6 +372,17 @@ export default function InventoryManager({ refreshKey }: InventoryManagerProps) 
                             >
                               Restock
                             </button>
+                            {isAdmin && (
+                              <button
+                                onClick={() => {
+                                  setSetStockSlug(item.slug);
+                                  setSetStockValue(String(item.currentStock));
+                                }}
+                                className="px-2.5 py-1 text-[10px] font-body font-medium text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded transition-colors"
+                              >
+                                Set
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>

@@ -10,10 +10,11 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 const STATUS_PRIORITY: Record<Order["status"], number> = {
   pending: 0,
-  confirmed: 1,
+  approved: 1,
   preparing: 2,
-  ready: 3,
+  prepared: 3,
   completed: 4,
+  cancelled: 5,
 };
 
 interface LiveOrdersProps {

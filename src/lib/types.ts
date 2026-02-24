@@ -71,7 +71,8 @@ export interface Order {
   total: number;
   pickupTime: string;
   specialInstructions: string;
-  status: "pending" | "confirmed" | "preparing" | "ready" | "completed";
+  status: "pending" | "approved" | "preparing" | "prepared" | "completed" | "cancelled";
+  paymentMethod?: "online" | "pay_at_pickup";
   createdAt: string;
   updatedAt: string;
 }

@@ -1,4 +1,4 @@
-import { docClient, TABLE_NAME, getMenuItem } from "./dynamodb";
+import { docClient, TABLE_NAME, getMenuItem, getAllMenuItems, getAllInventoryItems } from "./dynamodb";
 import type { MenuItem, InventoryItem } from "./dynamodb";
 import { QueryCommand, GetCommand, UpdateCommand, PutCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import type { Order, User, UserRole } from "./types";
@@ -10,19 +10,20 @@ function slugify(name: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
-/** Query all orders that are not completed */
+/** Query all orders that are not completed or cancelled */
 export async function getActiveOrders(): Promise<Order[]> {
   const command = new QueryCommand({
     TableName: TABLE_NAME,
     IndexName: "GSI1",
     KeyConditionExpression: "GSI1PK = :pk",
-    FilterExpression: "#status <> :completed",
+    FilterExpression: "#status <> :completed AND #status <> :cancelled",
     ExpressionAttributeNames: {
       "#status": "status",
     },
     ExpressionAttributeValues: {
       ":pk": "ORDERS",
       ":completed": "completed",
+      ":cancelled": "cancelled",
     },
     ScanIndexForward: false, // newest first
   });
@@ -73,7 +74,7 @@ export async function updateOrderStatus(
 
 /**
  * Atomically deduct inventory for all ingredients in an order.
- * Called when an order transitions to "preparing".
+ * Called when an order transitions to "approved".
  *
  * For each order item:
  *   1. Look up the menu item to get its ingredients
@@ -119,6 +120,87 @@ export async function deductInventoryForOrder(order: Order): Promise<void> {
   );
 
   await Promise.all(updates);
+}
+
+/** Get a single inventory item by slug */
+export async function getInventoryItem(slug: string): Promise<InventoryItem | null> {
+  const command = new GetCommand({
+    TableName: TABLE_NAME,
+    Key: { PK: `INV#${slug}`, SK: "METADATA" },
+  });
+  const response = await docClient.send(command);
+  return (response.Item as InventoryItem) || null;
+}
+
+/** Validate that all ingredients for an order have sufficient stock */
+export interface StockValidationResult {
+  valid: boolean;
+  insufficientItems: Array<{
+    ingredientName: string;
+    required: number;
+    available: number;
+    unit: string;
+  }>;
+}
+
+export async function validateStockForOrder(order: Order): Promise<StockValidationResult> {
+  const requirements = new Map<string, { name: string; amount: number; unit: string }>();
+
+  for (const orderItem of order.items) {
+    const menuItem = await getMenuItem(orderItem.slug);
+    if (!menuItem) continue;
+    for (const ingredient of menuItem.ingredients) {
+      const invSlug = slugify(ingredient.name);
+      const amount = parseFloat(ingredient.quantity) * orderItem.quantity;
+      const existing = requirements.get(invSlug) || { name: ingredient.name, amount: 0, unit: ingredient.unit };
+      existing.amount += amount;
+      requirements.set(invSlug, existing);
+    }
+  }
+
+  const insufficient: StockValidationResult["insufficientItems"] = [];
+
+  await Promise.all(
+    Array.from(requirements.entries()).map(async ([invSlug, req]) => {
+      const invItem = await getInventoryItem(invSlug);
+      const available = invItem?.currentStock ?? 0;
+      if (available < req.amount) {
+        insufficient.push({
+          ingredientName: req.name,
+          required: req.amount,
+          available,
+          unit: req.unit,
+        });
+      }
+    })
+  );
+
+  return { valid: insufficient.length === 0, insufficientItems: insufficient };
+}
+
+/** After inventory deduction, auto-disable menu items whose ingredients hit zero */
+export async function checkAndDisableOutOfStockItems(): Promise<void> {
+  const allInventory = await getAllInventoryItems();
+  const zeroStockSlugs = new Set(
+    allInventory.filter((i) => i.currentStock <= 0).map((i) => i.slug)
+  );
+
+  if (zeroStockSlugs.size === 0) return;
+
+  const allItems = await getAllMenuItems();
+
+  for (const menuItem of allItems) {
+    if (!menuItem.isAvailable) continue;
+
+    const usesOutOfStock = menuItem.ingredients.some((ing) => {
+      const invSlug = slugify(ing.name);
+      return zeroStockSlugs.has(invSlug);
+    });
+
+    if (usesOutOfStock) {
+      await toggleMenuItemAvailability(menuItem.slug, false);
+    }
+  }
 }
 
 /** Get today's completed orders for analytics */
@@ -423,6 +505,22 @@ export async function updateInventoryItem(
   );
 }
 
+/** Set inventory stock to an absolute value (admin override) */
+export async function setInventoryStock(slug: string, newStock: number): Promise<void> {
+  const command = new UpdateCommand({
+    TableName: TABLE_NAME,
+    Key: { PK: `INV#${slug}`, SK: "METADATA" },
+    UpdateExpression: "SET currentStock = :stock, updatedAt = :now",
+    ConditionExpression: "attribute_exists(PK)",
+    ExpressionAttributeValues: {
+      ":stock": newStock,
+      ":now": new Date().toISOString(),
+    },
+  });
+
+  await docClient.send(command);
+}
+
 /** Delete an inventory item */
 export async function deleteInventoryItem(slug: string): Promise<void> {
   await docClient.send(
@@ -568,22 +666,95 @@ export async function deleteUser(username: string): Promise<void> {
 // ORDER HISTORY
 // ============================================================
 
-/** Get completed orders (newest first, limited) */
-export async function getCompletedOrders(limit: number = 50): Promise<Order[]> {
+// ============================================================
+// AUDIT LOGGING
+// ============================================================
+
+export interface AuditLogEntry {
+  PK: string;
+  SK: string;
+  entityType: string;
+  orderId: string;
+  timestamp: string;
+  username: string;
+  userRole: UserRole;
+  fromStatus: Order["status"];
+  toStatus: Order["status"];
+  note: string;
+}
+
+/** Create an audit log entry for a status change */
+export async function createAuditLog(entry: {
+  orderId: string;
+  username: string;
+  userRole: UserRole;
+  fromStatus: Order["status"];
+  toStatus: Order["status"];
+  note?: string;
+}): Promise<void> {
+  const now = new Date().toISOString();
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: {
+        PK: `ORDER#${entry.orderId}`,
+        SK: `LOG#${now}`,
+        entityType: "AuditLog",
+        orderId: entry.orderId,
+        timestamp: now,
+        username: entry.username,
+        userRole: entry.userRole,
+        fromStatus: entry.fromStatus,
+        toStatus: entry.toStatus,
+        note: entry.note || "",
+      },
+    })
+  );
+}
+
+/** Get all audit log entries for an order (chronological) */
+export async function getAuditLogs(orderId: string): Promise<AuditLogEntry[]> {
   const command = new QueryCommand({
     TableName: TABLE_NAME,
-    IndexName: "GSI1",
-    KeyConditionExpression: "GSI1PK = :pk",
-    FilterExpression: "#status = :completed",
-    ExpressionAttributeNames: { "#status": "status" },
+    KeyConditionExpression: "PK = :pk AND begins_with(SK, :prefix)",
     ExpressionAttributeValues: {
-      ":pk": "ORDERS",
-      ":completed": "completed",
+      ":pk": `ORDER#${orderId}`,
+      ":prefix": "LOG#",
     },
-    ScanIndexForward: false,
-    Limit: limit,
+    ScanIndexForward: true,
   });
 
   const response = await docClient.send(command);
-  return (response.Items as Order[]) || [];
+  return (response.Items as AuditLogEntry[]) || [];
+}
+
+/** Get finished orders — completed and cancelled (newest first, limited) */
+export async function getFinishedOrders(limit: number = 50): Promise<Order[]> {
+  const results: Order[] = [];
+  let lastKey: Record<string, unknown> | undefined;
+
+  do {
+    const command = new QueryCommand({
+      TableName: TABLE_NAME,
+      IndexName: "GSI1",
+      KeyConditionExpression: "GSI1PK = :pk",
+      FilterExpression: "#status = :completed OR #status = :cancelled",
+      ExpressionAttributeNames: { "#status": "status" },
+      ExpressionAttributeValues: {
+        ":pk": "ORDERS",
+        ":completed": "completed",
+        ":cancelled": "cancelled",
+      },
+      ScanIndexForward: false,
+      ...(lastKey && { ExclusiveStartKey: lastKey }),
+    });
+
+    const response = await docClient.send(command);
+    if (response.Items) {
+      results.push(...(response.Items as Order[]));
+    }
+    lastKey = response.LastEvaluatedKey as Record<string, unknown> | undefined;
+  } while (lastKey && results.length < limit);
+
+  return results.slice(0, limit);
 }

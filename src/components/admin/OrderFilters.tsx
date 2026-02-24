@@ -5,9 +5,9 @@ import type { Order } from "@/lib/types";
 const STATUS_OPTIONS: { value: "all" | Order["status"]; label: string }[] = [
   { value: "all", label: "All" },
   { value: "pending", label: "Pending" },
-  { value: "confirmed", label: "Confirmed" },
+  { value: "approved", label: "Approved" },
   { value: "preparing", label: "Preparing" },
-  { value: "ready", label: "Ready" },
+  { value: "prepared", label: "Prepared" },
 ];
 
 interface OrderFiltersProps {

@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Order } from "@/lib/types";
+
+interface AuditLog {
+  timestamp: string;
+  fromStatus: string;
+  toStatus: string;
+  username: string;
+}
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [auditLogs, setAuditLogs] = useState<Record<string, AuditLog[]>>({});
+  const [loadingLogs, setLoadingLogs] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -25,6 +34,31 @@ export default function OrderHistory() {
     fetchHistory();
   }, []);
 
+  const fetchAuditLogs = useCallback(async (orderId: string) => {
+    if (auditLogs[orderId]) return;
+    setLoadingLogs(orderId);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/logs`);
+      if (res.ok) {
+        const data = await res.json();
+        setAuditLogs((prev) => ({ ...prev, [orderId]: data.logs || [] }));
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoadingLogs(null);
+    }
+  }, [auditLogs]);
+
+  const handleExpand = (orderId: string) => {
+    if (expandedId === orderId) {
+      setExpandedId(null);
+    } else {
+      setExpandedId(orderId);
+      fetchAuditLogs(orderId);
+    }
+  };
+
   const formatDate = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleDateString("en-US", {
@@ -40,7 +74,7 @@ export default function OrderHistory() {
       <div className="flex items-center gap-3 mb-4">
         <h2 className="font-body font-semibold text-lg text-white">Order History</h2>
         <span className="text-slate-500 text-xs font-body">
-          {orders.length} completed order{orders.length !== 1 ? "s" : ""}
+          {orders.length} past order{orders.length !== 1 ? "s" : ""}
         </span>
       </div>
 
@@ -48,7 +82,7 @@ export default function OrderHistory() {
         <div className="bg-slate-900 rounded-xl border border-slate-800 animate-pulse h-48" />
       ) : orders.length === 0 ? (
         <div className="bg-slate-900 rounded-xl border border-slate-800 p-8 text-center">
-          <p className="text-slate-500 text-sm">No completed orders yet</p>
+          <p className="text-slate-500 text-sm">No past orders yet</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -61,15 +95,23 @@ export default function OrderHistory() {
               >
                 {/* Summary row */}
                 <button
-                  onClick={() => setExpandedId(isExpanded ? null : order.orderId)}
+                  onClick={() => handleExpand(order.orderId)}
                   className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                      <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    </span>
+                    {order.status === "cancelled" ? (
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500/10 border border-red-500/20">
+                        <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                        <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    )}
                     <div className="min-w-0">
                       <p className="text-sm font-body text-slate-200 truncate">
                         {order.customerName}
@@ -148,6 +190,34 @@ export default function OrderHistory() {
                     <div className="border-t border-slate-800 mt-2 pt-2 flex justify-between text-xs font-body">
                       <span className="text-slate-500">Total</span>
                       <span className="text-slate-300 font-medium tabular-nums">${order.total.toFixed(2)}</span>
+                    </div>
+
+                    {/* Audit Trail */}
+                    <div className="border-t border-slate-800 mt-2 pt-2">
+                      <p className="text-[10px] font-body text-slate-600 uppercase tracking-wider mb-1.5">
+                        Status History
+                      </p>
+                      {loadingLogs === order.orderId ? (
+                        <p className="text-[10px] font-body text-slate-600">Loading...</p>
+                      ) : !auditLogs[order.orderId] || auditLogs[order.orderId].length === 0 ? (
+                        <p className="text-[10px] font-body text-slate-600">No history recorded</p>
+                      ) : (
+                        <div className="ml-1 pl-2 border-l border-slate-800 space-y-1">
+                          {auditLogs[order.orderId].map((log, i) => (
+                            <div key={i} className="text-[10px] font-body text-slate-500">
+                              <span className="text-slate-600 tabular-nums">
+                                {new Date(log.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                              {" "}
+                              <span className="text-slate-400">{log.fromStatus}</span>
+                              {" → "}
+                              <span className="text-slate-300">{log.toStatus}</span>
+                              {" by "}
+                              <span className="text-slate-400">{log.username}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
