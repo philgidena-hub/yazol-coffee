@@ -23,6 +23,7 @@ export async function GET(
       pickupTime: order.pickupTime,
       status: order.status,
       paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     });

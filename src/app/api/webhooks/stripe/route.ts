@@ -27,18 +27,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  console.log(`Stripe webhook received: ${event.type}`);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.orderId;
 
+    console.log(`Checkout session completed — orderId: ${orderId}, payment_status: ${session.payment_status}, metadata: ${JSON.stringify(session.metadata)}`);
+
     if (orderId && session.payment_status === "paid") {
       try {
-        await updatePaymentStatus(orderId, "paid");
-        console.log(`Payment confirmed for order ${orderId}`);
+        const updated = await updatePaymentStatus(orderId, "paid");
+        console.log(`Payment confirmed for order ${orderId}`, JSON.stringify(updated));
       } catch (error) {
         console.error(`Failed to update payment status for order ${orderId}:`, error);
         return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
       }
+    } else {
+      console.warn(`Skipped update — orderId: ${orderId}, payment_status: ${session.payment_status}`);
     }
   }
 
