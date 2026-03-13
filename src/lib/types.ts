@@ -73,6 +73,8 @@ export interface Order {
   specialInstructions: string;
   status: "pending" | "approved" | "preparing" | "prepared" | "completed" | "cancelled";
   paymentMethod?: "online" | "pay_at_pickup";
+  paymentStatus?: "unpaid" | "paid";
+  stripeSessionId?: string;
   createdAt: string;
   updatedAt: string;
 }

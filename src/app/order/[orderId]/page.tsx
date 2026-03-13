@@ -15,6 +15,7 @@ interface OrderData {
   pickupTime: string;
   status: "pending" | "approved" | "preparing" | "prepared" | "completed" | "cancelled";
   paymentMethod?: "online" | "pay_at_pickup";
+  paymentStatus?: "unpaid" | "paid";
   createdAt: string;
   updatedAt: string;
 }
@@ -217,11 +218,15 @@ export default function OrderTrackingPage() {
                 <span>Pickup {pickupStr}</span>
                 {order.paymentMethod && (
                   <span className={`px-2 py-0.5 rounded-full border ${
-                    order.paymentMethod === "online"
+                    order.paymentMethod === "online" && order.paymentStatus === "paid"
                       ? "bg-green/5 border-green/20 text-green"
-                      : "bg-gold/5 border-gold/20 text-gold"
+                      : order.paymentMethod === "online" && order.paymentStatus === "unpaid"
+                        ? "bg-red-50 border-red-200 text-red-500"
+                        : "bg-gold/5 border-gold/20 text-gold"
                   }`}>
-                    {order.paymentMethod === "online" ? "Paid" : "Pay at Pickup"}
+                    {order.paymentMethod === "online"
+                      ? order.paymentStatus === "paid" ? "Paid" : "Payment Pending"
+                      : "Pay at Pickup"}
                   </span>
                 )}
               </div>

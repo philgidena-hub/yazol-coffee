@@ -73,6 +73,7 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       pickupTime,
       specialInstructions: specialInstructions || "",
       paymentMethod,
+      paymentStatus: paymentMethod === "online" ? "unpaid" : undefined,
       status: "pending",
       createdAt: now,
       updatedAt: now,

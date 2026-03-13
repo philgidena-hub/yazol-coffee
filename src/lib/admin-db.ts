@@ -532,9 +532,28 @@ export async function deleteInventoryItem(slug: string): Promise<void> {
   );
 }
 
-// ============================================================
-// ORDER HISTORY
-// ============================================================
+/** Update an order's payment status (called by Stripe webhook) */
+export async function updatePaymentStatus(
+  orderId: string,
+  paymentStatus: "unpaid" | "paid"
+): Promise<Order> {
+  const command = new UpdateCommand({
+    TableName: TABLE_NAME,
+    Key: {
+      PK: `ORDER#${orderId}`,
+      SK: "METADATA",
+    },
+    UpdateExpression: "SET paymentStatus = :ps, updatedAt = :now",
+    ExpressionAttributeValues: {
+      ":ps": paymentStatus,
+      ":now": new Date().toISOString(),
+    },
+    ReturnValues: "ALL_NEW",
+  });
+
+  const response = await docClient.send(command);
+  return response.Attributes as Order;
+}
 
 // ============================================================
 // USER MANAGEMENT

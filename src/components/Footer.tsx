@@ -136,12 +136,20 @@ export default function Footer() {
           <p className="font-body text-[10px] sm:text-xs text-white/30">
             &copy; {year} Yazol Coffee. All rights reserved.
           </p>
-          <p className="font-body text-[10px] sm:text-xs text-white/20">
-            Powered by{" "}
-            <a href="https://wezete.com" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-brown-warm transition-colors duration-300">
-              Wezete
-            </a>
-          </p>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              className="font-body text-[10px] sm:text-xs text-white/20 hover:text-white/40 transition-colors duration-300"
+            >
+              Staff Login
+            </Link>
+            <p className="font-body text-[10px] sm:text-xs text-white/20">
+              Powered by{" "}
+              <a href="https://wezete.com" target="_blank" rel="noopener noreferrer" className="text-white/30 hover:text-brown-warm transition-colors duration-300">
+                Wezete
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </motion.footer>

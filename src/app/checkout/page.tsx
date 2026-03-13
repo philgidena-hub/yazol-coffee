@@ -62,8 +62,27 @@ export default function CheckoutPage() {
 
       if (!result.success) throw new Error(result.error || "Failed to place order");
 
-      setOrderConfirm({ orderId: result.orderId!, total: result.total! });
       clearCart();
+
+      // For online payments, redirect to Stripe Checkout
+      if (form.paymentMethod === "online") {
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: result.orderId }),
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Failed to start payment");
+        }
+
+        window.location.href = data.url;
+        return;
+      }
+
+      // For pay-at-pickup, show confirmation directly
+      setOrderConfirm({ orderId: result.orderId!, total: result.total! });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -265,7 +284,13 @@ export default function CheckoutPage() {
               disabled={submitting}
               className="w-full py-4 bg-brown text-white font-display text-base rounded-xl hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? "Placing Order..." : `Place Order — $${total.toFixed(2)}`}
+              {submitting
+                ? form.paymentMethod === "online"
+                  ? "Redirecting to Payment..."
+                  : "Placing Order..."
+                : form.paymentMethod === "online"
+                  ? `Pay Now — $${total.toFixed(2)}`
+                  : `Place Order — $${total.toFixed(2)}`}
             </button>
           </motion.form>
 
