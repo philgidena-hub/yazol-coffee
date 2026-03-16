@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { adminLogin } from "./actions";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,24 +16,13 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        username,
-        password,
-        redirect: false,
-      });
-
+      const result = await adminLogin(username, password);
       if (result?.error) {
-        setError("Invalid credentials");
-        setLoading(false);
-      } else if (result?.ok) {
-        router.push("/admin");
-      } else {
-        setError("Sign-in failed. Please try again.");
+        setError(result.error);
         setLoading(false);
       }
-    } catch (err) {
-      setError("Connection error. Please try again.");
-      setLoading(false);
+    } catch {
+      // Redirect happens automatically on success
     }
   };
 
