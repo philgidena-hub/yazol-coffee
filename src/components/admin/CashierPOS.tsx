@@ -65,7 +65,7 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
       const res = await fetch("/api/menu");
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
-      setMenuItems(data.items || []);
+      setMenuItems(data.menuItems || data.items || []);
     } catch {
       toast("Failed to load menu", "error");
     } finally {
