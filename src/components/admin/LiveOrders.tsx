@@ -44,7 +44,7 @@ export default function LiveOrders({ onOrderUpdate, role }: LiveOrdersProps) {
         if (res.ok) {
           const data = await res.json();
           const map: Record<string, string> = {};
-          for (const item of data.items || []) {
+          for (const item of data.menuItems || data.items || []) {
             map[item.slug] = item.category;
           }
           setCategoryMap(map);

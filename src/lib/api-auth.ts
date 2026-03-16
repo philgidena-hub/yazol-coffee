@@ -1,6 +1,6 @@
-import { getToken } from "next-auth/jwt";
-import type { NextRequest } from "next/server";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import type { UserRole } from "./types";
 import type { Feature } from "./permissions";
 import { hasPermission } from "./permissions";
@@ -11,20 +11,17 @@ interface AuthResult {
   name: string;
 }
 
-/** Extract user info from JWT token on an API request. Returns null if not authenticated. */
+/** Extract user info from session on an API request. Returns null if not authenticated. */
 export async function getAuthUser(
-  request: NextRequest
+  _request: NextRequest
 ): Promise<AuthResult | null> {
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-  if (!token || !token.role || !token.username) return null;
+  const session = await auth();
+  if (!session?.user || !session.user.role || !session.user.username) return null;
 
   return {
-    username: token.username as string,
-    role: token.role as UserRole,
-    name: token.name as string,
+    username: session.user.username,
+    role: session.user.role as UserRole,
+    name: session.user.name as string,
   };
 }
 
