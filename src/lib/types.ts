@@ -81,7 +81,7 @@ export interface Order {
 
 // ── User Roles ──────────────────────────────────────────────
 
-export type UserRole = "super_admin" | "admin" | "cashier" | "chef" | "customer";
+export type UserRole = "super_admin" | "admin" | "cashier" | "barista" | "chef" | "customer";
 
 export interface User {
   PK: string;

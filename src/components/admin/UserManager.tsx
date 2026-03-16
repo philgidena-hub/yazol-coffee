@@ -11,6 +11,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   super_admin: "Super Admin",
   admin: "Admin",
   cashier: "Cashier",
+  barista: "Barista",
   chef: "Chef",
   customer: "Customer",
 };
@@ -19,11 +20,12 @@ const ROLE_COLORS: Record<UserRole, string> = {
   super_admin: "text-purple-400 bg-purple-400/10 border-purple-400/30",
   admin: "text-indigo-400 bg-indigo-400/10 border-indigo-400/30",
   cashier: "text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
+  barista: "text-cyan-400 bg-cyan-400/10 border-cyan-400/30",
   chef: "text-orange-400 bg-orange-400/10 border-orange-400/30",
   customer: "text-amber-400 bg-amber-400/10 border-amber-400/30",
 };
 
-const ROLE_OPTIONS: UserRole[] = ["super_admin", "admin", "cashier", "chef"];
+const ROLE_OPTIONS: UserRole[] = ["super_admin", "admin", "cashier", "barista", "chef"];
 
 interface FormData {
   name: string;

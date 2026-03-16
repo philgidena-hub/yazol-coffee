@@ -48,7 +48,9 @@ function OrderTimer({ createdAt }: { createdAt: string }) {
 export default function KitchenDisplay({ onOrderUpdate, role }: KitchenDisplayProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stationFilter, setStationFilter] = useState<"all" | Station>("all");
+  // Barista defaults to bar station, chef defaults to kitchen, admin sees all
+  const defaultStation: "all" | Station = role === "barista" ? "bar" : role === "chef" ? "kitchen" : "all";
+  const [stationFilter, setStationFilter] = useState<"all" | Station>(defaultStation);
   const [categoryMap, setCategoryMap] = useState<Record<string, string>>({});
   const [updating, setUpdating] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ orderId: string; status: Order["status"]; label: string } | null>(null);
@@ -170,7 +172,9 @@ export default function KitchenDisplay({ onOrderUpdate, role }: KitchenDisplayPr
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h2 className="font-body font-semibold text-lg text-white">Kitchen Display</h2>
+          <h2 className="font-body font-semibold text-lg text-white">
+            {role === "barista" ? "Bar Display" : role === "chef" ? "Kitchen Display" : "Prep Display"}
+          </h2>
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
             <span className="text-orange-400 text-xs font-body font-medium tabular-nums">
