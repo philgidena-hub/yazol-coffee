@@ -120,26 +120,25 @@ export default function AdminDashboard() {
 
       {/* Header */}
       <header className="relative border-b border-white/[0.06] bg-slate-900/40 backdrop-blur-xl sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <span className="text-white text-sm font-display font-bold">Y</span>
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 flex-shrink-0">
+                <span className="text-white text-xs sm:text-sm font-display font-bold">Y</span>
               </div>
-              <h1 className="font-display text-xl text-white tracking-tight">Yazol</h1>
+              <h1 className="font-display text-lg sm:text-xl text-white tracking-tight">Yazol</h1>
             </div>
-            <div className="h-5 w-px bg-white/10" />
-            <span className="text-[10px] font-body font-semibold uppercase tracking-[0.15em] text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/15 rounded-md px-2.5 py-1">
+            <span className="text-[9px] sm:text-[10px] font-body font-semibold uppercase tracking-[0.12em] sm:tracking-[0.15em] text-indigo-300/80 bg-indigo-500/10 border border-indigo-500/15 rounded-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 flex-shrink-0">
               {role.replace("_", " ")}
             </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <span className="text-slate-400/80 text-sm font-body hidden sm:inline">
               {userInfo?.name}
             </span>
             <button
               onClick={() => signOut({ callbackUrl: "/admin/login" })}
-              className="text-slate-500 text-sm font-body hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.05]"
+              className="text-slate-500 text-xs sm:text-sm font-body hover:text-white transition-colors px-2 sm:px-3 py-1.5 rounded-lg hover:bg-white/[0.05]"
             >
               Sign Out
             </button>
@@ -201,26 +200,26 @@ export default function AdminDashboard() {
         </aside>
 
         {/* Mobile Tabs */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.06] bg-[#0a0e1a]/95 backdrop-blur-xl">
-          <div className="flex justify-around px-2 py-1">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-20 border-t border-white/[0.06] bg-[#0a0e1a]/95 backdrop-blur-xl safe-area-bottom">
+          <div className="flex overflow-x-auto scrollbar-hide px-1 py-1 gap-0.5">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-all ${
+                className={`relative flex flex-col items-center gap-0.5 min-w-[56px] px-2 py-2 rounded-lg transition-all flex-shrink-0 ${
                   activeTab === tab.id
                     ? "text-indigo-400"
-                    : "text-slate-600 hover:text-slate-400"
+                    : "text-slate-600 active:text-slate-400"
                 }`}
               >
-                {tab.icon}
-                <span className="text-[9px] font-body font-medium">{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId="mobileTab"
                     className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-indigo-500 rounded-full"
                   />
                 )}
+                {tab.icon}
+                <span className="text-[9px] font-body font-medium whitespace-nowrap">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -244,7 +243,7 @@ export default function AdminDashboard() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === "orders" && hasPermission(role, "view_live_orders") && (
-              <LiveOrders onOrderUpdate={handleOrderUpdate} role={role} />
+              <LiveOrders onOrderUpdate={handleOrderUpdate} role={role} onSwitchTab={(tab) => setActiveTab(tab as AdminTab)} />
             )}
             {activeTab === "pos" && hasPermission(role, "create_orders") && (
               <CashierPOS onOrderCreated={handleOrderUpdate} />

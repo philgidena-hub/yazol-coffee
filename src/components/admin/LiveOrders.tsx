@@ -6,6 +6,7 @@ import type { Order, UserRole } from "@/lib/types";
 import { type Station, getStationForCategory } from "@/lib/permissions";
 import OrderCard from "./OrderCard";
 import OrderFilters from "./OrderFilters";
+import StockAlertModal from "./StockAlertModal";
 import { useToast } from "./AdminToast";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -18,17 +19,27 @@ const STATUS_PRIORITY: Record<Order["status"], number> = {
   cancelled: 5,
 };
 
+interface InsufficientItem {
+  ingredientName: string;
+  needed: number;
+  available: number;
+  unit: string;
+}
+
 interface LiveOrdersProps {
   onOrderUpdate: () => void;
   role: UserRole;
+  onSwitchTab?: (tab: string) => void;
 }
 
-export default function LiveOrders({ onOrderUpdate, role }: LiveOrdersProps) {
+export default function LiveOrders({ onOrderUpdate, role, onSwitchTab }: LiveOrdersProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | Order["status"]>("all");
   const [stationFilter, setStationFilter] = useState<"all" | Station>("all");
+  const [stockAlert, setStockAlert] = useState<InsufficientItem[]>([]);
+  const [showStockAlert, setShowStockAlert] = useState(false);
   const previousOrderIdsRef = useRef<Set<string>>(new Set());
   const isFirstFetchRef = useRef(true);
   const { toast } = useToast();
@@ -107,6 +118,12 @@ export default function LiveOrders({ onOrderUpdate, role }: LiveOrdersProps) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
+      // Show stock alert modal for insufficient stock errors
+      if (res.status === 409 && data.insufficientItems) {
+        setStockAlert(data.insufficientItems);
+        setShowStockAlert(true);
+        return false;
+      }
       toast(data.error || "Failed to update status", "error");
       return false;
     }
@@ -156,6 +173,17 @@ export default function LiveOrders({ onOrderUpdate, role }: LiveOrdersProps) {
 
   return (
     <div>
+      {/* Stock Alert Modal */}
+      <StockAlertModal
+        open={showStockAlert}
+        items={stockAlert}
+        onClose={() => setShowStockAlert(false)}
+        onGoToInventory={onSwitchTab ? () => {
+          setShowStockAlert(false);
+          onSwitchTab("inventory");
+        } : undefined}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

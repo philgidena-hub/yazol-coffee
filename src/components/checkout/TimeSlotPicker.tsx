@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SHOP_HOURS: Record<number, { open: number; close: number }> = {
@@ -24,6 +24,7 @@ interface TimeSlot {
 interface DayOption {
   date: Date;
   label: string;
+  hasSlots: boolean;
 }
 
 function formatTime(hours: number, minutes: number): string {
@@ -45,18 +46,6 @@ function getDayLabel(date: Date, index: number): string {
   if (index === 0) return "Today";
   if (index === 1) return "Tomorrow";
   return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-}
-
-function generateDays(): DayOption[] {
-  const days: DayOption[] = [];
-  const today = new Date();
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-    date.setHours(0, 0, 0, 0);
-    days.push({ date, label: getDayLabel(date, i) });
-  }
-  return days;
 }
 
 function generateSlots(date: Date, isToday: boolean): TimeSlot[] {
@@ -86,14 +75,43 @@ function generateSlots(date: Date, isToday: boolean): TimeSlot[] {
   return slots;
 }
 
+function generateDays(): DayOption[] {
+  const days: DayOption[] = [];
+  const today = new Date();
+  for (let i = 0; i < 3; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    date.setHours(0, 0, 0, 0);
+    const hasSlots = generateSlots(date, i === 0).length > 0;
+    days.push({ date, label: getDayLabel(date, i), hasSlots });
+  }
+  return days;
+}
+
 interface TimeSlotPickerProps {
   value: string;
   onChange: (value: string) => void;
 }
 
 export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps) {
-  const [selectedDay, setSelectedDay] = useState(0);
   const days = useMemo(() => generateDays(), []);
+
+  // Auto-select the first day that has available slots
+  const firstAvailableDay = useMemo(
+    () => days.findIndex((d) => d.hasSlots),
+    [days]
+  );
+
+  const [selectedDay, setSelectedDay] = useState(
+    firstAvailableDay >= 0 ? firstAvailableDay : 0
+  );
+
+  // If today has no slots on mount, auto-select next day
+  useEffect(() => {
+    if (firstAvailableDay >= 0 && firstAvailableDay !== selectedDay && !value) {
+      setSelectedDay(firstAvailableDay);
+    }
+  }, [firstAvailableDay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const slots = useMemo(
     () => generateSlots(days[selectedDay].date, selectedDay === 0),
@@ -115,8 +133,11 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
             className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-body transition-colors ${
               selectedDay === i
                 ? "bg-brown text-white"
+                : !day.hasSlots
+                ? "bg-white border border-black/5 text-brown/25 cursor-not-allowed"
                 : "bg-white border border-black/10 text-brown/50 hover:border-brown/30"
             }`}
+            disabled={!day.hasSlots}
           >
             {day.label}
           </button>
@@ -151,7 +172,7 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
             </div>
           ) : (
             <p className="text-brown/50 text-sm font-body text-center py-8">
-              No available time slots for this day
+              Shop is closed — please select another day
             </p>
           )}
         </motion.div>
