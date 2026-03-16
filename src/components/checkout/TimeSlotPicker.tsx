@@ -13,8 +13,8 @@ const SHOP_HOURS: Record<number, { open: number; close: number }> = {
   6: { open: 9, close: 17 }, // Saturday
 };
 
-const SLOT_INTERVAL = 15; // minutes
-const MIN_PREP_TIME = 30; // minutes
+const SLOT_INTERVAL = 10; // minutes
+const MIN_PREP_TIME = 10; // minutes from now
 
 interface TimeSlot {
   display: string; // "2:30 PM"

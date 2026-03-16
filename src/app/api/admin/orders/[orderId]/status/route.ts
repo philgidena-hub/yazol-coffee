@@ -92,11 +92,14 @@ export async function PATCH(
     if (needsInventoryAction) {
       const validation = await validateStockForOrder(currentOrder);
       if (!validation.valid) {
-        const details = validation.insufficientItems
-          .map((i) => `${i.ingredientName}: need ${i.required}${i.unit}, have ${i.available}${i.unit}`)
-          .join("; ");
+        const shortList = validation.insufficientItems
+          .map((i) => i.ingredientName)
+          .join(", ");
         return NextResponse.json(
-          { error: `Insufficient stock: ${details}` },
+          {
+            error: `Can't approve — out of stock: ${shortList}. Please restock from the Inventory tab.`,
+            insufficientItems: validation.insufficientItems,
+          },
           { status: 409 }
         );
       }
