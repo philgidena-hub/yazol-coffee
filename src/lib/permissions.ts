@@ -49,7 +49,10 @@ export type Feature =
   | "view_order_history"
   | "manage_inventory"
   | "manage_menu"
-  | "manage_users";
+  | "manage_users"
+  | "create_orders"
+  | "view_kitchen_display"
+  | "view_pickup_queue";
 
 const FEATURE_ROLES: Record<Feature, UserRole[]> = {
   view_dashboard_stats: ["super_admin", "admin"],
@@ -58,6 +61,9 @@ const FEATURE_ROLES: Record<Feature, UserRole[]> = {
   manage_inventory: ["super_admin", "admin"],
   manage_menu: ["super_admin", "admin"],
   manage_users: ["super_admin"],
+  create_orders: ["super_admin", "admin", "cashier"],
+  view_kitchen_display: ["super_admin", "admin", "chef"],
+  view_pickup_queue: ["super_admin", "admin", "cashier"],
 };
 
 export function hasPermission(role: UserRole, feature: Feature): boolean {
@@ -66,12 +72,15 @@ export function hasPermission(role: UserRole, feature: Feature): boolean {
 
 // ── Tab Visibility ──────────────────────────────────────────
 
-export type AdminTab = "orders" | "inventory" | "menu" | "history" | "analytics" | "users";
+export type AdminTab = "orders" | "pos" | "kitchen" | "pickup" | "inventory" | "menu" | "history" | "analytics" | "users";
 
 export function getVisibleTabs(role: UserRole): AdminTab[] {
   const tabs: AdminTab[] = [];
 
   if (hasPermission(role, "view_live_orders")) tabs.push("orders");
+  if (hasPermission(role, "create_orders")) tabs.push("pos");
+  if (hasPermission(role, "view_kitchen_display")) tabs.push("kitchen");
+  if (hasPermission(role, "view_pickup_queue")) tabs.push("pickup");
   if (hasPermission(role, "manage_inventory")) tabs.push("inventory");
   if (hasPermission(role, "manage_menu")) tabs.push("menu");
   if (hasPermission(role, "view_order_history")) tabs.push("history");
@@ -79,6 +88,33 @@ export function getVisibleTabs(role: UserRole): AdminTab[] {
   if (hasPermission(role, "manage_users")) tabs.push("users");
 
   return tabs;
+}
+
+// ── Station Helpers ─────────────────────────────────────────
+// Classify menu item categories into stations for order routing
+
+const DRINK_KEYWORDS = [
+  "espresso", "coffee", "latte", "cappuccino", "mocha", "americano",
+  "brew", "cold brew", "tea", "matcha", "smoothie", "juice",
+  "frappe", "macchiato", "cortado", "flat white", "drink", "beverage",
+  "hot chocolate", "chai",
+];
+
+export type Station = "bar" | "kitchen";
+
+export function getStationForCategory(category: string): Station {
+  const lower = category.toLowerCase();
+  return DRINK_KEYWORDS.some((kw) => lower.includes(kw)) ? "bar" : "kitchen";
+}
+
+export function getStationLabel(station: Station): string {
+  return station === "bar" ? "Barista" : "Kitchen";
+}
+
+export function getStationColor(station: Station): { text: string; bg: string; border: string } {
+  return station === "bar"
+    ? { text: "text-cyan-400", bg: "bg-cyan-400/10", border: "border-cyan-400/30" }
+    : { text: "text-orange-400", bg: "bg-orange-400/10", border: "border-orange-400/30" };
 }
 
 // ── Next Status Actions for OrderCard ───────────────────────

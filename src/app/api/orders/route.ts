@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrder, getMenuItem } from "@/lib/dynamodb";
+import { getOrCreateCustomerByPhone } from "@/lib/customer-db";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions, paymentMethod } = body;
+    const { customerName, customerPhone, customerEmail, items, pickupTime, specialInstructions, paymentMethod, paymentStatus } = body;
 
     if (!customerName || !customerPhone || !customerEmail || !items?.length || !pickupTime) {
       return NextResponse.json(
@@ -57,10 +58,18 @@ export async function POST(request: NextRequest) {
       pickupTime,
       specialInstructions: specialInstructions || "",
       paymentMethod: paymentMethod || "pay_at_pickup",
+      ...(paymentStatus && { paymentStatus }),
       status: "pending",
       createdAt: now,
       updatedAt: now,
     });
+
+    // Auto-register customer by phone
+    getOrCreateCustomerByPhone({
+      phone: customerPhone,
+      name: customerName,
+      email: customerEmail,
+    }).catch((err) => console.error("Auto-register customer failed:", err));
 
     return NextResponse.json({
       success: true,

@@ -747,6 +747,52 @@ export async function getAuditLogs(orderId: string): Promise<AuditLogEntry[]> {
   return (response.Items as AuditLogEntry[]) || [];
 }
 
+/** Search customers from the CUSTOMERS table by name, phone, or email */
+export async function searchCustomers(
+  query: string,
+  limit: number = 10
+): Promise<Array<{ name: string; phone: string; email: string; orderCount: number }>> {
+  // Query all customers from GSI and filter in memory
+  const command = new QueryCommand({
+    TableName: TABLE_NAME,
+    IndexName: "GSI1",
+    KeyConditionExpression: "GSI1PK = :pk",
+    ExpressionAttributeValues: {
+      ":pk": "CUSTOMERS",
+    },
+    ScanIndexForward: false, // newest first
+  });
+
+  const response = await docClient.send(command);
+  const customers = response.Items || [];
+
+  const q = query.toLowerCase().trim();
+  const results: Array<{ name: string; phone: string; email: string; orderCount: number }> = [];
+
+  for (const c of customers) {
+    const name = (c.name as string) || "";
+    const phone = (c.phoneNumber as string) || "";
+    const email = (c.email as string) || "";
+
+    const matchesName = name.toLowerCase().includes(q);
+    const matchesPhone = phone.includes(q);
+    const matchesEmail = email.toLowerCase().includes(q);
+
+    if (matchesName || matchesPhone || matchesEmail) {
+      results.push({
+        name,
+        phone,
+        email,
+        orderCount: (c.orderCount as number) || 0,
+      });
+    }
+
+    if (results.length >= limit) break;
+  }
+
+  return results;
+}
+
 /** Get finished orders — completed and cancelled (newest first, limited) */
 export async function getFinishedOrders(limit: number = 50): Promise<Order[]> {
   const results: Order[] = [];
