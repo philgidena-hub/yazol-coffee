@@ -1,23 +1,13 @@
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
 
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Don't protect auth API routes
-  if (pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
-  }
-
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
+  const token = req.auth;
 
   // ── Admin API routes — return 401 if unauthenticated ────────
   if (pathname.startsWith("/api/admin")) {
-    if (!token || !token.isAdmin) {
+    if (!token || !token.user?.isAdmin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     return NextResponse.next();
@@ -28,19 +18,19 @@ export async function middleware(request: NextRequest) {
     const isLoginPage = pathname === "/admin/login";
 
     if (!token && !isLoginPage) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/admin/login", req.url));
     }
-    if (token && isLoginPage && token.isAdmin) {
-      return NextResponse.redirect(new URL("/admin", request.url));
+    if (token && isLoginPage && token.user?.isAdmin) {
+      return NextResponse.redirect(new URL("/admin", req.url));
     }
-    if (token && !token.isAdmin && !isLoginPage) {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (token && !token.user?.isAdmin && !isLoginPage) {
+      return NextResponse.redirect(new URL("/", req.url));
     }
     return NextResponse.next();
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: [
