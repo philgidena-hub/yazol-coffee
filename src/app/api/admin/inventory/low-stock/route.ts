@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllInventoryItems } from "@/lib/dynamodb";
-import { getAuthUser } from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const user = await getAuthUser(request);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
 
   try {
     const allItems = await getAllInventoryItems();

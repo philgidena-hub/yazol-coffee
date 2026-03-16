@@ -5,7 +5,10 @@ import { requirePermission } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await requirePermission(request, "manage_inventory");
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const items = await getAllInventoryItems();
     return NextResponse.json({ items });

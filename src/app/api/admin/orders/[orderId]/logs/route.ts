@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuditLogs } from "@/lib/admin-db";
-import { getAuthUser } from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
-  const user = await getAuthUser(request);
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requirePermission(request, "view_live_orders");
+  if (auth instanceof NextResponse) return auth;
 
   try {
     const { orderId } = await params;
