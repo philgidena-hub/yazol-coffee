@@ -2,12 +2,12 @@
 
 import type { Order } from "@/lib/types";
 
-const STATUS_OPTIONS: { value: "all" | Order["status"]; label: string }[] = [
+const STATUS_OPTIONS: { value: "all" | Order["status"]; label: string; dot?: string }[] = [
   { value: "all", label: "All" },
-  { value: "pending", label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "preparing", label: "Preparing" },
-  { value: "prepared", label: "Prepared" },
+  { value: "pending", label: "Pending", dot: "bg-amber-400" },
+  { value: "approved", label: "Approved", dot: "bg-sky-400" },
+  { value: "preparing", label: "Preparing", dot: "bg-orange-400" },
+  { value: "prepared", label: "Prepared", dot: "bg-emerald-400" },
 ];
 
 interface OrderFiltersProps {
@@ -30,7 +30,7 @@ export default function OrderFilters({
       {/* Search */}
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -47,7 +47,7 @@ export default function OrderFilters({
           placeholder="Search by name or order ID..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm font-body text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-900/60 backdrop-blur-sm border border-white/[0.06] rounded-xl text-sm font-body text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/40 focus:ring-1 focus:ring-indigo-500/20 transition-all"
         />
       </div>
 
@@ -62,12 +62,15 @@ export default function OrderFilters({
             <button
               key={opt.value}
               onClick={() => onStatusFilterChange(opt.value)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-body font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-body font-medium transition-all ${
                 isActive
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-800/50 text-slate-400 hover:text-slate-300 hover:bg-slate-800"
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
+                  : "bg-slate-800/40 text-slate-400 hover:text-slate-300 hover:bg-slate-800/60 border border-white/[0.04]"
               }`}
             >
+              {opt.dot && !isActive && (
+                <span className={`w-1.5 h-1.5 rounded-full ${opt.dot}`} />
+              )}
               {opt.label}
               <span
                 className={`tabular-nums ${

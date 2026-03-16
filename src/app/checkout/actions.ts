@@ -1,6 +1,7 @@
 "use server";
 
 import { createOrder, getMenuItem } from "@/lib/dynamodb";
+import { getOrCreateCustomerByPhone } from "@/lib/customer-db";
 
 interface PlaceOrderInput {
   customerName: string;
@@ -78,6 +79,13 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
       createdAt: now,
       updatedAt: now,
     });
+
+    // Auto-register customer by phone (fire-and-forget, don't block order)
+    getOrCreateCustomerByPhone({
+      phone: customerPhone,
+      name: customerName,
+      email: customerEmail,
+    }).catch((err) => console.error("Auto-register customer failed:", err));
 
     return { success: true, orderId: order.orderId, total: order.total };
   } catch (error) {

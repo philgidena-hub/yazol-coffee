@@ -5,22 +5,33 @@ declare module "next-auth" {
     user: {
       id: string;
       name: string;
-      username: string;
+      email?: string | null;
+      image?: string | null;
+      username?: string;
       role: UserRole;
+      isAdmin: boolean;
+      onboardingComplete: boolean;
     };
   }
 
   interface User {
-    id: string;
-    name: string;
-    username: string;
-    role: UserRole;
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    username?: string;
+    role?: UserRole;
+    isAdmin?: boolean;
+    onboardingComplete?: boolean;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    username: string;
-    role: UserRole;
+    username?: string;
+    role?: UserRole;
+    isAdmin?: boolean;
+    onboardingComplete?: boolean;
+    phoneNumber?: string;
   }
 }

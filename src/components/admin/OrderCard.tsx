@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import type { Order, UserRole } from "@/lib/types";
-import { getNextStatusActions, getAdminOverrideActions, canCancelOrder } from "@/lib/permissions";
+import { getNextStatusActions, getAdminOverrideActions, canCancelOrder, getStationForCategory, getStationLabel, getStationColor } from "@/lib/permissions";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
 
@@ -35,9 +35,10 @@ interface OrderCardProps {
   order: Order;
   onStatusChange: (orderId: string, newStatus: Order["status"]) => Promise<boolean>;
   role: UserRole;
+  categoryMap?: Record<string, string>;
 }
 
-export default function OrderCard({ order, onStatusChange, role }: OrderCardProps) {
+export default function OrderCard({ order, onStatusChange, role, categoryMap = {} }: OrderCardProps) {
   const [updating, setUpdating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -141,7 +142,7 @@ export default function OrderCard({ order, onStatusChange, role }: OrderCardProp
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-slate-900 rounded-xl p-4 border border-slate-800 hover:border-slate-700 transition-colors"
+        className="bg-slate-900/60 backdrop-blur-sm rounded-2xl p-4 border border-white/[0.06] hover:border-white/[0.12] transition-all shadow-lg shadow-black/10"
       >
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
@@ -191,28 +192,36 @@ export default function OrderCard({ order, onStatusChange, role }: OrderCardProp
 
         {/* Items */}
         <div className="space-y-1 mb-3">
-          {order.items.map((item, i) => (
-            <div key={i}>
-              <div className="flex justify-between text-sm font-body">
-                <span className="text-slate-300">
-                  {item.quantity}x {item.name}
-                </span>
-                <span className="text-slate-500 tabular-nums">
-                  ${(item.price * item.quantity).toFixed(2)}
-                </span>
-              </div>
-              {item.allergyNotes && (
-                <div className="flex items-center gap-1.5 mt-0.5 ml-4">
-                  <svg className="w-3 h-3 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-[11px] font-body text-red-400">
-                    {item.allergyNotes}
+          {order.items.map((item, i) => {
+            const cat = categoryMap[item.slug] || "";
+            const station = getStationForCategory(cat);
+            const stationColors = getStationColor(station);
+            return (
+              <div key={i}>
+                <div className="flex justify-between text-sm font-body items-center">
+                  <span className="text-slate-300 flex items-center gap-1.5">
+                    {item.quantity}x {item.name}
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-body font-semibold uppercase tracking-wider border ${stationColors.bg} ${stationColors.border} ${stationColors.text}`}>
+                      {getStationLabel(station)}
+                    </span>
+                  </span>
+                  <span className="text-slate-500 tabular-nums">
+                    ${(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
-              )}
-            </div>
-          ))}
+                {item.allergyNotes && (
+                  <div className="flex items-center gap-1.5 mt-0.5 ml-4">
+                    <svg className="w-3 h-3 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-[11px] font-body text-red-400">
+                      {item.allergyNotes}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Allergy warning banner */}

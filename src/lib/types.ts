@@ -81,7 +81,7 @@ export interface Order {
 
 // ── User Roles ──────────────────────────────────────────────
 
-export type UserRole = "super_admin" | "admin" | "cashier" | "chef";
+export type UserRole = "super_admin" | "admin" | "cashier" | "chef" | "customer";
 
 export interface User {
   PK: string;
@@ -97,3 +97,21 @@ export interface User {
 }
 
 export type SafeUser = Omit<User, "passwordHash" | "PK" | "SK" | "entityType">;
+
+export interface Customer {
+  PK: string;
+  SK: string;
+  entityType: string;
+  customerId: string;
+  email: string;
+  name: string;
+  phoneNumber: string;
+  favoriteCoffee?: string;
+  role: "customer";
+  image?: string;
+  provider: "google" | "email" | "guest";
+  onboardingComplete: boolean;
+  orderCount: number;
+  createdAt: string;
+  updatedAt: string;
+}

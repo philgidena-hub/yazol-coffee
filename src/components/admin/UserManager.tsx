@@ -12,6 +12,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Admin",
   cashier: "Cashier",
   chef: "Chef",
+  customer: "Customer",
 };
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -19,6 +20,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   admin: "text-indigo-400 bg-indigo-400/10 border-indigo-400/30",
   cashier: "text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
   chef: "text-orange-400 bg-orange-400/10 border-orange-400/30",
+  customer: "text-amber-400 bg-amber-400/10 border-amber-400/30",
 };
 
 const ROLE_OPTIONS: UserRole[] = ["super_admin", "admin", "cashier", "chef"];

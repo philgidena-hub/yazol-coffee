@@ -9,16 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/core": "^0.41.0",
     "@aws-sdk/client-dynamodb": "^3.989.0",
     "@aws-sdk/lib-dynamodb": "^3.989.0",
+    "@hookform/resolvers": "^5.2.2",
     "@studio-freight/lenis": "^1.0.42",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.34.0",
     "next": "14.2.35",
-    "next-auth": "^4.24.13",
+    "next-auth": "^5.0.0-beta.30",
     "react": "^18",
     "react-dom": "^18",
-    "stripe": "^20.4.1"
+    "react-hook-form": "^7.71.2",
+    "stripe": "^20.4.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
