@@ -115,3 +115,33 @@ export interface Customer {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SiteSettings {
+  PK: string; // "SETTINGS#site"
+  SK: string; // "METADATA"
+  entityType: string;
+  // Company Profile
+  companyName: string;
+  tagline: string;
+  description: string;
+  // Contact
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  phone: string;
+  email: string;
+  // Social
+  instagram: string;
+  tiktok: string;
+  facebook: string;
+  // Hours — keyed by day number (0=Sunday, 6=Saturday)
+  shopHours: Record<string, { open: number; close: number; closed: boolean }>;
+  // Branding
+  heroTitle: string;
+  heroSubtitle: string;
+  heroDescription: string;
+  // Meta
+  updatedAt: string;
+  updatedBy: string;
+}

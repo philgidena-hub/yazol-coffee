@@ -50,6 +50,7 @@ export type Feature =
   | "manage_inventory"
   | "manage_menu"
   | "manage_users"
+  | "manage_settings"
   | "create_orders"
   | "view_kitchen_display"
   | "view_pickup_queue";
@@ -61,6 +62,7 @@ const FEATURE_ROLES: Record<Feature, UserRole[]> = {
   manage_inventory: ["super_admin", "admin"],
   manage_menu: ["super_admin", "admin"],
   manage_users: ["super_admin"],
+  manage_settings: ["super_admin"],
   create_orders: ["super_admin", "admin", "cashier"],
   view_kitchen_display: ["super_admin", "admin", "chef", "barista"],
   view_pickup_queue: ["super_admin", "admin", "cashier"],
@@ -72,7 +74,7 @@ export function hasPermission(role: UserRole, feature: Feature): boolean {
 
 // ── Tab Visibility ──────────────────────────────────────────
 
-export type AdminTab = "orders" | "pos" | "kitchen" | "pickup" | "inventory" | "menu" | "history" | "analytics" | "users";
+export type AdminTab = "orders" | "pos" | "kitchen" | "pickup" | "inventory" | "menu" | "history" | "analytics" | "users" | "settings";
 
 export function getVisibleTabs(role: UserRole): AdminTab[] {
   const tabs: AdminTab[] = [];
@@ -86,6 +88,7 @@ export function getVisibleTabs(role: UserRole): AdminTab[] {
   if (hasPermission(role, "view_order_history")) tabs.push("history");
   if (hasPermission(role, "view_dashboard_stats")) tabs.push("analytics");
   if (hasPermission(role, "manage_users")) tabs.push("users");
+  if (hasPermission(role, "manage_settings")) tabs.push("settings");
 
   return tabs;
 }
