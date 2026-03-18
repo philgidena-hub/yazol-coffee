@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart } from "@/lib/cart-context";
+import { useCart, getCartItemPrice, formatSelectionSummary } from "@/lib/cart-context";
 import { getProductImage } from "@/lib/image-map";
 import { placeOrder } from "./actions";
 import TimeSlotPicker from "@/components/checkout/TimeSlotPicker";
@@ -59,13 +59,20 @@ export default function CheckoutPage() {
         pickupTime: form.pickupTime,
         specialInstructions: form.instructions,
         paymentMethod: form.paymentMethod as "online" | "pay_at_pickup",
-        items: state.items.map((i) => ({
-          slug: i.menuItem.slug,
-          name: i.menuItem.name,
-          price: i.menuItem.price,
-          quantity: i.quantity,
-          allergyNotes: i.allergyNotes,
-        })),
+        items: state.items.map((i) => {
+          const selSummary = formatSelectionSummary(i);
+          return {
+            slug: i.menuItem.slug,
+            name: selSummary ? `${i.menuItem.name} (${selSummary})` : i.menuItem.name,
+            price: getCartItemPrice(i),
+            quantity: i.quantity,
+            allergyNotes: i.allergyNotes,
+            size: i.selection?.selectedSize?.name,
+            options: i.selection?.selectedOptions
+              ? Object.values(i.selection.selectedOptions).flat().map((o) => o.name)
+              : undefined,
+          };
+        }),
       });
 
       if (!result.success) throw new Error(result.error || "Failed to place order");
@@ -377,35 +384,44 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-3 mb-6">
-                {state.items.map((item) => (
-                  <div key={item.menuItem.slug} className="flex gap-3">
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                      <Image
-                        src={getProductImage(item.menuItem.slug)}
-                        alt={item.menuItem.name}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-brown text-sm font-body truncate">
-                        {item.menuItem.name}
-                      </p>
-                      <p className="text-brown/50 text-xs">
-                        x{item.quantity}
-                      </p>
-                      {item.allergyNotes && (
-                        <p className="text-brown/50 text-xs italic truncate">
-                          {item.allergyNotes}
+                {state.items.map((item) => {
+                  const price = getCartItemPrice(item);
+                  const selSummary = formatSelectionSummary(item);
+                  return (
+                    <div key={item.cartKey} className="flex gap-3">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                        <Image
+                          src={getProductImage(item.menuItem.slug)}
+                          alt={item.menuItem.name}
+                          fill
+                          sizes="48px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-brown text-sm font-body truncate">
+                          {item.menuItem.name}
                         </p>
-                      )}
+                        {selSummary && (
+                          <p className="text-brown/40 text-[11px] font-body truncate">
+                            {selSummary}
+                          </p>
+                        )}
+                        <p className="text-brown/50 text-xs">
+                          x{item.quantity}
+                        </p>
+                        {item.allergyNotes && (
+                          <p className="text-brown/50 text-xs italic truncate">
+                            {item.allergyNotes}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-brown text-sm font-body">
+                        ${(price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
-                    <p className="text-brown text-sm font-body">
-                      ${(item.menuItem.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="border-t border-black/5 pt-4 space-y-2">

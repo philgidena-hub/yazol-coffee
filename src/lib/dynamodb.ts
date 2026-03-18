@@ -15,36 +15,11 @@ export const docClient = DynamoDBDocumentClient.from(client);
 export const TABLE_NAME = "YazolData";
 
 // Helper types
-export interface MenuItem {
-  PK: string;
-  SK: string;
-  entityType: string;
-  name: string;
-  slug: string;
-  description: string;
-  category: string;
-  price: number;
-  isAvailable: boolean;
-  imageKey: string;
-  ingredients: Array<{
-    name: string;
-    quantity: string;
-    unit: string;
-  }>;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { MenuItem } from "./types";
+import type { MenuItem } from "./types";
 
-export interface Category {
-  PK: string;
-  SK: string;
-  entityType: string;
-  name: string;
-  slug: string;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { Category } from "./types";
+import type { Category } from "./types";
 
 export interface InventoryItem {
   PK: string;

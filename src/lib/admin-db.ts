@@ -317,11 +317,13 @@ export async function createMenuItem(data: {
   isAvailable: boolean;
   imageKey: string;
   ingredients: MenuItem["ingredients"];
+  sizes?: MenuItem["sizes"];
+  optionGroups?: MenuItem["optionGroups"];
 }): Promise<MenuItem> {
   const slug = slugify(data.name);
   const now = new Date().toISOString();
 
-  const item = {
+  const item: Record<string, unknown> = {
     PK: `MENU#${slug}`,
     SK: "METADATA",
     entityType: "MenuItem",
@@ -339,6 +341,9 @@ export async function createMenuItem(data: {
     GSI1SK: `MENU#${data.name}`,
   };
 
+  if (data.sizes && data.sizes.length > 0) item["sizes"] = data.sizes;
+  if (data.optionGroups && data.optionGroups.length > 0) item["optionGroups"] = data.optionGroups;
+
   await docClient.send(
     new PutCommand({
       TableName: TABLE_NAME,
@@ -347,7 +352,7 @@ export async function createMenuItem(data: {
     })
   );
 
-  return item as MenuItem;
+  return item as unknown as MenuItem;
 }
 
 /** Update an existing menu item */
@@ -362,6 +367,8 @@ export async function updateMenuItem(
     isAvailable?: boolean;
     imageKey?: string;
     ingredients?: MenuItem["ingredients"];
+    sizes?: MenuItem["sizes"];
+    optionGroups?: MenuItem["optionGroups"];
   }
 ): Promise<void> {
   const expressions: string[] = ["updatedAt = :now"];
@@ -400,6 +407,14 @@ export async function updateMenuItem(
   if (data.ingredients !== undefined) {
     expressions.push("ingredients = :ingredients");
     values[":ingredients"] = data.ingredients;
+  }
+  if (data.sizes !== undefined) {
+    expressions.push("sizes = :sizes");
+    values[":sizes"] = data.sizes.length > 0 ? data.sizes : null;
+  }
+  if (data.optionGroups !== undefined) {
+    expressions.push("optionGroups = :optionGroups");
+    values[":optionGroups"] = data.optionGroups.length > 0 ? data.optionGroups : null;
   }
 
   await docClient.send(

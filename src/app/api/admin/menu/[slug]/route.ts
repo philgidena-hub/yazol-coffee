@@ -12,7 +12,7 @@ export async function PUT(
   try {
     const { slug } = await params;
     const body = await request.json();
-    const { name, description, category, categorySlug, price, isAvailable, imageKey, ingredients } = body;
+    const { name, description, category, categorySlug, price, isAvailable, imageKey, ingredients, sizes, optionGroups } = body;
 
     if (
       name === undefined &&
@@ -22,7 +22,9 @@ export async function PUT(
       price === undefined &&
       isAvailable === undefined &&
       imageKey === undefined &&
-      ingredients === undefined
+      ingredients === undefined &&
+      sizes === undefined &&
+      optionGroups === undefined
     ) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
@@ -40,6 +42,8 @@ export async function PUT(
       isAvailable,
       imageKey,
       ingredients,
+      sizes,
+      optionGroups,
     });
 
     return NextResponse.json({ success: true });

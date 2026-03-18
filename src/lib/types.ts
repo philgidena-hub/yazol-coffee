@@ -1,3 +1,20 @@
+export interface MenuItemSize {
+  name: string;       // "Small", "Medium", "Large"
+  price: number;      // Price for this size (replaces base price)
+}
+
+export interface MenuItemOption {
+  name: string;       // "Almond", "Oat Milk"
+  priceAdd: number;   // Additional cost (0 if free)
+}
+
+export interface MenuItemOptionGroup {
+  name: string;       // "Milk Option", "Iced", "Hot"
+  required: boolean;  // Must choose at least one?
+  maxChoices: number; // 1 = radio, >1 = checkboxes
+  options: MenuItemOption[];
+}
+
 export interface MenuItem {
   PK: string;
   SK: string;
@@ -14,6 +31,9 @@ export interface MenuItem {
     quantity: string;
     unit: string;
   }>;
+  // Sizes & customization (optional — not all items have them)
+  sizes?: MenuItemSize[];
+  optionGroups?: MenuItemOptionGroup[];
   createdAt: string;
   updatedAt: string;
 }
@@ -29,10 +49,18 @@ export interface Category {
   updatedAt: string;
 }
 
+export interface CartItemSelection {
+  selectedSize?: MenuItemSize;
+  selectedOptions?: Record<string, MenuItemOption[]>; // groupName → selected options
+}
+
 export interface CartItem {
   menuItem: MenuItem;
   quantity: number;
   allergyNotes: string;
+  selection?: CartItemSelection;
+  /** Unique key for cart (slug + size + options hash) */
+  cartKey: string;
 }
 
 export interface CartState {
@@ -42,9 +70,10 @@ export interface CartState {
 
 export type CartAction =
   | { type: "ADD_ITEM"; payload: MenuItem }
+  | { type: "ADD_CUSTOM_ITEM"; payload: CartItem }
   | { type: "REMOVE_ITEM"; payload: string }
-  | { type: "UPDATE_QUANTITY"; payload: { slug: string; quantity: number } }
-  | { type: "UPDATE_ALLERGY_NOTES"; payload: { slug: string; allergyNotes: string } }
+  | { type: "UPDATE_QUANTITY"; payload: { cartKey: string; quantity: number } }
+  | { type: "UPDATE_ALLERGY_NOTES"; payload: { cartKey: string; allergyNotes: string } }
   | { type: "LOAD_CART"; payload: CartItem[] }
   | { type: "CLEAR_CART" }
   | { type: "TOGGLE_CART" }
@@ -65,6 +94,8 @@ export interface Order {
     price: number;
     quantity: number;
     allergyNotes: string;
+    size?: string;
+    options?: string[];
   }>;
   subtotal: number;
   tax: number;

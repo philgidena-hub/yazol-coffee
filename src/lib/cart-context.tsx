@@ -3,45 +3,102 @@
 import { createContext, useContext, useReducer, useEffect, useCallback, useRef } from "react";
 import type { MenuItem, CartItem, CartState, CartAction } from "./types";
 
+/** Generate a unique cart key for an item based on its slug + size + options */
+export function generateCartKey(
+  slug: string,
+  sizeName?: string,
+  selectedOptions?: Record<string, { name: string }[]>
+): string {
+  let key = slug;
+  if (sizeName) key += `__${sizeName}`;
+  if (selectedOptions) {
+    const optStr = Object.entries(selectedOptions)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([group, opts]) => `${group}:${opts.map((o) => o.name).sort().join(",")}`)
+      .join("|");
+    if (optStr) key += `__${optStr}`;
+  }
+  return key;
+}
+
+/** Get the effective price for a cart item (size price + option add-ons) */
+export function getCartItemPrice(item: CartItem): number {
+  let price = item.selection?.selectedSize?.price ?? item.menuItem.price;
+  if (item.selection?.selectedOptions) {
+    for (const opts of Object.values(item.selection.selectedOptions)) {
+      for (const opt of opts) {
+        price += opt.priceAdd;
+      }
+    }
+  }
+  return price;
+}
+
+/** Format selection summary for display (e.g., "Medium · Oat Milk · Extra Shot") */
+export function formatSelectionSummary(item: CartItem): string {
+  const parts: string[] = [];
+  if (item.selection?.selectedSize) {
+    parts.push(item.selection.selectedSize.name);
+  }
+  if (item.selection?.selectedOptions) {
+    for (const opts of Object.values(item.selection.selectedOptions)) {
+      for (const opt of opts) {
+        parts.push(opt.name);
+      }
+    }
+  }
+  return parts.join(" · ");
+}
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD_ITEM": {
-      const existing = state.items.find(
-        (i) => i.menuItem.slug === action.payload.slug
-      );
+      // Simple add (no customization) — use slug as cartKey
+      const cartKey = action.payload.slug;
+      const existing = state.items.find((i) => i.cartKey === cartKey);
       if (existing) {
         return {
           ...state,
           items: state.items.map((i) =>
-            i.menuItem.slug === action.payload.slug
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
+            i.cartKey === cartKey ? { ...i, quantity: i.quantity + 1 } : i
           ),
         };
       }
       return {
         ...state,
-        items: [...state.items, { menuItem: action.payload, quantity: 1, allergyNotes: "" }],
+        items: [...state.items, { menuItem: action.payload, quantity: 1, allergyNotes: "", cartKey }],
       };
+    }
+    case "ADD_CUSTOM_ITEM": {
+      const existing = state.items.find((i) => i.cartKey === action.payload.cartKey);
+      if (existing) {
+        return {
+          ...state,
+          items: state.items.map((i) =>
+            i.cartKey === action.payload.cartKey
+              ? { ...i, quantity: i.quantity + action.payload.quantity }
+              : i
+          ),
+        };
+      }
+      return { ...state, items: [...state.items, action.payload] };
     }
     case "REMOVE_ITEM":
       return {
         ...state,
-        items: state.items.filter((i) => i.menuItem.slug !== action.payload),
+        items: state.items.filter((i) => i.cartKey !== action.payload),
       };
     case "UPDATE_QUANTITY": {
       if (action.payload.quantity <= 0) {
         return {
           ...state,
-          items: state.items.filter(
-            (i) => i.menuItem.slug !== action.payload.slug
-          ),
+          items: state.items.filter((i) => i.cartKey !== action.payload.cartKey),
         };
       }
       return {
         ...state,
         items: state.items.map((i) =>
-          i.menuItem.slug === action.payload.slug
+          i.cartKey === action.payload.cartKey
             ? { ...i, quantity: action.payload.quantity }
             : i
         ),
@@ -51,7 +108,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: state.items.map((i) =>
-          i.menuItem.slug === action.payload.slug
+          i.cartKey === action.payload.cartKey
             ? { ...i, allergyNotes: action.payload.allergyNotes }
             : i
         ),
@@ -77,9 +134,10 @@ const initialState: CartState = { items: [], isOpen: false };
 interface CartContextValue {
   state: CartState;
   addItem: (item: MenuItem) => void;
-  removeItem: (slug: string) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
-  updateAllergyNotes: (slug: string, allergyNotes: string) => void;
+  addCustomItem: (item: CartItem) => void;
+  removeItem: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, quantity: number) => void;
+  updateAllergyNotes: (cartKey: string, allergyNotes: string) => void;
   clearCart: () => void;
   toggleCart: () => void;
   openCart: () => void;
@@ -102,9 +160,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem("yazol-cart");
       if (saved) {
         const parsed = JSON.parse(saved) as CartItem[];
+        // Ensure cartKey exists on loaded items (backward compat)
         const items = parsed.map((item) => ({
           ...item,
           allergyNotes: item.allergyNotes || "",
+          cartKey: item.cartKey || item.menuItem.slug,
         }));
         dispatch({ type: "LOAD_CART", payload: items });
       }
@@ -122,18 +182,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (item: MenuItem) => dispatch({ type: "ADD_ITEM", payload: item }),
     []
   );
+  const addCustomItem = useCallback(
+    (item: CartItem) => dispatch({ type: "ADD_CUSTOM_ITEM", payload: item }),
+    []
+  );
   const removeItem = useCallback(
-    (slug: string) => dispatch({ type: "REMOVE_ITEM", payload: slug }),
+    (cartKey: string) => dispatch({ type: "REMOVE_ITEM", payload: cartKey }),
     []
   );
   const updateQuantity = useCallback(
-    (slug: string, quantity: number) =>
-      dispatch({ type: "UPDATE_QUANTITY", payload: { slug, quantity } }),
+    (cartKey: string, quantity: number) =>
+      dispatch({ type: "UPDATE_QUANTITY", payload: { cartKey, quantity } }),
     []
   );
   const updateAllergyNotes = useCallback(
-    (slug: string, allergyNotes: string) =>
-      dispatch({ type: "UPDATE_ALLERGY_NOTES", payload: { slug, allergyNotes } }),
+    (cartKey: string, allergyNotes: string) =>
+      dispatch({ type: "UPDATE_ALLERGY_NOTES", payload: { cartKey, allergyNotes } }),
     []
   );
   const clearCart = useCallback(
@@ -155,7 +219,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const itemCount = state.items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = state.items.reduce(
-    (sum, i) => sum + i.menuItem.price * i.quantity,
+    (sum, i) => sum + getCartItemPrice(i) * i.quantity,
     0
   );
   const tax = subtotal * 0.13;
@@ -166,6 +230,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       value={{
         state,
         addItem,
+        addCustomItem,
         removeItem,
         updateQuantity,
         updateAllergyNotes,

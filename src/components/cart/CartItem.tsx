@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CartItem as CartItemType } from "@/lib/types";
 import { getProductImage } from "@/lib/image-map";
-import { useCart } from "@/lib/cart-context";
+import { useCart, getCartItemPrice, formatSelectionSummary } from "@/lib/cart-context";
 import QuantitySelector from "@/components/ui/QuantitySelector";
 
 interface CartItemProps {
@@ -16,7 +16,9 @@ export default function CartItemRow({ item }: CartItemProps) {
   const { updateQuantity, updateAllergyNotes, removeItem } = useCart();
   const [showNotes, setShowNotes] = useState(false);
   const imageSrc = getProductImage(item.menuItem.slug);
-  const lineTotal = item.menuItem.price * item.quantity;
+  const unitPrice = getCartItemPrice(item);
+  const lineTotal = unitPrice * item.quantity;
+  const selectionSummary = formatSelectionSummary(item);
 
   return (
     <div className="flex gap-3 py-4 border-b border-black/5">
@@ -36,7 +38,7 @@ export default function CartItemRow({ item }: CartItemProps) {
             {item.menuItem.name}
           </h4>
           <button
-            onClick={() => removeItem(item.menuItem.slug)}
+            onClick={() => removeItem(item.cartKey)}
             className="text-brown/50 hover:text-brown text-xs flex-shrink-0 transition-colors"
             aria-label={`Remove ${item.menuItem.name}`}
           >
@@ -47,10 +49,17 @@ export default function CartItemRow({ item }: CartItemProps) {
           </button>
         </div>
 
+        {/* Selection summary (size, options) */}
+        {selectionSummary && (
+          <p className="text-brown/40 text-[11px] font-body mt-0.5 truncate">
+            {selectionSummary}
+          </p>
+        )}
+
         <div className="flex items-center justify-between mt-2">
           <QuantitySelector
             quantity={item.quantity}
-            onChange={(q) => updateQuantity(item.menuItem.slug, q)}
+            onChange={(q) => updateQuantity(item.cartKey, q)}
           />
           <span className="text-gold font-display text-sm">
             ${lineTotal.toFixed(2)}
@@ -80,7 +89,7 @@ export default function CartItemRow({ item }: CartItemProps) {
             >
               <textarea
                 value={item.allergyNotes}
-                onChange={(e) => updateAllergyNotes(item.menuItem.slug, e.target.value)}
+                onChange={(e) => updateAllergyNotes(item.cartKey, e.target.value)}
                 placeholder="e.g., nut allergy, dairy-free..."
                 rows={2}
                 maxLength={200}

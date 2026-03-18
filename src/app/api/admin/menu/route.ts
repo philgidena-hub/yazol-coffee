@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, description, category, categorySlug, price, isAvailable, imageKey, ingredients } = body;
+    const { name, description, category, categorySlug, price, isAvailable, imageKey, ingredients, sizes, optionGroups } = body;
 
     if (!name || !description || !category || !categorySlug || typeof price !== "number") {
       return NextResponse.json(
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
       isAvailable: isAvailable ?? true,
       imageKey: imageKey || "",
       ingredients: ingredients || [],
+      sizes: sizes || [],
+      optionGroups: optionGroups || [],
     });
 
     return NextResponse.json({ item }, { status: 201 });

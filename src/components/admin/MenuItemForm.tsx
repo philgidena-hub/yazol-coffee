@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/dynamodb";
+import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption } from "@/lib/types";
 
 interface MenuItemFormProps {
   open: boolean;
@@ -27,6 +28,8 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
   const [price, setPrice] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
   const [ingredients, setIngredients] = useState<IngredientRow[]>([]);
+  const [sizes, setSizes] = useState<MenuItemSize[]>([]);
+  const [optionGroups, setOptionGroups] = useState<MenuItemOptionGroup[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -58,6 +61,11 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
       setPrice(item.price.toString());
       setIsAvailable(item.isAvailable);
       setIngredients(item.ingredients.map((ing) => ({ ...ing })));
+      setSizes(item.sizes ? item.sizes.map((s) => ({ ...s })) : []);
+      setOptionGroups(item.optionGroups ? item.optionGroups.map((g) => ({
+        ...g,
+        options: g.options.map((o) => ({ ...o })),
+      })) : []);
     } else if (open) {
       setName("");
       setDescription("");
@@ -66,6 +74,8 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
       setPrice("");
       setIsAvailable(true);
       setIngredients([]);
+      setSizes([]);
+      setOptionGroups([]);
     }
     setError("");
   }, [open, item]);
@@ -126,6 +136,13 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
           price: priceNum,
           isAvailable,
           ingredients: validIngredients,
+          sizes: sizes.filter((s) => s.name.trim() && s.price >= 0),
+          optionGroups: optionGroups
+            .filter((g) => g.name.trim() && g.options.length > 0)
+            .map((g) => ({
+              ...g,
+              options: g.options.filter((o) => o.name.trim()),
+            })),
         }),
       });
 
@@ -291,6 +308,152 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                           </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Sizes */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-slate-400">Sizes (optional)</label>
+                  <button
+                    type="button"
+                    onClick={() => setSizes((prev) => [...prev, { name: "", price: 0 }])}
+                    className="text-[11px] font-medium text-indigo-400 hover:text-indigo-300"
+                  >
+                    + Add Size
+                  </button>
+                </div>
+                {sizes.length === 0 ? (
+                  <p className="text-xs text-slate-600">No sizes — base price used for all</p>
+                ) : (
+                  <div className="space-y-2">
+                    {sizes.map((size, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={size.name}
+                          onChange={(e) => setSizes((prev) => prev.map((s, j) => j === i ? { ...s, name: e.target.value } : s))}
+                          placeholder="e.g. Small"
+                          className="flex-1 px-2 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+                        />
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={size.price || ""}
+                          onChange={(e) => setSizes((prev) => prev.map((s, j) => j === i ? { ...s, price: parseFloat(e.target.value) || 0 } : s))}
+                          placeholder="Price"
+                          className="w-20 px-2 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded text-white text-right focus:outline-none focus:border-indigo-500"
+                        />
+                        <button type="button" onClick={() => setSizes((prev) => prev.filter((_, j) => j !== i))} className="p-1 text-slate-600 hover:text-red-400">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Option Groups */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-slate-400">Customization Options (optional)</label>
+                  <button
+                    type="button"
+                    onClick={() => setOptionGroups((prev) => [...prev, { name: "", required: false, maxChoices: 1, options: [] }])}
+                    className="text-[11px] font-medium text-indigo-400 hover:text-indigo-300"
+                  >
+                    + Add Group
+                  </button>
+                </div>
+                {optionGroups.length === 0 ? (
+                  <p className="text-xs text-slate-600">No customization options</p>
+                ) : (
+                  <div className="space-y-4">
+                    {optionGroups.map((group, gi) => (
+                      <div key={gi} className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={group.name}
+                            onChange={(e) => setOptionGroups((prev) => prev.map((g, j) => j === gi ? { ...g, name: e.target.value } : g))}
+                            placeholder="Group name (e.g. Milk Option)"
+                            className="flex-1 px-2 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+                          />
+                          <label className="flex items-center gap-1.5 text-[10px] text-slate-400 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={group.required}
+                              onChange={(e) => setOptionGroups((prev) => prev.map((g, j) => j === gi ? { ...g, required: e.target.checked } : g))}
+                              className="rounded border-slate-600 bg-slate-800 text-indigo-500 focus:ring-indigo-500/20"
+                            />
+                            Required
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={group.maxChoices}
+                            onChange={(e) => setOptionGroups((prev) => prev.map((g, j) => j === gi ? { ...g, maxChoices: parseInt(e.target.value) || 1 } : g))}
+                            className="w-12 px-1.5 py-1.5 text-xs bg-slate-800 border border-slate-700 rounded text-white text-center focus:outline-none focus:border-indigo-500"
+                            title="Max choices"
+                          />
+                          <button type="button" onClick={() => setOptionGroups((prev) => prev.filter((_, j) => j !== gi))} className="p-1 text-slate-600 hover:text-red-400">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mb-2">Max choices: {group.maxChoices} · {group.required ? "Required" : "Optional"}</p>
+
+                        {/* Options in this group */}
+                        <div className="space-y-1.5">
+                          {group.options.map((opt, oi) => (
+                            <div key={oi} className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={opt.name}
+                                onChange={(e) => setOptionGroups((prev) => prev.map((g, j) => j === gi ? {
+                                  ...g,
+                                  options: g.options.map((o, k) => k === oi ? { ...o, name: e.target.value } : o),
+                                } : g))}
+                                placeholder="Option name"
+                                className="flex-1 px-2 py-1 text-xs bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-indigo-500"
+                              />
+                              <div className="flex items-center gap-0.5">
+                                <span className="text-[10px] text-slate-500">+$</span>
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  value={opt.priceAdd || ""}
+                                  onChange={(e) => setOptionGroups((prev) => prev.map((g, j) => j === gi ? {
+                                    ...g,
+                                    options: g.options.map((o, k) => k === oi ? { ...o, priceAdd: parseFloat(e.target.value) || 0 } : o),
+                                  } : g))}
+                                  placeholder="0.00"
+                                  className="w-16 px-1.5 py-1 text-xs bg-slate-800 border border-slate-700 rounded text-white text-right focus:outline-none focus:border-indigo-500"
+                                />
+                              </div>
+                              <button type="button" onClick={() => setOptionGroups((prev) => prev.map((g, j) => j === gi ? {
+                                ...g,
+                                options: g.options.filter((_, k) => k !== oi),
+                              } : g))} className="p-0.5 text-slate-600 hover:text-red-400">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setOptionGroups((prev) => prev.map((g, j) => j === gi ? {
+                            ...g,
+                            options: [...g.options, { name: "", priceAdd: 0 }],
+                          } : g))}
+                          className="mt-2 text-[10px] font-medium text-indigo-400 hover:text-indigo-300"
+                        >
+                          + Add Option
                         </button>
                       </div>
                     ))}
