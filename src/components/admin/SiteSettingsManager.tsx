@@ -25,7 +25,7 @@ interface SiteSettings {
   updatedBy: string;
 }
 
-const DAYS = [
+const DAY_NAMES = [
   "Sunday",
   "Monday",
   "Tuesday",
@@ -49,7 +49,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   tiktok: "",
   facebook: "",
   shopHours: Object.fromEntries(
-    DAYS.map((day) => [day, { open: 8, close: 18, closed: false }])
+    DAY_NAMES.map((_, i) => [String(i), { open: 8, close: 18, closed: false }])
   ),
   heroTitle: "",
   heroSubtitle: "",
@@ -470,26 +470,27 @@ export default function SiteSettingsManager() {
       {/* 4. Shop Hours */}
       <CollapsibleSection title="Shop Hours" icon="&#x1f552;">
         <div className="space-y-3">
-          {DAYS.map((day) => {
-            const hours = settings.shopHours[day] || {
+          {DAY_NAMES.map((dayName, dayIndex) => {
+            const dayKey = String(dayIndex);
+            const hours = settings.shopHours[dayKey] || {
               open: 8,
               close: 18,
               closed: false,
             };
             return (
               <div
-                key={day}
+                key={dayKey}
                 className="flex flex-col sm:flex-row sm:items-center gap-3 py-3 border-b border-white/[0.04] last:border-0"
               >
                 {/* Day name */}
                 <div className="w-28 shrink-0">
-                  <span className="text-white text-sm font-medium">{day}</span>
+                  <span className="text-white text-sm font-medium">{dayName}</span>
                 </div>
 
                 {/* Toggle */}
                 <button
                   type="button"
-                  onClick={() => updateHour(day, "closed", !hours.closed)}
+                  onClick={() => updateHour(dayKey, "closed", !hours.closed)}
                   className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
                     hours.closed ? "bg-slate-700" : "bg-indigo-600"
                   }`}
@@ -520,7 +521,7 @@ export default function SiteSettingsManager() {
                         value={hours.open}
                         onChange={(e) =>
                           updateHour(
-                            day,
+                            dayKey,
                             "open",
                             Math.min(23, Math.max(0, parseInt(e.target.value) || 0))
                           )
@@ -537,7 +538,7 @@ export default function SiteSettingsManager() {
                         value={hours.close}
                         onChange={(e) =>
                           updateHour(
-                            day,
+                            dayKey,
                             "close",
                             Math.min(23, Math.max(0, parseInt(e.target.value) || 0))
                           )

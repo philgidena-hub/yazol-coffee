@@ -52,6 +52,9 @@ export async function getOrCreateCustomerByPhone(data: {
   email: string;
 }): Promise<Customer> {
   const normalized = normalizePhone(data.phone);
+  if (!normalized || normalized.length < 7) {
+    throw new Error("Invalid phone number");
+  }
   const existing = await getCustomerByPhone(normalized);
 
   if (existing) {

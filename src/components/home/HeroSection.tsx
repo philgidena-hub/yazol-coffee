@@ -5,8 +5,8 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Image from "next/image";
 import Link from "next/link";
 
-/* ─── Slide data ─── */
-const SLIDES = [
+/* ─── Default slide data ─── */
+const DEFAULT_SLIDES = [
   {
     image: "/Images/storefront-wide.jpg",
     subtitle: "Welcome to",
@@ -106,8 +106,25 @@ function ScrollIndicator() {
 
 /* ─── Main hero ─── */
 export default function HeroSection() {
+  const [slides, setSlides] = useState(DEFAULT_SLIDES);
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+
+  // Fetch hero text from settings — update first slide
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.heroTitle) {
+          setSlides((prev) => prev.map((s, i) =>
+            i === 0
+              ? { ...s, title: data.heroTitle, subtitle: data.heroSubtitle || s.subtitle, description: data.heroDescription || s.description }
+              : s
+          ));
+        }
+      })
+      .catch(() => {});
+  }, []);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parallax on scroll
@@ -124,8 +141,8 @@ export default function HeroSection() {
   }, []);
 
   const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % SLIDES.length);
-  }, []);
+    setCurrent((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
 
   // Auto-advance
   useEffect(() => {
@@ -136,7 +153,7 @@ export default function HeroSection() {
     };
   }, [next, isPaused, current]);
 
-  const slide = SLIDES[current];
+  const slide = slides[current];
 
   return (
     <section
@@ -242,7 +259,7 @@ export default function HeroSection() {
 
           {/* ── Slide indicators ── */}
           <div className="flex items-center gap-2 sm:gap-3 mt-8 sm:mt-10">
-            {SLIDES.map((_, i) => (
+            {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -269,7 +286,7 @@ export default function HeroSection() {
               </button>
             ))}
             <span className="text-white/40 text-xs font-body ml-1 sm:ml-2 tabular-nums">
-              {String(current + 1).padStart(2, "0")} / {String(SLIDES.length).padStart(2, "0")}
+              {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
             </span>
           </div>
         </div>

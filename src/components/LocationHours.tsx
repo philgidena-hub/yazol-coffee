@@ -1,11 +1,60 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import TextReveal from "@/components/ui/TextReveal";
 import { LineReveal, FadeUp } from "@/components/ui/TextReveal";
+
+interface LocationSettings {
+  address: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  phone: string;
+  email: string;
+  shopHours: Record<string, { open: number; close: number; closed: boolean }>;
+}
+
+function formatHour(h: number): string {
+  if (h === 0) return "12:00 AM";
+  if (h === 12) return "12:00 PM";
+  return h > 12 ? `${h - 12}:00 PM` : `${h}:00 AM`;
+}
+
+function getHoursDisplay(shopHours: Record<string, { open: number; close: number; closed: boolean }>): { label: string; hours: string }[] {
+  // Group days with same hours
+  const groups: { days: number[]; open: number; close: number; closed: boolean }[] = [];
+  for (let i = 1; i <= 6; i++) { // Mon-Sat first
+    const h = shopHours[String(i)] || { open: 8, close: 18, closed: false };
+    const last = groups[groups.length - 1];
+    if (last && last.open === h.open && last.close === h.close && last.closed === h.closed) {
+      last.days.push(i);
+    } else {
+      groups.push({ days: [i], ...h });
+    }
+  }
+  // Add Sunday
+  const sun = shopHours["0"] || { open: 9, close: 17, closed: false };
+  const lastGroup = groups[groups.length - 1];
+  if (lastGroup && lastGroup.open === sun.open && lastGroup.close === sun.close && lastGroup.closed === sun.closed) {
+    lastGroup.days.push(0);
+  } else {
+    groups.push({ days: [0], ...sun });
+  }
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  return groups.map((g) => {
+    const dayLabel = g.days.length === 1
+      ? dayNames[g.days[0]]
+      : `${dayNames[g.days[0]]} — ${dayNames[g.days[g.days.length - 1]]}`;
+    return {
+      label: dayLabel,
+      hours: g.closed ? "Closed" : `${formatHour(g.open)} — ${formatHour(g.close)}`,
+    };
+  });
+}
 
 const infoVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -26,6 +75,35 @@ export default function LocationHours() {
   const { scrollYProgress } = useScroll({ target: imgRef, offset: ["start end", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], [30, -30]);
   const imgScale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);
+
+  const [info, setInfo] = useState<LocationSettings>({
+    address: "2857 Danforth Ave",
+    city: "Toronto",
+    province: "ON",
+    postalCode: "M4C 1M2",
+    phone: "(416) 690-5423",
+    email: "yazolcoffee@gmail.com",
+    shopHours: {
+      "0": { open: 9, close: 17, closed: false },
+      "1": { open: 8, close: 18, closed: false },
+      "2": { open: 8, close: 18, closed: false },
+      "3": { open: 8, close: 18, closed: false },
+      "4": { open: 8, close: 18, closed: false },
+      "5": { open: 8, close: 18, closed: false },
+      "6": { open: 9, close: 17, closed: false },
+    },
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data) setInfo((prev) => ({ ...prev, ...data }));
+      })
+      .catch(() => {});
+  }, []);
+
+  const hoursDisplay = getHoursDisplay(info.shopHours);
 
   return (
     <section className="relative overflow-hidden">
@@ -87,11 +165,11 @@ export default function LocationHours() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-2 sm:mb-3">Address</p>
-                    <p className="font-display text-lg sm:text-xl md:text-2xl text-brown">2857 Danforth Ave</p>
-                    <p className="font-body text-brown/50 mt-1 text-sm">Toronto, ON M4C 1M2</p>
+                    <p className="font-display text-lg sm:text-xl md:text-2xl text-brown">{info.address}</p>
+                    <p className="font-body text-brown/50 mt-1 text-sm">{info.city}, {info.province} {info.postalCode}</p>
                   </div>
                   <Link
-                    href="https://maps.google.com/?q=2857+Danforth+Ave+Toronto"
+                    href={`https://maps.google.com/?q=${encodeURIComponent(info.address + " " + info.city)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-body text-[10px] tracking-[0.15em] uppercase text-gold hover:text-brown transition-colors flex items-center gap-1 flex-shrink-0"
@@ -108,14 +186,12 @@ export default function LocationHours() {
               <motion.div custom={1} variants={infoVariants} className="py-5 sm:py-6 md:py-8 border-b border-black/8">
                 <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-3 sm:mb-4">Hours</p>
                 <div className="grid grid-cols-2 gap-4 md:gap-6">
-                  <div>
-                    <p className="font-display text-base sm:text-lg md:text-xl text-brown">Mon — Fri</p>
-                    <p className="font-body text-gold text-sm mt-1">8:00 AM — 6:00 PM</p>
-                  </div>
-                  <div>
-                    <p className="font-display text-base sm:text-lg md:text-xl text-brown">Sat — Sun</p>
-                    <p className="font-body text-gold text-sm mt-1">9:00 AM — 5:00 PM</p>
-                  </div>
+                  {hoursDisplay.map((group) => (
+                    <div key={group.label}>
+                      <p className="font-display text-base sm:text-lg md:text-xl text-brown">{group.label}</p>
+                      <p className={`font-body text-sm mt-1 ${group.hours === "Closed" ? "text-brown/40" : "text-gold"}`}>{group.hours}</p>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
 
@@ -123,11 +199,11 @@ export default function LocationHours() {
               <motion.div custom={2} variants={infoVariants} className="py-5 sm:py-6 md:py-8">
                 <p className="font-body text-[10px] tracking-[0.2em] uppercase text-brown/40 mb-3 sm:mb-4">Contact</p>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-8">
-                  <Link href="tel:+14166905423" className="font-display text-base sm:text-lg md:text-xl text-brown hover:text-gold transition-colors">
-                    (416) 690-5423
+                  <Link href={`tel:${info.phone.replace(/\D/g, "")}`} className="font-display text-base sm:text-lg md:text-xl text-brown hover:text-gold transition-colors">
+                    {info.phone}
                   </Link>
-                  <Link href="mailto:yazolcoffee@gmail.com" className="font-body text-brown/50 hover:text-brown transition-colors text-sm">
-                    yazolcoffee@gmail.com
+                  <Link href={`mailto:${info.email}`} className="font-body text-brown/50 hover:text-brown transition-colors text-sm">
+                    {info.email}
                   </Link>
                 </div>
               </motion.div>
