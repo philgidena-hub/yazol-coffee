@@ -201,6 +201,11 @@ export default function OrderCard({ order, onStatusChange, role, categoryMap = {
                 <div className="flex justify-between text-sm font-body items-center">
                   <span className="text-slate-300 flex items-center gap-1.5">
                     {item.quantity}x {item.name}
+                    {item.size && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-body font-medium bg-slate-700/50 text-slate-400 border border-slate-600/30">
+                        {item.size}
+                      </span>
+                    )}
                     <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-body font-semibold uppercase tracking-wider border ${stationColors.bg} ${stationColors.border} ${stationColors.text}`}>
                       {getStationLabel(station)}
                     </span>
@@ -209,6 +214,11 @@ export default function OrderCard({ order, onStatusChange, role, categoryMap = {
                     ${(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
+                {item.options && item.options.length > 0 && (
+                  <p className="text-[11px] font-body text-indigo-400/70 ml-4 mt-0.5">
+                    {item.options.join(" · ")}
+                  </p>
+                )}
                 {item.allergyNotes && (
                   <div className="flex items-center gap-1.5 mt-0.5 ml-4">
                     <svg className="w-3 h-3 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

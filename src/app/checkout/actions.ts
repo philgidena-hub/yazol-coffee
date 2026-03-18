@@ -16,6 +16,8 @@ interface PlaceOrderInput {
     price: number;
     quantity: number;
     allergyNotes: string;
+    size?: string;
+    options?: string[];
   }>;
 }
 
@@ -67,6 +69,8 @@ export async function placeOrder(input: PlaceOrderInput): Promise<PlaceOrderResu
         price: item.price,
         quantity: item.quantity,
         allergyNotes: item.allergyNotes,
+        ...(item.size && { size: item.size }),
+        ...(item.options && item.options.length > 0 && { options: item.options }),
       })),
       subtotal,
       tax,

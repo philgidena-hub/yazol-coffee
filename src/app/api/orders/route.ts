@@ -45,12 +45,14 @@ export async function POST(request: NextRequest) {
       customerName,
       customerPhone,
       customerEmail,
-      items: items.map((item: { slug: string; name: string; price: number; quantity: number; allergyNotes?: string }) => ({
+      items: items.map((item: { slug: string; name: string; price: number; quantity: number; allergyNotes?: string; size?: string; options?: string[] }) => ({
         slug: item.slug,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
         allergyNotes: item.allergyNotes || "",
+        ...(item.size && { size: item.size }),
+        ...(item.options && item.options.length > 0 && { options: item.options }),
       })),
       subtotal,
       tax,

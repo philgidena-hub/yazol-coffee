@@ -471,9 +471,16 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-body text-slate-500">{item.category}</span>
                     <span className="text-sm font-body font-semibold text-emerald-400 tabular-nums">
-                      ${item.price.toFixed(2)}
+                      {item.sizes && item.sizes.length > 0
+                        ? `$${Math.min(...item.sizes.map((s) => s.price)).toFixed(2)}`
+                        : `$${item.price.toFixed(2)}`}
                     </span>
                   </div>
+                  {((item.sizes && item.sizes.length > 0) || (item.optionGroups && item.optionGroups.length > 0)) && (
+                    <span className="absolute top-1.5 right-1.5 text-[8px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded px-1.5 py-0.5">
+                      Customize
+                    </span>
+                  )}
                 </motion.button>
               );
             })}

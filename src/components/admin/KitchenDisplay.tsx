@@ -297,8 +297,18 @@ export default function KitchenDisplay({ onOrderUpdate, role }: KitchenDisplayPr
                                   <span className="text-sm font-body text-white">
                                     <span className="text-slate-500 font-medium mr-1.5">{item.quantity}x</span>
                                     {item.name}
+                                    {item.size && (
+                                      <span className="ml-1.5 text-[10px] text-slate-400 bg-slate-700/50 px-1.5 py-0.5 rounded border border-slate-600/30">
+                                        {item.size}
+                                      </span>
+                                    )}
                                   </span>
                                 </div>
+                                {item.options && item.options.length > 0 && (
+                                  <p className="text-[10px] font-body text-cyan-400/70 ml-6 mt-0.5">
+                                    {item.options.join(" · ")}
+                                  </p>
+                                )}
                                 {item.allergyNotes && (
                                   <p className="text-[11px] font-body text-red-400 ml-6 mt-0.5 flex items-center gap-1">
                                     <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">

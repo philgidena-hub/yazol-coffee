@@ -172,10 +172,23 @@ export default function MenuManager() {
                           {item.name}
                         </p>
                       </div>
-                      <p className="text-xs font-body text-slate-600 tabular-nums">
-                        ${item.price.toFixed(2)}
+                      <p className="text-xs font-body text-slate-600 tabular-nums flex items-center gap-2 flex-wrap">
+                        <span>{item.sizes && item.sizes.length > 0
+                          ? `$${Math.min(...item.sizes.map((s) => s.price)).toFixed(2)} — $${Math.max(...item.sizes.map((s) => s.price)).toFixed(2)}`
+                          : `$${item.price.toFixed(2)}`
+                        }</span>
+                        {item.sizes && item.sizes.length > 0 && (
+                          <span className="text-indigo-400/60 text-[10px]">
+                            {item.sizes.map((s) => s.name).join("/")}
+                          </span>
+                        )}
+                        {item.optionGroups && item.optionGroups.length > 0 && (
+                          <span className="text-cyan-400/60 text-[10px]">
+                            {item.optionGroups.length} option{item.optionGroups.length !== 1 ? "s" : ""}
+                          </span>
+                        )}
                         {item.ingredients.length > 0 && (
-                          <span className="ml-2 text-slate-700">
+                          <span className="text-slate-700">
                             {item.ingredients.length} ingredient{item.ingredients.length !== 1 ? "s" : ""}
                           </span>
                         )}
