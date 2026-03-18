@@ -3,9 +3,7 @@ import Stripe from "stripe";
 import { getOrder } from "@/lib/admin-db";
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-02-25.clover",
-  });
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }
 
 export async function POST(req: NextRequest) {
@@ -35,50 +33,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
-      order.items.map((item) => ({
-        price_data: {
-          currency: "cad",
-          product_data: {
-            name: item.name,
-          },
-          unit_amount: Math.round(item.price * 100),
-        },
-        quantity: item.quantity,
-      }));
-
-    // Add HST as a separate line item
-    if (order.tax > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "cad",
-          product_data: {
-            name: "HST (13%)",
-          },
-          unit_amount: Math.round(order.tax * 100),
-        },
-        quantity: 1,
-      });
-    }
-
-    const session = await getStripe().checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
+    // Create a Payment Intent instead of a Checkout Session
+    const paymentIntent = await getStripe().paymentIntents.create({
+      amount: Math.round(order.total * 100), // cents
+      currency: "cad",
       metadata: {
         orderId: order.orderId,
       },
-      line_items: lineItems,
-      success_url: `${appUrl}/checkout/success?orderId=${order.orderId}`,
-      cancel_url: `${appUrl}/checkout/canceled?orderId=${order.orderId}`,
+      automatic_payment_methods: {
+        enabled: true,
+      },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+    });
   } catch (error) {
-    console.error("Stripe checkout error:", error);
+    console.error("Stripe payment intent error:", error);
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: "Failed to create payment" },
       { status: 500 }
     );
   }

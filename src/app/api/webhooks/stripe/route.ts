@@ -3,9 +3,7 @@ import Stripe from "stripe";
 import { updatePaymentStatus } from "@/lib/admin-db";
 
 function getStripe() {
-  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2026-02-25.clover",
-  });
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
 }
 
 export async function POST(req: NextRequest) {
@@ -31,13 +29,14 @@ export async function POST(req: NextRequest) {
 
   console.log(`Stripe webhook received: ${event.type}`);
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const orderId = session.metadata?.orderId;
+  // Handle Payment Intent succeeded (inline payment)
+  if (event.type === "payment_intent.succeeded") {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    const orderId = paymentIntent.metadata?.orderId;
 
-    console.log(`Checkout session completed — orderId: ${orderId}, payment_status: ${session.payment_status}, metadata: ${JSON.stringify(session.metadata)}`);
+    console.log(`Payment intent succeeded — orderId: ${orderId}`);
 
-    if (orderId && session.payment_status === "paid") {
+    if (orderId) {
       try {
         const updated = await updatePaymentStatus(orderId, "paid");
         console.log(`Payment confirmed for order ${orderId}`, JSON.stringify(updated));
@@ -45,8 +44,22 @@ export async function POST(req: NextRequest) {
         console.error(`Failed to update payment status for order ${orderId}:`, error);
         return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
       }
-    } else {
-      console.warn(`Skipped update — orderId: ${orderId}, payment_status: ${session.payment_status}`);
+    }
+  }
+
+  // Keep legacy checkout session handler for any existing sessions
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.metadata?.orderId;
+
+    if (orderId && session.payment_status === "paid") {
+      try {
+        await updatePaymentStatus(orderId, "paid");
+        console.log(`Payment confirmed (checkout session) for order ${orderId}`);
+      } catch (error) {
+        console.error(`Failed to update payment status for order ${orderId}:`, error);
+        return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+      }
     }
   }
 

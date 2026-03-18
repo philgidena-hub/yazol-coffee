@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/lib/cart-context";
 import { getProductImage } from "@/lib/image-map";
 import { placeOrder } from "./actions";
 import TimeSlotPicker from "@/components/checkout/TimeSlotPicker";
+import PaymentForm from "@/components/checkout/PaymentForm";
 
 export default function CheckoutPage() {
   const { state, subtotal, tax, total, clearCart } = useCart();
@@ -25,6 +26,13 @@ export default function CheckoutPage() {
     total: number;
   } | null>(null);
   const [error, setError] = useState("");
+
+  // Inline payment state
+  const [paymentStep, setPaymentStep] = useState<{
+    clientSecret: string;
+    orderId: string;
+    total: number;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +70,7 @@ export default function CheckoutPage() {
 
       if (!result.success) throw new Error(result.error || "Failed to place order");
 
-      clearCart();
-
-      // For online payments, redirect to Stripe Checkout
+      // For online payments, get client secret and show inline payment
       if (form.paymentMethod === "online") {
         const res = await fetch("/api/checkout", {
           method: "POST",
@@ -73,20 +79,34 @@ export default function CheckoutPage() {
         });
         const data = await res.json();
 
-        if (!res.ok || !data.url) {
+        if (!res.ok || !data.clientSecret) {
           throw new Error(data.error || "Failed to start payment");
         }
 
-        window.location.href = data.url;
+        setPaymentStep({
+          clientSecret: data.clientSecret,
+          orderId: result.orderId!,
+          total: result.total!,
+        });
+        setSubmitting(false);
         return;
       }
 
       // For pay-at-pickup, show confirmation directly
+      clearCart();
       setOrderConfirm({ orderId: result.orderId!, total: result.total! });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    clearCart();
+    if (paymentStep) {
+      setOrderConfirm({ orderId: paymentStep.orderId, total: paymentStep.total });
+      setPaymentStep(null);
     }
   };
 
@@ -137,8 +157,8 @@ export default function CheckoutPage() {
     );
   }
 
-  // Empty cart
-  if (state.items.length === 0 && !orderConfirm) {
+  // Empty cart (but not if we're in payment step — cart was already cleared conceptually)
+  if (state.items.length === 0 && !orderConfirm && !paymentStep) {
     return (
       <main className="min-h-screen bg-bg pt-32 pb-20">
         <div className="max-w-xl mx-auto px-5 sm:px-6 text-center">
@@ -152,6 +172,58 @@ export default function CheckoutPage() {
           >
             Browse Menu
           </Link>
+        </div>
+      </main>
+    );
+  }
+
+  // Inline payment step
+  if (paymentStep) {
+    return (
+      <main className="min-h-screen bg-bg pt-32 pb-20">
+        <div className="max-w-lg mx-auto px-5 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <button
+              onClick={() => setPaymentStep(null)}
+              className="flex items-center gap-2 text-brown/50 font-body text-sm mb-6 hover:text-brown transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Back to order
+            </button>
+
+            <h1 className="font-display text-2xl md:text-3xl text-brown mb-2">
+              Complete Payment
+            </h1>
+            <p className="text-brown/50 font-body text-sm mb-8">
+              Order #{paymentStep.orderId.slice(0, 8).toUpperCase()} — ${paymentStep.total.toFixed(2)}
+            </p>
+
+            {/* Secure payment badge */}
+            <div className="flex items-center gap-2 mb-6 text-brown/40">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-xs font-body">Secure payment powered by Stripe</span>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+                <p className="text-red-600 text-sm font-body">{error}</p>
+              </div>
+            )}
+
+            <PaymentForm
+              clientSecret={paymentStep.clientSecret}
+              total={paymentStep.total}
+              onSuccess={handlePaymentSuccess}
+              onError={setError}
+            />
+          </motion.div>
         </div>
       </main>
     );
@@ -285,11 +357,9 @@ export default function CheckoutPage() {
               className="w-full py-4 bg-brown text-white font-display text-base rounded-xl hover:bg-brown-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting
-                ? form.paymentMethod === "online"
-                  ? "Redirecting to Payment..."
-                  : "Placing Order..."
+                ? "Placing Order..."
                 : form.paymentMethod === "online"
-                  ? `Pay Now — $${total.toFixed(2)}`
+                  ? `Continue to Payment — $${total.toFixed(2)}`
                   : `Place Order — $${total.toFixed(2)}`}
             </button>
           </motion.form>
