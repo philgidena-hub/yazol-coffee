@@ -179,6 +179,28 @@ export interface SiteSettings {
     title: string;
     description: string;
   }>;
+  // Homepage Sections
+  promoBanner?: {
+    label: string;
+    heading: string;
+    paragraph1: string;
+    paragraph2: string;
+    image: string;
+  };
+  storySection?: {
+    label: string;
+    heading: string;
+    paragraph1: string;
+    quote: string;
+    image1: string;
+    image2: string;
+  };
+  whyChoose?: Array<{
+    title: string;
+    description: string;
+  }>;
+  galleryImages?: string[];
+  scrollWords?: string[];
   // Meta
   updatedAt: string;
   updatedBy: string;

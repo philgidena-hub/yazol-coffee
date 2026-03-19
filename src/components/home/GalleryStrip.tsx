@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 
-const ROW_1 = [
+const DEFAULT_ROW_1 = [
   "/Images/gallery-1.jpg",
   "/Images/gallery-2.jpg",
   "/Images/gallery-3.jpg",
@@ -13,7 +13,7 @@ const ROW_1 = [
   "/Images/gallery-6.jpg",
 ];
 
-const ROW_2 = [
+const DEFAULT_ROW_2 = [
   "/Images/gallery-7.jpg",
   "/Images/gallery-8.jpg",
   "/Images/food-1.jpg",
@@ -23,6 +23,22 @@ const ROW_2 = [
 ];
 
 export default function GalleryStrip() {
+  const [row1, setRow1] = useState(DEFAULT_ROW_1);
+  const [row2, setRow2] = useState(DEFAULT_ROW_2);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.galleryImages && data.galleryImages.length > 0) {
+          const images = data.galleryImages as string[];
+          const half = Math.ceil(images.length / 2);
+          setRow1(images.slice(0, half));
+          setRow2(images.slice(half));
+        }
+      })
+      .catch(() => {});
+  }, []);
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -35,14 +51,14 @@ export default function GalleryStrip() {
     <section ref={ref} className="py-6 sm:py-10 bg-bg overflow-hidden">
       <div className="mb-3 sm:mb-4">
         <motion.div style={{ x: x1 }} className="flex gap-3 sm:gap-4">
-          {[...ROW_1, ...ROW_1].map((src, i) => (
+          {[...row1, ...row1].map((src, i) => (
             <div
               key={`r1-${i}`}
               className="relative w-[160px] sm:w-[220px] md:w-[280px] aspect-[4/3] flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden"
             >
               <Image
                 src={src}
-                alt={`Yazol gallery ${(i % ROW_1.length) + 1}`}
+                alt={`Yazol gallery ${(i % row1.length) + 1}`}
                 fill
                 className="object-cover"
                 sizes="280px"
@@ -52,14 +68,14 @@ export default function GalleryStrip() {
         </motion.div>
       </div>
       <motion.div style={{ x: x2 }} className="flex gap-3 sm:gap-4">
-        {[...ROW_2, ...ROW_2].map((src, i) => (
+        {[...row2, ...row2].map((src, i) => (
           <div
             key={`r2-${i}`}
             className="relative w-[160px] sm:w-[220px] md:w-[280px] aspect-[4/3] flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden"
           >
             <Image
               src={src}
-              alt={`Yazol gallery ${(i % ROW_2.length) + 7}`}
+              alt={`Yazol gallery ${(i % row2.length) + row1.length + 1}`}
               fill
               className="object-cover"
               sizes="280px"

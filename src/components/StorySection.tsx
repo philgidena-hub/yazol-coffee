@@ -1,11 +1,20 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import TextReveal from "@/components/ui/TextReveal";
 import { LineReveal, FadeUp } from "@/components/ui/TextReveal";
+
+const DEFAULT_STORY = {
+  label: "Our Story",
+  heading: "Where tradition meets heart",
+  paragraph1: "We\u2019re a small family taking our first steps toward a dream\u2014making a living doing what we love while creating food that feels like home. Our kitchen is where tradition meets creativity, bridging cultures where flavors spark memories and bring comfort.",
+  quote: "A customer told us our sponge cake reminded them of their mother\u2019s baking back home.",
+  image1: "/Images/hero-spread.jpg",
+  image2: "/Images/barista.jpg",
+};
 
 function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -52,6 +61,26 @@ const statVariants = {
 };
 
 export default function StorySection() {
+  const [story, setStory] = useState(DEFAULT_STORY);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.storySection) {
+          setStory({
+            label: data.storySection.label || DEFAULT_STORY.label,
+            heading: data.storySection.heading || DEFAULT_STORY.heading,
+            paragraph1: data.storySection.paragraph1 || DEFAULT_STORY.paragraph1,
+            quote: data.storySection.quote || DEFAULT_STORY.quote,
+            image1: data.storySection.image1 || DEFAULT_STORY.image1,
+            image2: data.storySection.image2 || DEFAULT_STORY.image2,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const imgRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: imgRef,
@@ -68,7 +97,7 @@ export default function StorySection() {
           {/* Section label */}
           <LineReveal>
             <p className="font-body text-[10px] md:text-xs tracking-[0.4em] uppercase text-gold mb-4 sm:mb-6">
-              Our Story
+              {story.label}
             </p>
           </LineReveal>
 
@@ -80,15 +109,12 @@ export default function StorySection() {
                 as="h2"
                 className="font-display text-[clamp(1.8rem,4vw,3.5rem)] leading-[1] tracking-[-0.02em] text-brown mb-6 sm:mb-8"
               >
-                Where tradition meets heart
+                {story.heading}
               </TextReveal>
 
               <FadeUp delay={0.2}>
                 <p className="font-body text-brown/60 text-sm sm:text-base md:text-lg leading-[1.8] mb-6 sm:mb-8">
-                  We&apos;re a small family taking our first steps toward a dream&mdash;making
-                  a living doing what we love while creating food that feels like home.
-                  Our kitchen is where tradition meets creativity, bridging cultures
-                  where flavors spark memories and bring comfort.
+                  {story.paragraph1}
                 </p>
               </FadeUp>
 
@@ -101,7 +127,7 @@ export default function StorySection() {
                 className="relative pl-5 sm:pl-6 border-l-2 border-gold mb-6 sm:mb-8 origin-left"
               >
                 <p className="font-display text-lg sm:text-xl md:text-2xl text-brown/70 italic leading-snug">
-                  &ldquo;A customer told us our sponge cake reminded them of their mother&apos;s baking back home.&rdquo;
+                  &ldquo;{story.quote}&rdquo;
                 </p>
               </motion.blockquote>
 
@@ -129,7 +155,7 @@ export default function StorySection() {
               >
                 <motion.div style={{ y: imgY, scale: imgScale }} className="absolute inset-0">
                   <Image
-                    src="/Images/hero-spread.jpg"
+                    src={story.image1}
                     alt="Yazol Coffee food spread"
                     fill
                     className="object-cover"
@@ -148,7 +174,7 @@ export default function StorySection() {
               >
                 <div className="aspect-[3/4] relative">
                   <Image
-                    src="/Images/barista.jpg"
+                    src={story.image2}
                     alt="Yazol barista"
                     fill
                     className="object-cover"

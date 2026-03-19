@@ -12,6 +12,28 @@ interface HeroSlide {
   description: string;
 }
 
+interface PromoBanner {
+  label: string;
+  heading: string;
+  paragraph1: string;
+  paragraph2: string;
+  image: string;
+}
+
+interface StorySection {
+  label: string;
+  heading: string;
+  paragraph1: string;
+  quote: string;
+  image1: string;
+  image2: string;
+}
+
+interface WhyChooseCard {
+  title: string;
+  description: string;
+}
+
 interface SiteSettings {
   companyName: string;
   tagline: string;
@@ -30,6 +52,11 @@ interface SiteSettings {
   heroSubtitle: string;
   heroDescription: string;
   heroSlides: HeroSlide[];
+  promoBanner: PromoBanner;
+  storySection: StorySection;
+  whyChoose: WhyChooseCard[];
+  galleryImages: string[];
+  scrollWords: string[];
   updatedAt: string;
   updatedBy: string;
 }
@@ -64,6 +91,11 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroSubtitle: "",
   heroDescription: "",
   heroSlides: [],
+  promoBanner: { label: "", heading: "", paragraph1: "", paragraph2: "", image: "" },
+  storySection: { label: "", heading: "", paragraph1: "", quote: "", image1: "", image2: "" },
+  whyChoose: [],
+  galleryImages: [],
+  scrollWords: [],
   updatedAt: "",
   updatedBy: "",
 };
@@ -691,6 +723,303 @@ export default function SiteSettingsManager() {
             className="w-full py-2.5 border border-dashed border-slate-700 rounded-lg text-sm text-indigo-400 hover:bg-slate-800/40 transition-colors"
           >
             + Add Slide
+          </button>
+        </div>
+      </CollapsibleSection>
+
+      {/* 7. Promo Banner */}
+      <CollapsibleSection title="Promo Banner" icon="&#x1f4e3;" defaultOpen={false}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Label</label>
+            <input
+              type="text"
+              value={settings.promoBanner.label}
+              onChange={(e) =>
+                update("promoBanner", { ...settings.promoBanner, label: e.target.value })
+              }
+              placeholder="e.g. Special Offer"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Heading</label>
+            <input
+              type="text"
+              value={settings.promoBanner.heading}
+              onChange={(e) =>
+                update("promoBanner", { ...settings.promoBanner, heading: e.target.value })
+              }
+              placeholder="Banner heading"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Paragraph 1</label>
+            <textarea
+              value={settings.promoBanner.paragraph1}
+              onChange={(e) =>
+                update("promoBanner", { ...settings.promoBanner, paragraph1: e.target.value })
+              }
+              placeholder="First paragraph..."
+              rows={3}
+              className={textareaClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Paragraph 2</label>
+            <textarea
+              value={settings.promoBanner.paragraph2}
+              onChange={(e) =>
+                update("promoBanner", { ...settings.promoBanner, paragraph2: e.target.value })
+              }
+              placeholder="Second paragraph..."
+              rows={3}
+              className={textareaClass}
+            />
+          </div>
+          <ImageUpload
+            value={settings.promoBanner.image}
+            onChange={(url) =>
+              update("promoBanner", { ...settings.promoBanner, image: url })
+            }
+            folder="promo"
+            label="Promo Image"
+          />
+        </div>
+      </CollapsibleSection>
+
+      {/* 8. Story Section */}
+      <CollapsibleSection title="Story Section" icon="&#x1f4d6;" defaultOpen={false}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Label</label>
+            <input
+              type="text"
+              value={settings.storySection.label}
+              onChange={(e) =>
+                update("storySection", { ...settings.storySection, label: e.target.value })
+              }
+              placeholder="e.g. Our Story"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Heading</label>
+            <input
+              type="text"
+              value={settings.storySection.heading}
+              onChange={(e) =>
+                update("storySection", { ...settings.storySection, heading: e.target.value })
+              }
+              placeholder="Section heading"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Paragraph</label>
+            <textarea
+              value={settings.storySection.paragraph1}
+              onChange={(e) =>
+                update("storySection", { ...settings.storySection, paragraph1: e.target.value })
+              }
+              placeholder="Tell your story..."
+              rows={4}
+              className={textareaClass}
+            />
+          </div>
+          <div>
+            <label className="block text-slate-400 text-sm mb-1.5">Quote</label>
+            <textarea
+              value={settings.storySection.quote}
+              onChange={(e) =>
+                update("storySection", { ...settings.storySection, quote: e.target.value })
+              }
+              placeholder="An inspiring quote..."
+              rows={2}
+              className={textareaClass}
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ImageUpload
+              value={settings.storySection.image1}
+              onChange={(url) =>
+                update("storySection", { ...settings.storySection, image1: url })
+              }
+              folder="story"
+              label="Image 1"
+            />
+            <ImageUpload
+              value={settings.storySection.image2}
+              onChange={(url) =>
+                update("storySection", { ...settings.storySection, image2: url })
+              }
+              folder="story"
+              label="Image 2"
+            />
+          </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* 9. Why Choose Us */}
+      <CollapsibleSection title="Why Choose Us" icon="&#x2b50;" defaultOpen={false}>
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Add cards that highlight why customers should choose you.
+          </p>
+
+          {(settings.whyChoose || []).map((card, i) => (
+            <div key={i} className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400">Card {i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const cards = [...(settings.whyChoose || [])];
+                    cards.splice(i, 1);
+                    update("whyChoose", cards);
+                  }}
+                  className="text-red-400 hover:text-red-300 p-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <input
+                type="text"
+                value={card.title}
+                onChange={(e) => {
+                  const cards = [...(settings.whyChoose || [])];
+                  cards[i] = { ...cards[i], title: e.target.value };
+                  update("whyChoose", cards);
+                }}
+                placeholder="Card title"
+                className={inputClass}
+              />
+              <textarea
+                value={card.description}
+                onChange={(e) => {
+                  const cards = [...(settings.whyChoose || [])];
+                  cards[i] = { ...cards[i], description: e.target.value };
+                  update("whyChoose", cards);
+                }}
+                placeholder="Card description..."
+                rows={2}
+                className={textareaClass}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const cards = [...(settings.whyChoose || []), { title: "", description: "" }];
+              update("whyChoose", cards);
+            }}
+            className="w-full py-2.5 border border-dashed border-slate-700 rounded-lg text-sm text-indigo-400 hover:bg-slate-800/40 transition-colors"
+          >
+            + Add Card
+          </button>
+        </div>
+      </CollapsibleSection>
+
+      {/* 10. Gallery Images */}
+      <CollapsibleSection title="Gallery Images" icon="&#x1f5bc;" defaultOpen={false}>
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Upload images for the gallery section.
+          </p>
+
+          {(settings.galleryImages || []).map((url, i) => (
+            <div key={i} className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400">Image {i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const imgs = [...(settings.galleryImages || [])];
+                    imgs.splice(i, 1);
+                    update("galleryImages", imgs);
+                  }}
+                  className="text-red-400 hover:text-red-300 p-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <ImageUpload
+                value={url}
+                onChange={(newUrl) => {
+                  const imgs = [...(settings.galleryImages || [])];
+                  imgs[i] = newUrl;
+                  update("galleryImages", imgs);
+                }}
+                folder="gallery"
+                label={`Gallery Image ${i + 1}`}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const imgs = [...(settings.galleryImages || []), ""];
+              update("galleryImages", imgs);
+            }}
+            className="w-full py-2.5 border border-dashed border-slate-700 rounded-lg text-sm text-indigo-400 hover:bg-slate-800/40 transition-colors"
+          >
+            + Add Image
+          </button>
+        </div>
+      </CollapsibleSection>
+
+      {/* 11. Scroll Marquee Words */}
+      <CollapsibleSection title="Scroll Marquee Words" icon="&#x1f4ac;" defaultOpen={false}>
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Words that scroll across the marquee banner.
+          </p>
+
+          {(settings.scrollWords || []).map((word, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <input
+                type="text"
+                value={word}
+                onChange={(e) => {
+                  const words = [...(settings.scrollWords || [])];
+                  words[i] = e.target.value;
+                  update("scrollWords", words);
+                }}
+                placeholder={`Word ${i + 1}`}
+                className={inputClass}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const words = [...(settings.scrollWords || [])];
+                  words.splice(i, 1);
+                  update("scrollWords", words);
+                }}
+                className="text-red-400 hover:text-red-300 p-1 shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const words = [...(settings.scrollWords || []), ""];
+              update("scrollWords", words);
+            }}
+            className="w-full py-2.5 border border-dashed border-slate-700 rounded-lg text-sm text-indigo-400 hover:bg-slate-800/40 transition-colors"
+          >
+            + Add Word
           </button>
         </div>
       </CollapsibleSection>

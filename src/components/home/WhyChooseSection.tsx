@@ -1,41 +1,20 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import TextReveal from "@/components/ui/TextReveal";
 import { LineReveal } from "@/components/ui/TextReveal";
 
-const VALUES = [
-  {
-    icon: (
-      <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-      </svg>
-    ),
-    title: "Authentic Origins",
-    description:
-      "Our coffee beans are sourced directly from Ethiopian highlands, bringing you the authentic taste of where coffee was born.",
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-      </svg>
-    ),
-    title: "Made Fresh Daily",
-    description:
-      "Every pastry, samosa, and scoop is prepared fresh each day. We never compromise on quality or freshness.",
-  },
-  {
-    icon: (
-      <svg className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-      </svg>
-    ),
-    title: "Easy Ordering",
-    description:
-      "Browse our menu, add to cart, and pick up at our Danforth Ave location. Quick, convenient, and ready in minutes.",
-  },
+const CARD_ICONS = [
+  <svg key="0" className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>,
+  <svg key="1" className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>,
+  <svg key="2" className="w-7 h-7 sm:w-8 sm:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>,
+];
+
+const DEFAULT_VALUES = [
+  { title: "Authentic Origins", description: "Our coffee beans are sourced directly from Ethiopian highlands, bringing you the authentic taste of where coffee was born." },
+  { title: "Made Fresh Daily", description: "Every pastry, samosa, and scoop is prepared fresh each day. We never compromise on quality or freshness." },
+  { title: "Easy Ordering", description: "Browse our menu, add to cart, and pick up at our Danforth Ave location. Quick, convenient, and ready in minutes." },
 ];
 
 const cardVariants = {
@@ -54,6 +33,17 @@ const cardVariants = {
 };
 
 export default function WhyChooseSection() {
+  const [values, setValues] = useState(DEFAULT_VALUES);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.whyChoose && data.whyChoose.length > 0) setValues(data.whyChoose);
+      })
+      .catch(() => {});
+  }, []);
+
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -91,7 +81,7 @@ export default function WhyChooseSection() {
           viewport={{ once: true, margin: "-60px" }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 md:gap-8"
         >
-          {VALUES.map((value, i) => (
+          {values.map((value, i) => (
             <motion.div
               key={value.title}
               custom={i}
@@ -106,7 +96,7 @@ export default function WhyChooseSection() {
                 transition={{ delay: 0.3 + i * 0.15, type: "spring", damping: 12, stiffness: 100 }}
                 className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-surface-light text-gold mb-4 sm:mb-5"
               >
-                {value.icon}
+                {CARD_ICONS[i % CARD_ICONS.length]}
               </motion.div>
               <h3 className="font-display text-base sm:text-lg text-brown mb-2 sm:mb-3">
                 {value.title}

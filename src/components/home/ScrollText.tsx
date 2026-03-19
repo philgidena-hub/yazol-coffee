@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-const WORDS = [
+const DEFAULT_WORDS = [
   "Coffee",
   "Ice Cream",
   "East African Flavors",
@@ -14,6 +14,16 @@ const WORDS = [
 ];
 
 export default function ScrollText() {
+  const [words, setWords] = useState(DEFAULT_WORDS);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.scrollWords && data.scrollWords.length > 0) setWords(data.scrollWords);
+      })
+      .catch(() => {});
+  }, []);
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -33,7 +43,7 @@ export default function ScrollText() {
     >
       <div className="flex overflow-hidden">
         <div className="flex shrink-0 gap-8 md:gap-12 animate-marquee items-center whitespace-nowrap">
-          {[...WORDS, ...WORDS].map((word, i) => (
+          {[...words, ...words].map((word, i) => (
             <span key={i} className="flex items-center gap-8 md:gap-12">
               <span className="font-display text-2xl md:text-4xl text-white/90 tracking-wide">
                 {word}

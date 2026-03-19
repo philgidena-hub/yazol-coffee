@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,8 +8,34 @@ import { useCart } from "@/lib/cart-context";
 import TextReveal from "@/components/ui/TextReveal";
 import { LineReveal, FadeUp } from "@/components/ui/TextReveal";
 
+const DEFAULTS = {
+  label: "Our Heritage",
+  heading: "The Ethiopian Coffee Ceremony",
+  paragraph1: "Coffee was born in Ethiopia. The traditional Buna ceremony is more than just brewing — it\u2019s a ritual of community, hospitality, and connection that has been practiced for centuries.",
+  paragraph2: "At Yazol, we honour this heritage by bringing authentic Ethiopian coffee culture to Toronto. Every cup of our Jebena Buna is a tribute to this rich tradition.",
+  image: "/Images/Jebena_buna.jpg",
+};
+
 export default function PromoBanner() {
   const { itemCount, openCart } = useCart();
+  const [content, setContent] = useState(DEFAULTS);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.promoBanner) {
+          setContent({
+            label: data.promoBanner.label || DEFAULTS.label,
+            heading: data.promoBanner.heading || DEFAULTS.heading,
+            paragraph1: data.promoBanner.paragraph1 || DEFAULTS.paragraph1,
+            paragraph2: data.promoBanner.paragraph2 || DEFAULTS.paragraph2,
+            image: data.promoBanner.image || DEFAULTS.image,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -32,7 +58,7 @@ export default function PromoBanner() {
           >
             <motion.div style={{ scale: imgScale, y: imgY }} className="absolute inset-0">
               <Image
-                src="/Images/Jebena_buna.jpg"
+                src={content.image}
                 alt="Traditional Ethiopian Buna coffee ceremony"
                 fill
                 className="object-cover"
@@ -45,7 +71,7 @@ export default function PromoBanner() {
           <div>
             <LineReveal>
               <span className="text-gold text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase font-body mb-3 sm:mb-4 block">
-                Our Heritage
+                {content.label}
               </span>
             </LineReveal>
 
@@ -54,22 +80,18 @@ export default function PromoBanner() {
               className="font-display text-[clamp(1.8rem,4vw,3.5rem)] leading-[1.05] text-brown mb-5 sm:mb-6"
               delay={0.1}
             >
-              The Ethiopian Coffee Ceremony
+              {content.heading}
             </TextReveal>
 
             <FadeUp delay={0.2}>
               <p className="text-brown/60 font-body text-sm sm:text-base md:text-lg leading-relaxed mb-5 sm:mb-6">
-                Coffee was born in Ethiopia. The traditional Buna ceremony is more
-                than just brewing — it&apos;s a ritual of community, hospitality, and
-                connection that has been practiced for centuries.
+                {content.paragraph1}
               </p>
             </FadeUp>
 
             <FadeUp delay={0.3}>
               <p className="text-brown/60 font-body text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8">
-                At Yazol, we honour this heritage by bringing authentic Ethiopian
-                coffee culture to Toronto. Every cup of our Jebena Buna is a
-                tribute to this rich tradition.
+                {content.paragraph2}
               </p>
             </FadeUp>
 
