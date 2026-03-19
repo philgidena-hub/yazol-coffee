@@ -111,13 +111,15 @@ export default function MenuContent({
 
   // Scroll spy — update active pill based on scroll position
   useEffect(() => {
+    const catsSnapshot = sectionCategories;
+
     const handleScroll = () => {
       if (isScrolling.current) return;
 
-      const offset = 180; // account for sticky header + pill bar
+      const offset = 180;
       let current: string | null = null;
 
-      for (const cat of sectionCategories) {
+      for (const cat of catsSnapshot) {
         const el = sectionRefs.current[cat.slug];
         if (el) {
           const top = el.getBoundingClientRect().top;
@@ -125,21 +127,23 @@ export default function MenuContent({
         }
       }
 
-      if (current && current !== activeSubcategory) {
-        setActiveSubcategory(current);
+      if (current) {
+        setActiveSubcategory((prev) => (prev === current ? prev : current));
       }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [sectionCategories, activeSubcategory]);
+  }, [sectionCategories]);
 
-  // Scroll active pill into view in the pill bar
+  // Scroll active pill horizontally in the pill bar (no scrollIntoView — it hijacks page scroll on mobile)
   useEffect(() => {
     if (!activeSubcategory || !pillBarRef.current) return;
-    const pill = pillBarRef.current.querySelector(`[data-slug="${activeSubcategory}"]`);
+    const pill = pillBarRef.current.querySelector(`[data-slug="${activeSubcategory}"]`) as HTMLElement | null;
     if (pill) {
-      pill.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+      const container = pillBarRef.current;
+      const scrollLeft = pill.offsetLeft - container.offsetWidth / 2 + pill.offsetWidth / 2;
+      container.scrollTo({ left: scrollLeft, behavior: "smooth" });
     }
   }, [activeSubcategory]);
 
@@ -157,7 +161,6 @@ export default function MenuContent({
   function handleSectionChange(slug: string) {
     setActiveSection(slug);
     setActiveSubcategory(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const pillBg = activeMain ? (ACCENT_BG[activeMain.accentColor] || "bg-brown") : "bg-brown";
