@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import type { MenuItem, MenuItemSize, MenuItemOption, CartItem } from "@/lib/types";
 import { getProductImage } from "@/lib/image-map";
@@ -105,26 +104,20 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
   if (!open) return null;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-50"
-          />
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black/50 z-[100]"
+      />
 
-          {/* Modal */}
-          <motion.div
-            initial={{ opacity: 0, y: "100%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 max-h-[90vh] bg-white rounded-t-3xl overflow-hidden sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:max-w-md sm:w-full sm:max-h-[85vh]"
-          >
+      {/* Modal */}
+      <div
+        className="fixed z-[101] inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center"
+      >
+        <div
+          className="bg-white rounded-t-3xl sm:rounded-2xl max-h-[90vh] sm:max-h-[85vh] sm:max-w-md sm:w-full overflow-hidden"
+        >
             <div className="overflow-y-auto max-h-[90vh] sm:max-h-[85vh]">
               {/* Image */}
               <div className="relative h-48 sm:h-56">
@@ -303,9 +296,8 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
                 </div>
               </div>
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+    </>
   );
 }
