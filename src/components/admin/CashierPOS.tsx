@@ -2,13 +2,37 @@
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { MenuItem } from "@/lib/dynamodb";
+import type { MenuItem, MenuItemSize, MenuItemOption } from "@/lib/types";
 import { useToast } from "./AdminToast";
 
 interface POSItem {
   menuItem: MenuItem;
   quantity: number;
   allergyNotes: string;
+  cartKey: string;
+  selectedSize?: MenuItemSize;
+  selectedOptions?: Record<string, MenuItemOption[]>;
+}
+
+function posItemPrice(item: POSItem): number {
+  let price = item.selectedSize?.price ?? item.menuItem.price;
+  if (item.selectedOptions) {
+    for (const opts of Object.values(item.selectedOptions)) {
+      for (const opt of opts) price += opt.priceAdd;
+    }
+  }
+  return price;
+}
+
+function posItemSummary(item: POSItem): string {
+  const parts: string[] = [];
+  if (item.selectedSize) parts.push(item.selectedSize.name);
+  if (item.selectedOptions) {
+    for (const opts of Object.values(item.selectedOptions)) {
+      for (const opt of opts) parts.push(opt.name);
+    }
+  }
+  return parts.join(" · ");
 }
 
 interface CustomerSuggestion {
@@ -56,6 +80,9 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // POS customizer modal
+  const [customizerItem, setCustomizerItem] = useState<MenuItem | null>(null);
 
   const { toast } = useToast();
 
@@ -147,41 +174,57 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
   }, [menuItems, categoryFilter, search]);
 
   const addToCart = (item: MenuItem) => {
+    const hasCustomization = (item.sizes && item.sizes.length > 0) || (item.optionGroups && item.optionGroups.length > 0);
+    if (hasCustomization) {
+      setCustomizerItem(item);
+      return;
+    }
+    const cartKey = item.slug;
     setCart((prev) => {
-      const existing = prev.find((p) => p.menuItem.slug === item.slug);
+      const existing = prev.find((p) => p.cartKey === cartKey);
       if (existing) {
-        return prev.map((p) =>
-          p.menuItem.slug === item.slug
-            ? { ...p, quantity: p.quantity + 1 }
-            : p
-        );
+        return prev.map((p) => p.cartKey === cartKey ? { ...p, quantity: p.quantity + 1 } : p);
       }
-      return [...prev, { menuItem: item, quantity: 1, allergyNotes: "" }];
+      return [...prev, { menuItem: item, quantity: 1, allergyNotes: "", cartKey }];
     });
   };
 
-  const updateQuantity = (slug: string, qty: number) => {
+  const addCustomToCart = (item: MenuItem, size?: MenuItemSize, options?: Record<string, MenuItemOption[]>) => {
+    let key = item.slug;
+    if (size) key += `_${size.name}`;
+    if (options) {
+      for (const opts of Object.values(options)) {
+        for (const o of opts) key += `_${o.name}`;
+      }
+    }
+    setCart((prev) => {
+      const existing = prev.find((p) => p.cartKey === key);
+      if (existing) {
+        return prev.map((p) => p.cartKey === key ? { ...p, quantity: p.quantity + 1 } : p);
+      }
+      return [...prev, { menuItem: item, quantity: 1, allergyNotes: "", cartKey: key, selectedSize: size, selectedOptions: options }];
+    });
+    setCustomizerItem(null);
+  };
+
+  const updateQuantity = (cartKey: string, qty: number) => {
     if (qty <= 0) {
-      setCart((prev) => prev.filter((p) => p.menuItem.slug !== slug));
+      setCart((prev) => prev.filter((p) => p.cartKey !== cartKey));
     } else {
       setCart((prev) =>
-        prev.map((p) =>
-          p.menuItem.slug === slug ? { ...p, quantity: qty } : p
-        )
+        prev.map((p) => p.cartKey === cartKey ? { ...p, quantity: qty } : p)
       );
     }
   };
 
-  const updateAllergyNotes = (slug: string, notes: string) => {
+  const updateAllergyNotes = (cartKey: string, notes: string) => {
     setCart((prev) =>
-      prev.map((p) =>
-        p.menuItem.slug === slug ? { ...p, allergyNotes: notes } : p
-      )
+      prev.map((p) => p.cartKey === cartKey ? { ...p, allergyNotes: notes } : p)
     );
   };
 
   const subtotal = cart.reduce(
-    (sum, item) => sum + item.menuItem.price * item.quantity,
+    (sum, item) => sum + posItemPrice(item) * item.quantity,
     0
   );
   const tax = Math.round(subtotal * 0.13 * 100) / 100;
@@ -219,13 +262,20 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim() || "Walk-in",
           customerEmail: customerEmail.trim() || "walkin@store.local",
-          items: cart.map((c) => ({
-            slug: c.menuItem.slug,
-            name: c.menuItem.name,
-            price: c.menuItem.price,
-            quantity: c.quantity,
-            allergyNotes: c.allergyNotes,
-          })),
+          items: cart.map((c) => {
+            const summary = posItemSummary(c);
+            return {
+              slug: c.menuItem.slug,
+              name: summary ? `${c.menuItem.name} (${summary})` : c.menuItem.name,
+              price: posItemPrice(c),
+              quantity: c.quantity,
+              allergyNotes: c.allergyNotes,
+              ...(c.selectedSize && { size: c.selectedSize.name }),
+              ...(c.selectedOptions && {
+                options: Object.values(c.selectedOptions).flat().map((o) => o.name),
+              }),
+            };
+          }),
           pickupTime,
           specialInstructions: specialInstructions.trim(),
           paymentMethod: paymentMethod === "card" ? "online" : "pay_at_pickup",
@@ -305,16 +355,25 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
 
           {/* Items */}
           <div className="space-y-1.5 mb-4">
-            {receipt.items.map((item) => (
-              <div key={item.menuItem.slug} className="flex justify-between text-sm font-body">
-                <span className="text-slate-300">
-                  {item.quantity}x {item.menuItem.name}
-                </span>
-                <span className="text-slate-400 tabular-nums">
-                  ${(item.menuItem.price * item.quantity).toFixed(2)}
-                </span>
-              </div>
-            ))}
+            {receipt.items.map((item) => {
+              const price = posItemPrice(item);
+              const summary = posItemSummary(item);
+              return (
+                <div key={item.cartKey} className="flex justify-between text-sm font-body">
+                  <div>
+                    <span className="text-slate-300">
+                      {item.quantity}x {item.menuItem.name}
+                    </span>
+                    {summary && (
+                      <p className="text-[10px] text-slate-500">{summary}</p>
+                    )}
+                  </div>
+                  <span className="text-slate-400 tabular-nums">
+                    ${(price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
           {/* Totals */}
@@ -448,7 +507,7 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {filteredItems.map((item) => {
-              const inCart = cart.find((c) => c.menuItem.slug === item.slug);
+              const inCart = cart.find((c) => c.cartKey === item.slug || c.cartKey.startsWith(item.slug + "_"));
               return (
                 <motion.button
                   key={item.slug}
@@ -669,60 +728,70 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
             ) : (
               <div className="space-y-2.5">
                 <AnimatePresence mode="popLayout">
-                  {cart.map((item) => (
-                    <motion.div
-                      key={item.menuItem.slug}
-                      layout
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="bg-slate-800/40 rounded-lg p-2.5 border border-slate-700/30"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-body text-white truncate flex-1 mr-2">
-                          {item.menuItem.name}
-                        </span>
-                        <span className="text-sm font-body font-medium text-slate-300 tabular-nums">
-                          ${(item.menuItem.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => updateQuantity(item.menuItem.slug, item.quantity - 1)}
-                            className="w-6 h-6 rounded-md bg-slate-700/60 text-slate-300 hover:bg-slate-700 flex items-center justify-center text-sm font-bold transition-colors"
-                          >
-                            -
-                          </button>
-                          <span className="w-7 text-center text-sm font-body font-medium text-white tabular-nums">
-                            {item.quantity}
+                  {cart.map((item) => {
+                    const price = posItemPrice(item);
+                    const summary = posItemSummary(item);
+                    return (
+                      <motion.div
+                        key={item.cartKey}
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="bg-slate-800/40 rounded-lg p-2.5 border border-slate-700/30"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex-1 mr-2 min-w-0">
+                            <span className="text-sm font-body text-white truncate block">
+                              {item.menuItem.name}
+                            </span>
+                            {summary && (
+                              <span className="text-[10px] font-body text-indigo-400/70 truncate block">
+                                {summary}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-sm font-body font-medium text-slate-300 tabular-nums">
+                            ${(price * item.quantity).toFixed(2)}
                           </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => updateQuantity(item.cartKey, item.quantity - 1)}
+                              className="w-6 h-6 rounded-md bg-slate-700/60 text-slate-300 hover:bg-slate-700 flex items-center justify-center text-sm font-bold transition-colors"
+                            >
+                              -
+                            </button>
+                            <span className="w-7 text-center text-sm font-body font-medium text-white tabular-nums">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.cartKey, item.quantity + 1)}
+                              className="w-6 h-6 rounded-md bg-slate-700/60 text-slate-300 hover:bg-slate-700 flex items-center justify-center text-sm font-bold transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
                           <button
-                            onClick={() => updateQuantity(item.menuItem.slug, item.quantity + 1)}
-                            className="w-6 h-6 rounded-md bg-slate-700/60 text-slate-300 hover:bg-slate-700 flex items-center justify-center text-sm font-bold transition-colors"
+                            onClick={() => updateQuantity(item.cartKey, 0)}
+                            className="text-slate-600 hover:text-red-400 transition-colors p-1"
                           >
-                            +
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
                         </div>
-                        <button
-                          onClick={() => updateQuantity(item.menuItem.slug, 0)}
-                          className="text-slate-600 hover:text-red-400 transition-colors p-1"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                      {/* Allergy notes input */}
-                      <input
-                        type="text"
-                        placeholder="Allergy notes..."
-                        value={item.allergyNotes}
-                        onChange={(e) => updateAllergyNotes(item.menuItem.slug, e.target.value)}
-                        className="w-full mt-1.5 bg-slate-900/50 border border-slate-700/30 rounded px-2 py-1 text-[11px] text-slate-400 font-body placeholder:text-slate-700 focus:outline-none focus:border-red-500/30 transition-colors"
-                      />
-                    </motion.div>
-                  ))}
+                        <input
+                          type="text"
+                          placeholder="Allergy notes..."
+                          value={item.allergyNotes}
+                          onChange={(e) => updateAllergyNotes(item.cartKey, e.target.value)}
+                          className="w-full mt-1.5 bg-slate-900/50 border border-slate-700/30 rounded px-2 py-1 text-[11px] text-slate-400 font-body placeholder:text-slate-700 focus:outline-none focus:border-red-500/30 transition-colors"
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             )}
@@ -765,6 +834,169 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
             )}
           </button>
         </div>
+      </div>
+
+      {/* POS Customizer Modal */}
+      {customizerItem && (
+        <POSCustomizerModal
+          item={customizerItem}
+          onAdd={(size, options) => addCustomToCart(customizerItem, size, options)}
+          onClose={() => setCustomizerItem(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ─── POS Customizer Modal ─── */
+function POSCustomizerModal({
+  item,
+  onAdd,
+  onClose,
+}: {
+  item: MenuItem;
+  onAdd: (size?: MenuItemSize, options?: Record<string, MenuItemOption[]>) => void;
+  onClose: () => void;
+}) {
+  const hasSizes = item.sizes && item.sizes.length > 0;
+  const hasOptions = item.optionGroups && item.optionGroups.length > 0;
+
+  const [selectedSize, setSelectedSize] = useState<MenuItemSize | undefined>(
+    hasSizes ? item.sizes![0] : undefined
+  );
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, MenuItemOption[]>>({});
+
+  const validation = useMemo(() => {
+    if (!item.optionGroups) return { valid: true, errors: [] as string[] };
+    const errors: string[] = [];
+    for (const group of item.optionGroups) {
+      if (group.required && (!selectedOptions[group.name] || selectedOptions[group.name].length === 0)) {
+        errors.push(group.name);
+      }
+    }
+    return { valid: errors.length === 0, errors };
+  }, [item.optionGroups, selectedOptions]);
+
+  const unitPrice = useMemo(() => {
+    let price = selectedSize?.price ?? item.price;
+    for (const opts of Object.values(selectedOptions)) {
+      for (const opt of opts) price += opt.priceAdd;
+    }
+    return price;
+  }, [selectedSize, selectedOptions, item.price]);
+
+  const handleOptionToggle = (groupName: string, option: MenuItemOption, maxChoices: number) => {
+    setSelectedOptions((prev) => {
+      const current = prev[groupName] || [];
+      const exists = current.find((o) => o.name === option.name);
+      if (exists) return { ...prev, [groupName]: current.filter((o) => o.name !== option.name) };
+      if (maxChoices === 1) return { ...prev, [groupName]: [option] };
+      if (current.length >= maxChoices) return prev;
+      return { ...prev, [groupName]: [...current, option] };
+    });
+  };
+
+  const handleAdd = () => {
+    if (!validation.valid) return;
+    onAdd(selectedSize, Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="relative bg-slate-900 border border-slate-700 rounded-xl p-5 max-w-sm w-full mx-4 shadow-2xl max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-semibold text-white">{item.name}</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-white p-1">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Sizes */}
+        {hasSizes && (
+          <div className="mb-4">
+            <p className="text-xs font-medium text-slate-400 mb-2">Size</p>
+            <div className="grid grid-cols-3 gap-1.5">
+              {item.sizes!.map((size) => (
+                <button
+                  key={size.name}
+                  onClick={() => setSelectedSize(size)}
+                  className={`py-2 px-2 rounded-lg border text-center text-xs font-body transition-all ${
+                    selectedSize?.name === size.name
+                      ? "border-indigo-500 bg-indigo-500/15 text-white"
+                      : "border-slate-700 text-slate-400 hover:border-slate-600"
+                  }`}
+                >
+                  <span className="block font-medium">{size.name}</span>
+                  <span className="block text-[10px] mt-0.5 opacity-70">${size.price.toFixed(2)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Option Groups */}
+        {hasOptions && item.optionGroups!.map((group) => {
+          const selected = selectedOptions[group.name] || [];
+          const isRadio = group.maxChoices === 1;
+          const hasError = validation.errors.includes(group.name);
+
+          return (
+            <div key={group.name} className="mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-xs font-medium text-slate-400">{group.name}</p>
+                {group.required && (
+                  <span className={`text-[9px] font-semibold rounded px-1.5 py-0.5 ${
+                    hasError ? "text-red-400 bg-red-500/10" : "text-indigo-400 bg-indigo-500/10"
+                  }`}>Required</span>
+                )}
+              </div>
+              <div className="space-y-1">
+                {group.options.map((option) => {
+                  const isSelected = selected.some((o) => o.name === option.name);
+                  return (
+                    <button
+                      key={option.name}
+                      onClick={() => handleOptionToggle(group.name, option, group.maxChoices)}
+                      className={`w-full flex items-center justify-between py-2 px-3 rounded-lg border text-xs font-body transition-all ${
+                        isSelected
+                          ? "border-indigo-500 bg-indigo-500/10 text-white"
+                          : "border-slate-700/50 text-slate-400 hover:border-slate-600"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-${isRadio ? "full" : "sm"} border-2 flex items-center justify-center ${
+                          isSelected ? "border-indigo-500 bg-indigo-500" : "border-slate-600"
+                        }`}>
+                          {isSelected && (
+                            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                        {option.name}
+                      </div>
+                      {option.priceAdd > 0 && (
+                        <span className="text-slate-500">+${option.priceAdd.toFixed(2)}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Add button */}
+        <button
+          onClick={handleAdd}
+          disabled={!validation.valid}
+          className="w-full py-2.5 bg-indigo-600 text-white font-body font-semibold text-sm rounded-lg hover:bg-indigo-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+        >
+          Add to Order · ${unitPrice.toFixed(2)}
+        </button>
       </div>
     </div>
   );
