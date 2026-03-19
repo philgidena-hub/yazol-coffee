@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/dynamodb";
 import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption } from "@/lib/types";
+import { getProductImage } from "@/lib/image-map";
 import ImageUpload from "./ImageUpload";
 
 interface MenuItemFormProps {
@@ -270,6 +271,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
                 onChange={setImageUrl}
                 folder="menu"
                 label="Item Image"
+                previewUrl={item ? getProductImage(item.slug, imageUrl) : undefined}
               />
 
               {/* Ingredients */}

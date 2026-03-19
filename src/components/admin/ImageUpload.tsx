@@ -4,14 +4,16 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 
 interface ImageUploadProps {
-  value: string; // current image URL
+  value: string; // current image URL or imageKey
   onChange: (url: string) => void;
   folder: string; // S3 folder (e.g., "menu", "hero")
   label?: string;
   className?: string;
+  /** Resolved display URL (use when value is an imageKey, not a displayable path) */
+  previewUrl?: string;
 }
 
-export default function ImageUpload({ value, onChange, folder, label, className }: ImageUploadProps) {
+export default function ImageUpload({ value, onChange, folder, label, className, previewUrl }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,14 +65,14 @@ export default function ImageUpload({ value, onChange, folder, label, className 
       <div className="flex items-start gap-3">
         {/* Preview */}
         <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 flex-shrink-0">
-          {value ? (
+          {(previewUrl || value) ? (
             <Image
-              src={value}
+              src={previewUrl || value}
               alt="Preview"
               fill
               sizes="80px"
               className="object-cover"
-              unoptimized={value.startsWith("http")}
+              unoptimized={(previewUrl || value).startsWith("http")}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-slate-600">
