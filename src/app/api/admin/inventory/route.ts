@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, unit, currentStock, lowStockThreshold } = body;
+    const { name, unit, currentStock, lowStockThreshold, category, costPrice, supplier, expiryDate } = body;
 
     if (!name || !unit || typeof currentStock !== "number" || typeof lowStockThreshold !== "number") {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Stock values must be non-negative" }, { status: 400 });
     }
 
-    const item = await createInventoryItem({ name, unit, currentStock, lowStockThreshold });
+    const item = await createInventoryItem({ name, unit, currentStock, lowStockThreshold, category, costPrice, supplier, expiryDate });
     return NextResponse.json({ item }, { status: 201 });
   } catch (error: unknown) {
     if (error && typeof error === "object" && "name" in error && error.name === "ConditionalCheckFailedException") {

@@ -12,9 +12,9 @@ export async function PUT(
   try {
     const { slug } = await params;
     const body = await request.json();
-    const { name, unit, lowStockThreshold } = body;
+    const { name, unit, lowStockThreshold, category, costPrice, supplier, expiryDate } = body;
 
-    if (name === undefined && unit === undefined && lowStockThreshold === undefined) {
+    if (name === undefined && unit === undefined && lowStockThreshold === undefined && category === undefined && costPrice === undefined && supplier === undefined && expiryDate === undefined) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });
     }
 
@@ -22,7 +22,7 @@ export async function PUT(
       return NextResponse.json({ error: "Low stock threshold must be a non-negative number" }, { status: 400 });
     }
 
-    await updateInventoryItem(slug, { name, unit, lowStockThreshold });
+    await updateInventoryItem(slug, { name, unit, lowStockThreshold, category, costPrice, supplier, expiryDate });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     if (error && typeof error === "object" && "name" in error && error.name === "ConditionalCheckFailedException") {

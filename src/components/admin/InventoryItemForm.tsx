@@ -11,13 +11,18 @@ interface InventoryItemFormProps {
   onSaved: () => void;
 }
 
-const UNITS = ["g", "ml", "pc", "pods", "sticks", "oz", "cups"];
+const UNITS = ["g", "ml", "pc", "pods", "sticks", "oz", "cups", "kg", "L"];
+const CATEGORIES = ["beans", "dairy", "produce", "spices", "packaging", "bakery", "proteins", "other"];
 
 export default function InventoryItemForm({ open, item, onClose, onSaved }: InventoryItemFormProps) {
   const [name, setName] = useState("");
   const [unit, setUnit] = useState("g");
   const [currentStock, setCurrentStock] = useState("");
   const [lowStockThreshold, setLowStockThreshold] = useState("");
+  const [category, setCategory] = useState("");
+  const [costPrice, setCostPrice] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -25,13 +30,21 @@ export default function InventoryItemForm({ open, item, onClose, onSaved }: Inve
     if (open && item) {
       setName(item.name);
       setUnit(item.unit);
-      setCurrentStock(""); // Not editable in edit mode
+      setCurrentStock("");
       setLowStockThreshold(item.lowStockThreshold.toString());
+      setCategory(item.category || "");
+      setCostPrice(item.costPrice?.toString() || "");
+      setSupplier(item.supplier || "");
+      setExpiryDate(item.expiryDate ? item.expiryDate.split("T")[0] : "");
     } else if (open) {
       setName("");
       setUnit("g");
       setCurrentStock("");
       setLowStockThreshold("");
+      setCategory("");
+      setCostPrice("");
+      setSupplier("");
+      setExpiryDate("");
     }
     setError("");
   }, [open, item]);
@@ -77,6 +90,10 @@ export default function InventoryItemForm({ open, item, onClose, onSaved }: Inve
             name: name.trim(),
             unit,
             lowStockThreshold: parseFloat(lowStockThreshold),
+            category: category || undefined,
+            costPrice: costPrice ? parseFloat(costPrice) : undefined,
+            supplier: supplier.trim() || undefined,
+            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
           }),
         });
         if (!res.ok) {
@@ -93,6 +110,10 @@ export default function InventoryItemForm({ open, item, onClose, onSaved }: Inve
             unit,
             currentStock: parseFloat(currentStock),
             lowStockThreshold: parseFloat(lowStockThreshold),
+            category: category || undefined,
+            costPrice: costPrice ? parseFloat(costPrice) : undefined,
+            supplier: supplier.trim() || undefined,
+            expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
           }),
         });
         if (!res.ok) {
@@ -188,6 +209,58 @@ export default function InventoryItemForm({ open, item, onClose, onSaved }: Inve
                   className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
                   placeholder="10"
                 />
+              </div>
+
+              {/* Category + Cost Price */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Category</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+                  >
+                    <option value="">None</option>
+                    {CATEGORIES.map((c) => (
+                      <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Cost Price ($)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={costPrice}
+                    onChange={(e) => setCostPrice(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {/* Supplier + Expiry */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Supplier</label>
+                  <input
+                    type="text"
+                    value={supplier}
+                    onChange={(e) => setSupplier(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+                    placeholder="e.g. Local Farm Co."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 mb-1">Expiry Date</label>
+                  <input
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                    className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
               </div>
 
               {/* Error */}

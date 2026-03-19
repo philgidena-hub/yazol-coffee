@@ -450,11 +450,15 @@ export async function createInventoryItem(data: {
   unit: string;
   currentStock: number;
   lowStockThreshold: number;
+  category?: string;
+  costPrice?: number;
+  supplier?: string;
+  expiryDate?: string;
 }): Promise<InventoryItem> {
   const slug = slugify(data.name);
   const now = new Date().toISOString();
 
-  const item = {
+  const item: Record<string, unknown> = {
     PK: `INV#${slug}`,
     SK: "METADATA",
     entityType: "InventoryItem",
@@ -470,6 +474,11 @@ export async function createInventoryItem(data: {
     GSI1SK: `ITEM#${data.name}`,
   };
 
+  if (data.category) item.category = data.category;
+  if (data.costPrice !== undefined) item.costPrice = data.costPrice;
+  if (data.supplier) item.supplier = data.supplier;
+  if (data.expiryDate) item.expiryDate = data.expiryDate;
+
   await docClient.send(
     new PutCommand({
       TableName: TABLE_NAME,
@@ -478,7 +487,7 @@ export async function createInventoryItem(data: {
     })
   );
 
-  return item as InventoryItem;
+  return item as unknown as InventoryItem;
 }
 
 /** Update an existing inventory item */
@@ -488,6 +497,10 @@ export async function updateInventoryItem(
     name?: string;
     unit?: string;
     lowStockThreshold?: number;
+    category?: string;
+    costPrice?: number;
+    supplier?: string;
+    expiryDate?: string;
   }
 ): Promise<void> {
   const expressions: string[] = ["updatedAt = :now"];
@@ -506,6 +519,22 @@ export async function updateInventoryItem(
   if (data.lowStockThreshold !== undefined) {
     expressions.push("lowStockThreshold = :threshold");
     values[":threshold"] = data.lowStockThreshold;
+  }
+  if (data.category !== undefined) {
+    expressions.push("category = :category");
+    values[":category"] = data.category;
+  }
+  if (data.costPrice !== undefined) {
+    expressions.push("costPrice = :costPrice");
+    values[":costPrice"] = data.costPrice;
+  }
+  if (data.supplier !== undefined) {
+    expressions.push("supplier = :supplier");
+    values[":supplier"] = data.supplier;
+  }
+  if (data.expiryDate !== undefined) {
+    expressions.push("expiryDate = :expiryDate");
+    values[":expiryDate"] = data.expiryDate;
   }
 
   await docClient.send(
@@ -837,4 +866,114 @@ export async function getFinishedOrders(limit: number = 50): Promise<Order[]> {
   } while (lastKey && results.length < limit);
 
   return results.slice(0, limit);
+}
+
+// ============================================================
+// STOCK MOVEMENT LOGGING
+// ============================================================
+
+/** Log a stock movement (restock, deduction, adjustment, waste) */
+export async function logStockMovement(data: {
+  inventorySlug: string;
+  inventoryName: string;
+  type: "restock" | "deduction" | "adjustment" | "waste";
+  quantity: number; // positive for restock, negative for deduction/waste
+  previousStock: number;
+  newStock: number;
+  reason?: string; // e.g. "Order #ABC123" or "Spoiled - expired"
+  performedBy: string; // username
+}): Promise<void> {
+  const now = new Date().toISOString();
+  const id = crypto.randomUUID();
+
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: {
+        PK: `STOCKLOG#${data.inventorySlug}`,
+        SK: `LOG#${now}#${id}`,
+        entityType: "StockMovement",
+        ...data,
+        createdAt: now,
+        GSI1PK: "STOCKLOGS",
+        GSI1SK: `LOG#${now}`,
+      },
+    })
+  );
+}
+
+/** Get stock movement history for an inventory item */
+export async function getStockHistory(
+  inventorySlug: string,
+  limit: number = 50
+): Promise<Array<{
+  type: string;
+  quantity: number;
+  previousStock: number;
+  newStock: number;
+  reason?: string;
+  performedBy: string;
+  createdAt: string;
+}>> {
+  const command = new QueryCommand({
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "PK = :pk AND begins_with(SK, :prefix)",
+    ExpressionAttributeValues: {
+      ":pk": `STOCKLOG#${inventorySlug}`,
+      ":prefix": "LOG#",
+    },
+    ScanIndexForward: false, // newest first
+    Limit: limit,
+  });
+
+  const response = await docClient.send(command);
+  return (response.Items || []) as Array<{
+    type: string;
+    quantity: number;
+    previousStock: number;
+    newStock: number;
+    reason?: string;
+    performedBy: string;
+    createdAt: string;
+  }>;
+}
+
+/** Record waste/spoilage for an inventory item */
+export async function recordWaste(
+  slug: string,
+  amount: number,
+  reason: string,
+  performedBy: string
+): Promise<void> {
+  // Get current stock first
+  const item = await getInventoryItem(slug);
+  if (!item) throw new Error("Inventory item not found");
+
+  const previousStock = item.currentStock;
+  const newStock = Math.max(0, previousStock - amount);
+
+  // Deduct stock
+  await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `INV#${slug}`, SK: "METADATA" },
+      UpdateExpression: "SET currentStock = :stock, updatedAt = :now",
+      ExpressionAttributeValues: {
+        ":stock": newStock,
+        ":now": new Date().toISOString(),
+      },
+    })
+  );
+
+  // Log the waste
+  await logStockMovement({
+    inventorySlug: slug,
+    inventoryName: item.name,
+    type: "waste",
+    quantity: -amount,
+    previousStock,
+    newStock,
+    reason,
+    performedBy,
+  });
 }

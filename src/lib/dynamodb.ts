@@ -31,6 +31,10 @@ export interface InventoryItem {
   currentStock: number;
   lowStockThreshold: number;
   lastRestockedAt: string;
+  category?: string;        // "dairy", "beans", "produce", "packaging", "spices", "other"
+  costPrice?: number;        // Cost per unit (what you pay the supplier)
+  supplier?: string;         // Supplier name
+  expiryDate?: string;       // ISO date string, nullable
   createdAt: string;
   updatedAt: string;
 }
