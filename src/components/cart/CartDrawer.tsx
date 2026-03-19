@@ -80,7 +80,7 @@ export default function CartDrawer() {
                   <AnimatePresence mode="popLayout">
                     {state.items.map((item, i) => (
                       <motion.div
-                        key={item.menuItem.slug}
+                        key={item.cartKey}
                         initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -30, height: 0 }}

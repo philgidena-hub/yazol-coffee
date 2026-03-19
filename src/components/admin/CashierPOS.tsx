@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, MenuItemSize, MenuItemOption } from "@/lib/types";
+import { generateCartKey } from "@/lib/cart-context";
 import { useToast } from "./AdminToast";
 
 interface POSItem {
@@ -190,13 +191,7 @@ export default function CashierPOS({ onOrderCreated }: CashierPOSProps) {
   };
 
   const addCustomToCart = (item: MenuItem, size?: MenuItemSize, options?: Record<string, MenuItemOption[]>) => {
-    let key = item.slug;
-    if (size) key += `_${size.name}`;
-    if (options) {
-      for (const opts of Object.values(options)) {
-        for (const o of opts) key += `_${o.name}`;
-      }
-    }
+    const key = generateCartKey(item.slug, size?.name, options);
     setCart((prev) => {
       const existing = prev.find((p) => p.cartKey === key);
       if (existing) {
