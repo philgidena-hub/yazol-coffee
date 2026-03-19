@@ -17,7 +17,7 @@ interface MenuCardProps {
 export default function MenuCard({ item, index = 0 }: MenuCardProps) {
   const { addItem, addCustomItem, openCart } = useCart();
   const toast = useToast();
-  const imageSrc = getProductImage(item.slug);
+  const imageSrc = getProductImage(item.slug, item.imageKey);
   const soldOut = !item.isAvailable;
   const hasCustomization =
     (item.sizes && item.sizes.length > 0) ||

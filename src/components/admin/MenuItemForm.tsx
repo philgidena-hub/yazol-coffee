@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/dynamodb";
 import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption } from "@/lib/types";
+import ImageUpload from "./ImageUpload";
 
 interface MenuItemFormProps {
   open: boolean;
@@ -27,6 +28,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
   const [categorySlug, setCategorySlug] = useState("");
   const [price, setPrice] = useState("");
   const [isAvailable, setIsAvailable] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
   const [ingredients, setIngredients] = useState<IngredientRow[]>([]);
   const [sizes, setSizes] = useState<MenuItemSize[]>([]);
   const [optionGroups, setOptionGroups] = useState<MenuItemOptionGroup[]>([]);
@@ -60,6 +62,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
       setCategorySlug(slug);
       setPrice(item.price.toString());
       setIsAvailable(item.isAvailable);
+      setImageUrl(item.imageKey || "");
       setIngredients(item.ingredients.map((ing) => ({ ...ing })));
       setSizes(item.sizes ? item.sizes.map((s) => ({ ...s })) : []);
       setOptionGroups(item.optionGroups ? item.optionGroups.map((g) => ({
@@ -73,6 +76,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
       setCategorySlug("");
       setPrice("");
       setIsAvailable(true);
+      setImageUrl("");
       setIngredients([]);
       setSizes([]);
       setOptionGroups([]);
@@ -135,6 +139,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
           categorySlug,
           price: priceNum,
           isAvailable,
+          imageKey: imageUrl || undefined,
           ingredients: validIngredients,
           sizes: sizes.filter((s) => s.name.trim() && s.price >= 0),
           optionGroups: optionGroups
@@ -258,6 +263,14 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
                   {isAvailable ? "Available" : "Unavailable"}
                 </span>
               </div>
+
+              {/* Item Image */}
+              <ImageUpload
+                value={imageUrl}
+                onChange={setImageUrl}
+                folder="menu"
+                label="Item Image"
+              />
 
               {/* Ingredients */}
               <div>

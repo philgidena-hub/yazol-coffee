@@ -172,6 +172,13 @@ export interface SiteSettings {
   heroTitle: string;
   heroSubtitle: string;
   heroDescription: string;
+  // Hero Carousel
+  heroSlides?: Array<{
+    image: string;
+    subtitle: string;
+    title: string;
+    description: string;
+  }>;
   // Meta
   updatedAt: string;
   updatedBy: string;

@@ -110,12 +110,24 @@ export default function HeroSection() {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Fetch hero text from settings — update first slide
+  // Fetch hero slides from settings — use full carousel if configured, else update first slide text
   useEffect(() => {
     fetch("/api/settings")
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
-        if (data?.heroTitle) {
+        if (!data) return;
+        // If admin configured carousel slides, use them
+        if (data.heroSlides && data.heroSlides.length > 0) {
+          const validSlides = data.heroSlides.filter(
+            (s: { image: string; title: string }) => s.image && s.title
+          );
+          if (validSlides.length > 0) {
+            setSlides(validSlides);
+            return;
+          }
+        }
+        // Fallback: update first slide text from hero fields
+        if (data.heroTitle) {
           setSlides((prev) => prev.map((s, i) =>
             i === 0
               ? { ...s, title: data.heroTitle, subtitle: data.heroSubtitle || s.subtitle, description: data.heroDescription || s.description }

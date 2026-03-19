@@ -29,7 +29,15 @@ const PRODUCT_IMAGES: Record<string, string> = {
 
 const FALLBACK_IMAGE = "/Images/hero-spread.jpg";
 
-export function getProductImage(slug: string): string {
+/**
+ * Get product image. If the item has a custom uploaded imageKey (URL), use that.
+ * Otherwise fall back to the hardcoded map, then the fallback image.
+ */
+export function getProductImage(slug: string, imageKey?: string): string {
+  // If imageKey is a full URL (uploaded to S3), use it directly
+  if (imageKey && (imageKey.startsWith("http://") || imageKey.startsWith("https://"))) {
+    return imageKey;
+  }
   return PRODUCT_IMAGES[slug] || FALLBACK_IMAGE;
 }
 

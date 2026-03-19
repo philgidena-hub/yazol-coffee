@@ -3,6 +3,14 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "./AdminToast";
+import ImageUpload from "./ImageUpload";
+
+interface HeroSlide {
+  image: string;
+  subtitle: string;
+  title: string;
+  description: string;
+}
 
 interface SiteSettings {
   companyName: string;
@@ -21,6 +29,7 @@ interface SiteSettings {
   heroTitle: string;
   heroSubtitle: string;
   heroDescription: string;
+  heroSlides: HeroSlide[];
   updatedAt: string;
   updatedBy: string;
 }
@@ -54,6 +63,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroTitle: "",
   heroSubtitle: "",
   heroDescription: "",
+  heroSlides: [],
   updatedAt: "",
   updatedBy: "",
 };
@@ -596,6 +606,92 @@ export default function SiteSettingsManager() {
               className={textareaClass}
             />
           </div>
+        </div>
+      </CollapsibleSection>
+
+      {/* 6. Hero Carousel Slides */}
+      <CollapsibleSection title="Hero Carousel Slides" icon="&#x1f3a0;">
+        <div className="space-y-4">
+          <p className="text-xs text-slate-500">
+            Manage the slides shown on the homepage hero carousel. Each slide has an image, subtitle, title, and description.
+          </p>
+
+          {(settings.heroSlides || []).map((slide, i) => (
+            <div key={i} className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400">Slide {i + 1}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const slides = [...(settings.heroSlides || [])];
+                    slides.splice(i, 1);
+                    update("heroSlides", slides);
+                  }}
+                  className="text-red-400 hover:text-red-300 p-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+
+              <ImageUpload
+                value={slide.image}
+                onChange={(url) => {
+                  const slides = [...(settings.heroSlides || [])];
+                  slides[i] = { ...slides[i], image: url };
+                  update("heroSlides", slides);
+                }}
+                folder="hero"
+                label="Slide Image"
+              />
+
+              <input
+                type="text"
+                value={slide.subtitle}
+                onChange={(e) => {
+                  const slides = [...(settings.heroSlides || [])];
+                  slides[i] = { ...slides[i], subtitle: e.target.value };
+                  update("heroSlides", slides);
+                }}
+                placeholder="Subtitle (e.g. Welcome to)"
+                className={inputClass}
+              />
+              <input
+                type="text"
+                value={slide.title}
+                onChange={(e) => {
+                  const slides = [...(settings.heroSlides || [])];
+                  slides[i] = { ...slides[i], title: e.target.value };
+                  update("heroSlides", slides);
+                }}
+                placeholder="Title (e.g. Yazol Coffee)"
+                className={inputClass}
+              />
+              <input
+                type="text"
+                value={slide.description}
+                onChange={(e) => {
+                  const slides = [...(settings.heroSlides || [])];
+                  slides[i] = { ...slides[i], description: e.target.value };
+                  update("heroSlides", slides);
+                }}
+                placeholder="Description"
+                className={inputClass}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => {
+              const slides = [...(settings.heroSlides || []), { image: "", subtitle: "", title: "", description: "" }];
+              update("heroSlides", slides);
+            }}
+            className="w-full py-2.5 border border-dashed border-slate-700 rounded-lg text-sm text-indigo-400 hover:bg-slate-800/40 transition-colors"
+          >
+            + Add Slide
+          </button>
         </div>
       </CollapsibleSection>
 
