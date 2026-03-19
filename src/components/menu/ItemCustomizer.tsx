@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { MenuItem, MenuItemSize, MenuItemOption, CartItem } from "@/lib/types";
 import { getProductImage } from "@/lib/image-map";
@@ -103,7 +104,9 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
 
   if (!open) return null;
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -298,6 +301,7 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
             </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
