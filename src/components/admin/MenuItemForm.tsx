@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/dynamodb";
-import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption } from "@/lib/types";
+import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption, MainCategory } from "@/lib/types";
 import { getProductImage } from "@/lib/image-map";
 import ImageUpload from "./ImageUpload";
 
@@ -34,16 +34,20 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
   const [sizes, setSizes] = useState<MenuItemSize[]>([]);
   const [optionGroups, setOptionGroups] = useState<MenuItemOptionGroup[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [mainCategories, setMainCategories] = useState<MainCategory[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch categories
+  // Fetch categories and main categories
   useEffect(() => {
     if (open) {
-      fetch("/api/categories")
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.categories) setCategories(data.categories);
+      Promise.all([
+        fetch("/api/categories").then((r) => r.json()),
+        fetch("/api/main-categories").then((r) => r.json()),
+      ])
+        .then(([catData, mcData]) => {
+          if (catData.categories) setCategories(catData.categories);
+          if (mcData.mainCategories) setMainCategories(mcData.mainCategories);
         })
         .catch(() => {});
     }
@@ -224,11 +228,35 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
                     className="w-full px-3 py-2 text-sm bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
                   >
                     <option value="">Select...</option>
-                    {categories.map((cat) => (
-                      <option key={cat.slug} value={cat.slug}>
-                        {cat.name}
-                      </option>
-                    ))}
+                    {(() => {
+                      const grouped = mainCategories.map((mc) => ({
+                        label: mc.name,
+                        cats: categories.filter((c) => c.section === mc.slug),
+                      }));
+                      const other = categories.filter(
+                        (c) => !c.section || !mainCategories.some((mc) => mc.slug === c.section)
+                      );
+                      return (
+                        <>
+                          {grouped.map(({ label, cats }) =>
+                            cats.length > 0 ? (
+                              <optgroup key={label} label={label}>
+                                {cats.map((cat) => (
+                                  <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                                ))}
+                              </optgroup>
+                            ) : null
+                          )}
+                          {other.length > 0 && (
+                            <optgroup label="Other">
+                              {other.map((cat) => (
+                                <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </>
+                      );
+                    })()}
                   </select>
                 </div>
                 <div>

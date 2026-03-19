@@ -38,6 +38,20 @@ export interface MenuItem {
   updatedAt: string;
 }
 
+export interface MainCategory {
+  PK: string;
+  SK: string;
+  entityType: string;
+  name: string;
+  slug: string;
+  subtitle: string;
+  sortOrder: number;
+  iconType: "coffee" | "ice-cream";
+  accentColor: string; // Tailwind color token, e.g. "brown", "teal-600"
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Category {
   PK: string;
   SK: string;
@@ -45,6 +59,7 @@ export interface Category {
   name: string;
   slug: string;
   sortOrder: number;
+  section?: string; // slug of the parent MainCategory
   createdAt: string;
   updatedAt: string;
 }

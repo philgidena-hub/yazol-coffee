@@ -18,8 +18,8 @@ export const TABLE_NAME = "YazolData";
 export type { MenuItem } from "./types";
 import type { MenuItem } from "./types";
 
-export type { Category } from "./types";
-import type { Category } from "./types";
+export type { Category, MainCategory } from "./types";
+import type { Category, MainCategory } from "./types";
 
 export interface InventoryItem {
   PK: string;
@@ -37,6 +37,21 @@ export interface InventoryItem {
   expiryDate?: string;       // ISO date string, nullable
   createdAt: string;
   updatedAt: string;
+}
+
+// Query all main categories
+export async function getAllMainCategories(): Promise<MainCategory[]> {
+  const command = new QueryCommand({
+    TableName: TABLE_NAME,
+    IndexName: "GSI1",
+    KeyConditionExpression: "GSI1PK = :pk",
+    ExpressionAttributeValues: {
+      ":pk": "MAINCATEGORIES",
+    },
+  });
+
+  const response = await docClient.send(command);
+  return (response.Items as MainCategory[]) || [];
 }
 
 // Query all categories

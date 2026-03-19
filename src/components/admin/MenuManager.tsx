@@ -5,6 +5,8 @@ import type { MenuItem } from "@/lib/dynamodb";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
 import MenuItemForm from "./MenuItemForm";
+import MainCategoryManager from "./MainCategoryManager";
+import CategoryManager from "./CategoryManager";
 
 export default function MenuManager() {
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -124,6 +126,12 @@ export default function MenuManager() {
 
   return (
     <div>
+      {/* Main Category Management */}
+      <MainCategoryManager />
+
+      {/* Subcategory Management */}
+      <CategoryManager />
+
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-body font-semibold text-lg text-white">Menu</h2>
         <button

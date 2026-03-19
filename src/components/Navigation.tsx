@@ -16,9 +16,8 @@ export default function Navigation() {
   const { itemCount, openCart } = useCart();
   const pathname = usePathname();
 
-  // Only use transparent/white text on the homepage hero
-  const isHomepage = pathname === "/";
-  const isTransparent = isHomepage && !isScrolled;
+  // No transparent mode — landing page uses a light background now
+  const isTransparent = false;
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);

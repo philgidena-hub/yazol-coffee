@@ -1,5 +1,5 @@
-import { getAllCategories, getAllMenuItems } from "@/lib/dynamodb";
-import HeroSection from "@/components/home/HeroSection";
+import { getAllCategories, getAllMenuItems, getAllMainCategories } from "@/lib/dynamodb";
+import LandingHero from "@/components/home/LandingHero";
 import CategoryBar from "@/components/home/CategoryBar";
 import ScrollText from "@/components/home/ScrollText";
 import WhyChooseSection from "@/components/home/WhyChooseSection";
@@ -11,15 +11,17 @@ import StorySection from "@/components/StorySection";
 import LocationHours from "@/components/LocationHours";
 
 export default async function Home() {
-  const [categories, menuItems] = await Promise.all([
+  const [categories, menuItems, mainCategories] = await Promise.all([
     getAllCategories(),
     getAllMenuItems(),
+    getAllMainCategories(),
   ]);
   const availableItems = menuItems.filter((item) => item.isAvailable);
+  const sortedMainCategories = mainCategories.sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <main>
-      <HeroSection />
+      <LandingHero mainCategories={sortedMainCategories} />
       <ScrollText />
       <WhyChooseSection />
       <CategoryBar categories={categories} />

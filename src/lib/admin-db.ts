@@ -1,7 +1,7 @@
 import { docClient, TABLE_NAME, getMenuItem, getAllMenuItems, getAllInventoryItems } from "./dynamodb";
 import type { MenuItem, InventoryItem } from "./dynamodb";
 import { QueryCommand, GetCommand, UpdateCommand, PutCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
-import type { Order, User, UserRole } from "./types";
+import type { Order, User, UserRole, MainCategory } from "./types";
 
 function slugify(name: string): string {
   return name
@@ -302,10 +302,204 @@ export async function toggleMenuItemAvailability(
 }
 
 // ============================================================
-// MENU ITEM CRUD
+// MAIN CATEGORY CRUD
 // ============================================================
 
 export { slugify };
+
+/** Create a new main category */
+export async function createMainCategory(data: {
+  name: string;
+  subtitle: string;
+  sortOrder: number;
+  iconType: MainCategory["iconType"];
+  accentColor: string;
+}): Promise<MainCategory> {
+  const slug = slugify(data.name);
+  const now = new Date().toISOString();
+
+  const item = {
+    PK: `MAINCATEGORY#${slug}`,
+    SK: "METADATA",
+    GSI1PK: "MAINCATEGORIES",
+    GSI1SK: `MAINCATEGORY#${data.name}`,
+    entityType: "MainCategory",
+    name: data.name,
+    slug,
+    subtitle: data.subtitle,
+    sortOrder: data.sortOrder,
+    iconType: data.iconType,
+    accentColor: data.accentColor,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(PK)",
+    })
+  );
+
+  return item as MainCategory;
+}
+
+/** Update an existing main category */
+export async function updateMainCategory(
+  slug: string,
+  data: {
+    name?: string;
+    subtitle?: string;
+    sortOrder?: number;
+    iconType?: MainCategory["iconType"];
+    accentColor?: string;
+  }
+): Promise<void> {
+  const expressions: string[] = ["updatedAt = :now"];
+  const values: Record<string, unknown> = { ":now": new Date().toISOString() };
+  const names: Record<string, string> = {};
+
+  if (data.name !== undefined) {
+    expressions.push("#n = :name");
+    names["#n"] = "name";
+    values[":name"] = data.name;
+    expressions.push("GSI1SK = :gsi1sk");
+    values[":gsi1sk"] = `MAINCATEGORY#${data.name}`;
+  }
+  if (data.subtitle !== undefined) {
+    expressions.push("subtitle = :subtitle");
+    values[":subtitle"] = data.subtitle;
+  }
+  if (data.sortOrder !== undefined) {
+    expressions.push("sortOrder = :order");
+    values[":order"] = data.sortOrder;
+  }
+  if (data.iconType !== undefined) {
+    expressions.push("iconType = :iconType");
+    values[":iconType"] = data.iconType;
+  }
+  if (data.accentColor !== undefined) {
+    expressions.push("accentColor = :accentColor");
+    values[":accentColor"] = data.accentColor;
+  }
+
+  await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `MAINCATEGORY#${slug}`, SK: "METADATA" },
+      UpdateExpression: `SET ${expressions.join(", ")}`,
+      ...(Object.keys(names).length > 0 && { ExpressionAttributeNames: names }),
+      ExpressionAttributeValues: values,
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+/** Delete a main category */
+export async function deleteMainCategory(slug: string): Promise<void> {
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `MAINCATEGORY#${slug}`, SK: "METADATA" },
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+// ============================================================
+// CATEGORY CRUD (subcategories)
+// ============================================================
+
+/** Create a new category */
+export async function createCategory(data: {
+  name: string;
+  sortOrder: number;
+  section: string;
+}): Promise<Record<string, unknown>> {
+  const slug = slugify(data.name);
+  const now = new Date().toISOString();
+
+  const item = {
+    PK: `CATEGORY#${slug}`,
+    SK: "METADATA",
+    GSI1PK: "CATEGORIES",
+    GSI1SK: `CATEGORY#${data.name}`,
+    entityType: "Category",
+    name: data.name,
+    slug,
+    sortOrder: data.sortOrder,
+    section: data.section,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(PK)",
+    })
+  );
+
+  return item;
+}
+
+/** Update an existing category */
+export async function updateCategory(
+  slug: string,
+  data: {
+    name?: string;
+    sortOrder?: number;
+    section?: string;
+  }
+): Promise<void> {
+  const expressions: string[] = ["updatedAt = :now"];
+  const values: Record<string, unknown> = { ":now": new Date().toISOString() };
+  const names: Record<string, string> = {};
+
+  if (data.name !== undefined) {
+    expressions.push("#n = :name");
+    names["#n"] = "name";
+    values[":name"] = data.name;
+    expressions.push("GSI1SK = :gsi1sk");
+    values[":gsi1sk"] = `CATEGORY#${data.name}`;
+  }
+  if (data.sortOrder !== undefined) {
+    expressions.push("sortOrder = :order");
+    values[":order"] = data.sortOrder;
+  }
+  if (data.section !== undefined) {
+    expressions.push("section = :section");
+    values[":section"] = data.section;
+  }
+
+  await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `CATEGORY#${slug}`, SK: "METADATA" },
+      UpdateExpression: `SET ${expressions.join(", ")}`,
+      ...(Object.keys(names).length > 0 && { ExpressionAttributeNames: names }),
+      ExpressionAttributeValues: values,
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+/** Delete a category */
+export async function deleteCategory(slug: string): Promise<void> {
+  await docClient.send(
+    new DeleteCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: `CATEGORY#${slug}`, SK: "METADATA" },
+      ConditionExpression: "attribute_exists(PK)",
+    })
+  );
+}
+
+// ============================================================
+// MENU ITEM CRUD
+// ============================================================
 
 /** Create a new menu item */
 export async function createMenuItem(data: {
