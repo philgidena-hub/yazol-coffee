@@ -8,8 +8,8 @@ type StatusTransition = `${Order["status"]}->${Order["status"]}`;
 const STATUS_TRANSITION_ROLES: Partial<Record<StatusTransition, UserRole[]>> = {
   // Normal sequential transitions
   "pending->approved":    ["super_admin", "admin", "cashier"],
-  "approved->preparing":  ["super_admin", "admin", "chef", "barista"],
-  "preparing->prepared":  ["super_admin", "admin", "chef", "barista"],
+  "approved->preparing":  ["super_admin", "admin", "cashier", "chef", "barista"],
+  "preparing->prepared":  ["super_admin", "admin", "cashier", "chef", "barista"],
   "prepared->completed":  ["super_admin", "admin", "cashier"],
   "pending->cancelled":   ["super_admin", "admin", "cashier"],
   // Admin override: skip-step transitions
@@ -64,7 +64,7 @@ const FEATURE_ROLES: Record<Feature, UserRole[]> = {
   manage_users: ["super_admin"],
   manage_settings: ["super_admin"],
   create_orders: ["super_admin", "admin", "cashier"],
-  view_kitchen_display: ["super_admin", "admin", "chef", "barista"],
+  view_kitchen_display: ["super_admin", "admin", "cashier", "chef", "barista"],
   view_pickup_queue: ["super_admin", "admin", "cashier"],
 };
 
