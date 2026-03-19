@@ -24,10 +24,15 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     lenisRef.current = lenis;
 
-    // Sync Lenis scroll with Framer Motion / native scroll events
+    // Sync Lenis scroll position for components that read scrollY
+    let ticking = false;
     lenis.on("scroll", () => {
-      // Dispatch a native scroll event so Framer Motion's useScroll picks it up
-      window.dispatchEvent(new Event("scroll"));
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+        });
+      }
     });
 
     rafId.current = requestAnimationFrame(raf);
