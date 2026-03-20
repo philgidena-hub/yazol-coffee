@@ -18,7 +18,7 @@ export default function CheckoutPage() {
     email: "",
     pickupTime: "",
     instructions: "",
-    paymentMethod: "" as "online" | "pay_at_pickup" | "",
+    paymentMethod: "online" as "online" | "pay_at_pickup",
   });
   const [submitting, setSubmitting] = useState(false);
   const [orderConfirm, setOrderConfirm] = useState<{
@@ -40,11 +40,6 @@ export default function CheckoutPage() {
 
     if (!form.pickupTime) {
       setError("Please select a pickup time");
-      return;
-    }
-
-    if (!form.paymentMethod) {
-      setError("Please select a payment method");
       return;
     }
 
@@ -77,31 +72,25 @@ export default function CheckoutPage() {
 
       if (!result.success) throw new Error(result.error || "Failed to place order");
 
-      // For online payments, get client secret and show inline payment
-      if (form.paymentMethod === "online") {
-        const res = await fetch("/api/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: result.orderId }),
-        });
-        const data = await res.json();
+      // Get client secret and show inline payment
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: result.orderId }),
+      });
+      const data = await res.json();
 
-        if (!res.ok || !data.clientSecret) {
-          throw new Error(data.error || "Failed to start payment");
-        }
-
-        setPaymentStep({
-          clientSecret: data.clientSecret,
-          orderId: result.orderId!,
-          total: result.total!,
-        });
-        setSubmitting(false);
-        return;
+      if (!res.ok || !data.clientSecret) {
+        throw new Error(data.error || "Failed to start payment");
       }
 
-      // For pay-at-pickup, show confirmation directly
-      clearCart();
-      setOrderConfirm({ orderId: result.orderId!, total: result.total! });
+      setPaymentStep({
+        clientSecret: data.clientSecret,
+        orderId: result.orderId!,
+        total: result.total!,
+      });
+      setSubmitting(false);
+      return;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -193,16 +182,6 @@ export default function CheckoutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <button
-              onClick={() => setPaymentStep(null)}
-              className="flex items-center gap-2 text-brown/50 font-body text-sm mb-6 hover:text-brown transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to order
-            </button>
-
             <h1 className="font-display text-2xl md:text-3xl text-brown mb-2">
               Complete Payment
             </h1>
@@ -309,35 +288,6 @@ export default function CheckoutPage() {
               />
             </div>
 
-            <div>
-              <label className="block text-brown/50 text-sm font-body mb-2">
-                Payment Method *
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, paymentMethod: "online" })}
-                  className={`p-3 rounded-xl border text-sm font-body transition-colors ${
-                    form.paymentMethod === "online"
-                      ? "border-gold bg-gold/5 text-brown"
-                      : "border-black/10 text-brown/50 hover:border-black/20"
-                  }`}
-                >
-                  Pay Now (Online)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, paymentMethod: "pay_at_pickup" })}
-                  className={`p-3 rounded-xl border text-sm font-body transition-colors ${
-                    form.paymentMethod === "pay_at_pickup"
-                      ? "border-gold bg-gold/5 text-brown"
-                      : "border-black/10 text-brown/50 hover:border-black/20"
-                  }`}
-                >
-                  Pay at Pickup
-                </button>
-              </div>
-            </div>
 
             <div>
               <label className="block text-brown/50 text-sm font-body mb-2">
@@ -365,9 +315,7 @@ export default function CheckoutPage() {
             >
               {submitting
                 ? "Placing Order..."
-                : form.paymentMethod === "online"
-                  ? `Continue to Payment — $${total.toFixed(2)}`
-                  : `Place Order — $${total.toFixed(2)}`}
+                : `Continue to Payment — $${total.toFixed(2)}`}
             </button>
           </motion.form>
 

@@ -177,9 +177,14 @@ export default function OrderCard({ order, onStatusChange, role, categoryMap = {
                 Pay at Pickup
               </span>
             )}
-            {order.paymentMethod === "online" && (
+            {order.paymentMethod === "online" && order.paymentStatus === "paid" && (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-body font-medium border bg-emerald-400/10 border-emerald-400/30 text-emerald-400">
                 Paid Online
+              </span>
+            )}
+            {order.paymentMethod === "online" && order.paymentStatus !== "paid" && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-body font-medium border bg-red-400/10 border-red-400/30 text-red-400">
+                Payment Pending
               </span>
             )}
             <span
