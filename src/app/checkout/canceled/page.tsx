@@ -39,7 +39,7 @@ function CanceledContent() {
           </h1>
           <p className="text-brown/50 font-body text-sm mb-8 max-w-sm mx-auto">
             Your payment was not completed. Your order has been saved — you can
-            try paying again or choose to pay at pickup.
+            try again from the order tracking page.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             {orderId && (

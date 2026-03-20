@@ -168,7 +168,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
   }, []);
 
   return (
-    <section className="relative min-h-svh flex flex-col items-center justify-center overflow-hidden px-5 sm:px-6 md:px-12 lg:px-20 pt-24 pb-8 sm:pt-28 sm:pb-10">
+    <section className="relative min-h-svh md:min-h-0 md:py-0 flex flex-col items-center justify-center overflow-hidden px-5 sm:px-6 md:px-12 lg:px-20 pt-24 pb-8 sm:pt-28 sm:pb-10 md:pt-32 md:pb-16 lg:min-h-svh">
       {/* ── Gradient background ── */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#f8e8d8] via-[#faf0e8] to-[#e8f0e8]" />
 
@@ -226,7 +226,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
         {/* ── Dynamic cards ── */}
         <motion.div
           variants={fadeUp}
-          className={`grid grid-cols-1 ${mainCategories.length > 1 ? "md:grid-cols-2" : ""} gap-5 sm:gap-6 w-full`}
+          className={`grid grid-cols-2 ${mainCategories.length > 1 ? "sm:grid-cols-2" : ""} gap-4 sm:gap-6 w-full max-w-2xl`}
         >
           {mainCategories.map((mc) => {
             const Icon = ICON_MAP[mc.iconType] || CoffeeIcon;
