@@ -10,8 +10,9 @@ import CartDrawer from "@/components/cart/CartDrawer";
 export default function StorefrontShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isComingSoon = pathname === "/coming-soon";
 
-  if (isAdmin) {
+  if (isAdmin || isComingSoon) {
     return <>{children}</>;
   }
 

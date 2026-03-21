@@ -1,6 +1,9 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
+// Set to true to show coming-soon page to all public visitors
+const COMING_SOON = true;
+
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const token = req.auth;
@@ -29,12 +32,25 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
+  // ── Coming Soon redirect ────────────────────────────────────
+  // Redirect all public pages to /coming-soon (except API routes, admin, and the page itself)
+  if (COMING_SOON) {
+    const isAllowed =
+      pathname === "/coming-soon" ||
+      pathname.startsWith("/api/") ||
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/_next");
+
+    if (!isAllowed) {
+      return NextResponse.redirect(new URL("/coming-soon", req.url));
+    }
+  }
+
   return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/admin/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.).*)",
   ],
 };
