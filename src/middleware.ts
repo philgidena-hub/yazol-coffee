@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-// Set to true to show coming-soon page to all public visitors
-const COMING_SOON = true;
+// Set COMING_SOON=true in env vars to show coming-soon page to all public visitors
+const COMING_SOON = process.env.COMING_SOON === "true";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
