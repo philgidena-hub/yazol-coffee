@@ -21,6 +21,7 @@ export default function CategoryManager() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(true);
 
   const fetchData = async () => {
     try {
@@ -86,6 +87,7 @@ export default function CategoryManager() {
       setFormOpen(false);
       await fetchData();
       if (!editing) {
+        setCollapsed(false);
         setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 100);
       }
     } catch (err) {
@@ -174,7 +176,16 @@ export default function CategoryManager() {
   return (
     <div className="mb-6" ref={sectionRef}>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-body font-semibold text-sm text-slate-400">Subcategories</h2>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center gap-2 font-body font-semibold text-sm text-slate-400 hover:text-slate-300 transition-colors"
+        >
+          <svg className={`w-3.5 h-3.5 transition-transform ${collapsed ? "" : "rotate-90"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          Subcategories
+          {categories.length > 0 && <span className="text-[10px] text-slate-600">({categories.length})</span>}
+        </button>
         <button
           onClick={openCreate}
           className="px-3 py-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
@@ -183,22 +194,26 @@ export default function CategoryManager() {
         </button>
       </div>
 
-      {loading ? (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 animate-pulse h-24" />
-      ) : categories.length === 0 ? (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 text-center">
-          <p className="text-slate-500 text-sm">No subcategories yet</p>
-          <button onClick={openCreate} className="mt-2 text-sm text-indigo-400 hover:text-indigo-300">
-            Create your first subcategory
-          </button>
-        </div>
-      ) : (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
-          {grouped.map(({ mainCategory, subcategories }) =>
-            renderGroup(mainCategory.name, subcategories, "text-slate-400")
+      {!collapsed && (
+        <>
+          {loading ? (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 animate-pulse h-24" />
+          ) : categories.length === 0 ? (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 text-center">
+              <p className="text-slate-500 text-sm">No subcategories yet</p>
+              <button onClick={openCreate} className="mt-2 text-sm text-indigo-400 hover:text-indigo-300">
+                Create your first subcategory
+              </button>
+            </div>
+          ) : (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+              {grouped.map(({ mainCategory, subcategories }) =>
+                renderGroup(mainCategory.name, subcategories, "text-slate-400")
+              )}
+              {renderGroup("Unlinked", uncategorized, "text-slate-600")}
+            </div>
           )}
-          {renderGroup("Unlinked", uncategorized, "text-slate-600")}
-        </div>
+        </>
       )}
 
       {/* Create/Edit Form */}

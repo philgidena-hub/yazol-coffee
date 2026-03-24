@@ -36,6 +36,7 @@ export default function MainCategoryManager() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(true);
 
   const fetchItems = async () => {
     try {
@@ -100,6 +101,7 @@ export default function MainCategoryManager() {
       setFormOpen(false);
       await fetchItems();
       if (!editing) {
+        setCollapsed(false);
         setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 100);
       }
     } catch (err) {
@@ -128,7 +130,16 @@ export default function MainCategoryManager() {
   return (
     <div className="mb-6" ref={sectionRef}>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-body font-semibold text-sm text-slate-400">Main Categories</h2>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center gap-2 font-body font-semibold text-sm text-slate-400 hover:text-slate-300 transition-colors"
+        >
+          <svg className={`w-3.5 h-3.5 transition-transform ${collapsed ? "" : "rotate-90"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          Main Categories
+          {items.length > 0 && <span className="text-[10px] text-slate-600">({items.length})</span>}
+        </button>
         <button
           onClick={openCreate}
           className="px-3 py-1 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
@@ -137,54 +148,58 @@ export default function MainCategoryManager() {
         </button>
       </div>
 
-      {loading ? (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 animate-pulse h-20" />
-      ) : items.length === 0 ? (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 text-center">
-          <p className="text-slate-500 text-sm">No main categories yet</p>
-          <button onClick={openCreate} className="mt-2 text-sm text-indigo-400 hover:text-indigo-300">
-            Create your first main category
-          </button>
-        </div>
-      ) : (
-        <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden divide-y divide-slate-800/50">
-          {items.map((mc) => (
-            <div
-              key={mc.slug}
-              className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-800/20 transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-slate-600 text-xs font-mono w-6 text-center">{mc.sortOrder}</span>
-                <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: mc.accentColor === "brown" ? "#92400e" : mc.accentColor === "teal-600" ? "#0d9488" : mc.accentColor === "indigo-600" ? "#4f46e5" : mc.accentColor === "rose-600" ? "#e11d48" : mc.accentColor === "amber-600" ? "#d97706" : mc.accentColor === "emerald-600" ? "#059669" : "#64748b" }}
-                />
-                <span className="text-sm text-slate-200 font-body font-medium">{mc.name}</span>
-                <span className="text-[10px] text-slate-600 font-body">{mc.subtitle}</span>
-              </div>
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => openEdit(mc)}
-                  className="p-1.5 text-slate-600 hover:text-indigo-400 transition-colors"
-                  title="Edit"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setDeleteTarget(mc)}
-                  className="p-1.5 text-slate-600 hover:text-red-400 transition-colors"
-                  title="Delete"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
+      {!collapsed && (
+        <>
+          {loading ? (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 animate-pulse h-20" />
+          ) : items.length === 0 ? (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 p-6 text-center">
+              <p className="text-slate-500 text-sm">No main categories yet</p>
+              <button onClick={openCreate} className="mt-2 text-sm text-indigo-400 hover:text-indigo-300">
+                Create your first main category
+              </button>
             </div>
-          ))}
-        </div>
+          ) : (
+            <div className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden divide-y divide-slate-800/50">
+              {items.map((mc) => (
+                <div
+                  key={mc.slug}
+                  className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-800/20 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-slate-600 text-xs font-mono w-6 text-center">{mc.sortOrder}</span>
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: mc.accentColor === "brown" ? "#92400e" : mc.accentColor === "teal-600" ? "#0d9488" : mc.accentColor === "indigo-600" ? "#4f46e5" : mc.accentColor === "rose-600" ? "#e11d48" : mc.accentColor === "amber-600" ? "#d97706" : mc.accentColor === "emerald-600" ? "#059669" : "#64748b" }}
+                    />
+                    <span className="text-sm text-slate-200 font-body font-medium">{mc.name}</span>
+                    <span className="text-[10px] text-slate-600 font-body">{mc.subtitle}</span>
+                  </div>
+                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => openEdit(mc)}
+                      className="p-1.5 text-slate-600 hover:text-indigo-400 transition-colors"
+                      title="Edit"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setDeleteTarget(mc)}
+                      className="p-1.5 text-slate-600 hover:text-red-400 transition-colors"
+                      title="Delete"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Create/Edit Form */}
