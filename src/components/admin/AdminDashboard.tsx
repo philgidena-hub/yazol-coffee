@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { motion } from "framer-motion";
 import LiveOrders from "./LiveOrders";
@@ -110,6 +110,13 @@ export default function AdminDashboard() {
 
   const visibleTabs = getVisibleTabs(role);
   const [activeTab, setActiveTab] = useState<AdminTab>(visibleTabs[0] || "orders");
+
+  // When the role loads/changes, reset activeTab if current tab isn't visible for the new role
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !visibleTabs.includes(activeTab)) {
+      setActiveTab(visibleTabs[0]);
+    }
+  }, [role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOrderUpdate = () => {
     setRefreshKey((k) => k + 1);
