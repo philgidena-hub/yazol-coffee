@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import type { Category, MainCategory } from "@/lib/types";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
@@ -216,8 +217,8 @@ export default function CategoryManager() {
         </>
       )}
 
-      {/* Create/Edit Form */}
-      {formOpen && (
+      {/* Create/Edit Form — portaled to body to escape parent transforms */}
+      {formOpen && createPortal(
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={() => setFormOpen(false)}
@@ -283,7 +284,8 @@ export default function CategoryManager() {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <ConfirmModal

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MenuItem, Category } from "@/lib/dynamodb";
 import type { MenuItemSize, MenuItemOptionGroup, MenuItemOption, MainCategory } from "@/lib/types";
@@ -170,7 +171,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
     }
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -530,6 +531,7 @@ export default function MenuItemForm({ open, item, onClose, onSaved }: MenuItemF
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
