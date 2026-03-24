@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { MenuItem } from "@/lib/dynamodb";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
@@ -17,6 +17,7 @@ export default function MenuManager() {
   const [deleteTarget, setDeleteTarget] = useState<MenuItem | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
+  const menuSectionRef = useRef<HTMLDivElement>(null);
 
   const fetchMenu = async () => {
     try {
@@ -112,9 +113,13 @@ export default function MenuManager() {
     setFormOpen(true);
   };
 
-  const handleSaved = () => {
-    fetchMenu();
-    toast(editingItem ? "Menu item updated" : "Menu item created", "success");
+  const handleSaved = async () => {
+    const isNew = !editingItem;
+    await fetchMenu();
+    toast(isNew ? "Menu item created" : "Menu item updated", "success");
+    if (isNew) {
+      setTimeout(() => menuSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 100);
+    }
   };
 
   // Group items by category
@@ -132,7 +137,7 @@ export default function MenuManager() {
       {/* Subcategory Management */}
       <CategoryManager />
 
-      <div className="flex items-center justify-between mb-4">
+      <div ref={menuSectionRef} className="flex items-center justify-between mb-4">
         <h2 className="font-body font-semibold text-lg text-white">Menu</h2>
         <button
           onClick={openCreate}

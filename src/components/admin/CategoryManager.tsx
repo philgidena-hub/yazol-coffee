@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Category, MainCategory } from "@/lib/types";
 import { useToast } from "./AdminToast";
 import ConfirmModal from "./ConfirmModal";
@@ -20,6 +20,7 @@ export default function CategoryManager() {
   const [section, setSection] = useState("");
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const fetchData = async () => {
     try {
@@ -83,7 +84,10 @@ export default function CategoryManager() {
 
       toast(editing ? "Subcategory updated" : "Subcategory created", "success");
       setFormOpen(false);
-      fetchData();
+      await fetchData();
+      if (!editing) {
+        setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 100);
+      }
     } catch (err) {
       toast(err instanceof Error ? err.message : "Save failed", "error");
     } finally {
@@ -168,7 +172,7 @@ export default function CategoryManager() {
   };
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" ref={sectionRef}>
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-body font-semibold text-sm text-slate-400">Subcategories</h2>
         <button
