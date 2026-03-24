@@ -36,7 +36,7 @@ export default function MainCategoryManager() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   const fetchItems = async () => {
     try {

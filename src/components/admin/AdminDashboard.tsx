@@ -239,12 +239,12 @@ export default function AdminDashboard() {
         {/* Main Content */}
         <main className="flex-1 px-6 py-6 pb-24 lg:pb-6 min-w-0">
           {/* Dashboard Stats — visible for admin+ roles */}
-          {hasPermission(role, "view_dashboard_stats") && activeTab !== "pos" && (
+          {hasPermission(role, "view_dashboard_stats") && activeTab !== "pos" && activeTab !== "menu" && (
             <DashboardStats refreshKey={refreshKey} />
           )}
 
           {/* Low stock alerts — visible to all staff */}
-          {activeTab !== "pos" && <LowStockBanner />}
+          {activeTab !== "pos" && activeTab !== "menu" && <LowStockBanner />}
 
           {/* Tab Content */}
           <motion.div
