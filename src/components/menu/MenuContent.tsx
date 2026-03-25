@@ -85,7 +85,12 @@ export default function MenuContent({
   );
 
   const sectionItems = useMemo(
-    () => menuItems.filter((item) => sectionCategorySlugs.has(slugify(item.category))),
+    () => menuItems.filter((item) => {
+      const raw = item as unknown as Record<string, unknown>;
+      const gsi1pk = raw.GSI1PK ? String(raw.GSI1PK).replace("CATEGORY#", "") : "";
+      const itemCatSlug = item.categorySlug || gsi1pk || slugify(item.category);
+      return sectionCategorySlugs.has(itemCatSlug);
+    }),
     [menuItems, sectionCategorySlugs]
   );
 
@@ -93,7 +98,12 @@ export default function MenuContent({
     const groups: { category: Category; items: MenuItem[] }[] = [];
     for (const cat of sectionCategories) {
       const catItems = sectionItems.filter(
-        (item) => slugify(item.category) === cat.slug
+        (item) => {
+          const raw = item as unknown as Record<string, unknown>;
+          const gsi1pk = raw.GSI1PK ? String(raw.GSI1PK).replace("CATEGORY#", "") : "";
+          const itemCatSlug = item.categorySlug || gsi1pk || slugify(item.category);
+          return itemCatSlug === cat.slug;
+        }
       );
       if (catItems.length > 0) {
         groups.push({ category: cat, items: catItems });

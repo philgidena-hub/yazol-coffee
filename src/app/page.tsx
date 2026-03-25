@@ -1,5 +1,7 @@
 import { getAllCategories, getAllMenuItems, getAllMainCategories } from "@/lib/dynamodb";
 import LandingHero from "@/components/home/LandingHero";
+
+export const dynamic = "force-dynamic";
 import CategoryBar from "@/components/home/CategoryBar";
 import ScrollText from "@/components/home/ScrollText";
 import WhyChooseSection from "@/components/home/WhyChooseSection";

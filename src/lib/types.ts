@@ -23,6 +23,7 @@ export interface MenuItem {
   slug: string;
   description: string;
   category: string;
+  categorySlug?: string;
   price: number;
   isAvailable: boolean;
   imageKey: string;

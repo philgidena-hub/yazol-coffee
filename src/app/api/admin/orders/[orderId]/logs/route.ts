@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuditLogs } from "@/lib/admin-db";
 import { requirePermission } from "@/lib/api-auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }

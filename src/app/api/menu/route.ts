@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAllMenuItems, getMenuItemsByCategory } from "@/lib/dynamodb";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

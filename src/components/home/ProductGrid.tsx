@@ -33,9 +33,13 @@ export default function ProductGrid({ items, categories }: ProductGridProps) {
 
         {sorted.map((category) => {
           const catItems = items.filter(
-            (item) =>
-              item.category.toLowerCase().replace(/[\s&]+/g, "-") ===
-              category.slug
+            (item) => {
+              const raw = item as unknown as Record<string, unknown>;
+              const gsi1pk = raw.GSI1PK ? String(raw.GSI1PK).replace("CATEGORY#", "") : "";
+              const itemCatSlug = item.categorySlug || gsi1pk ||
+                item.category.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+              return itemCatSlug === category.slug;
+            }
           );
           if (catItems.length === 0) return null;
 

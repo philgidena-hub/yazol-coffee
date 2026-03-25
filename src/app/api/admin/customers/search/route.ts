@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePermission } from "@/lib/api-auth";
 import { searchCustomers } from "@/lib/admin-db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const auth = await requirePermission(request, "create_orders");
   if (auth instanceof NextResponse) return auth;

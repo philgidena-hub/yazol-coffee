@@ -525,6 +525,7 @@ export async function createMenuItem(data: {
     slug,
     description: data.description,
     category: data.category,
+    categorySlug: data.categorySlug,
     price: data.price,
     isAvailable: data.isAvailable,
     imageKey: data.imageKey || `menu/${slug}.jpg`,
@@ -583,6 +584,8 @@ export async function updateMenuItem(
     values[":cat"] = data.category;
   }
   if (data.categorySlug !== undefined) {
+    expressions.push("categorySlug = :catSlug");
+    values[":catSlug"] = data.categorySlug;
     expressions.push("GSI1PK = :gsi1pk");
     values[":gsi1pk"] = `CATEGORY#${data.categorySlug}`;
   }

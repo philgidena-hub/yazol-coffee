@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { setInventoryStock, getInventoryItem, logStockMovement } from "@/lib/admin-db";
 import { requirePermission } from "@/lib/api-auth";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
