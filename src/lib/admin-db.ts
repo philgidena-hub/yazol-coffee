@@ -470,7 +470,8 @@ export async function updateCategory(
     values[":order"] = data.sortOrder;
   }
   if (data.section !== undefined) {
-    expressions.push("section = :section");
+    expressions.push("#section = :section");
+    names["#section"] = "section";
     values[":section"] = data.section;
   }
 

@@ -4,6 +4,8 @@ import { updateUser, deleteUser } from "@/lib/admin-db";
 import { requirePermission } from "@/lib/api-auth";
 import type { UserRole } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const VALID_ROLES: UserRole[] = ["super_admin", "admin", "cashier", "chef"];
 
 export async function PUT(

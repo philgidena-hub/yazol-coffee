@@ -4,6 +4,8 @@ import { getAuthUser, forbidden } from "@/lib/api-auth";
 import { canTransitionStatus, canCancelOrder } from "@/lib/permissions";
 import type { Order } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const STATUS_ORDER: Order["status"][] = [
   "pending",
   "approved",
