@@ -31,8 +31,8 @@ const stagger = {
 
 /* ─── Image map for main categories ─── */
 const HERO_IMAGES: Record<string, string> = {
-  coffee: "/Images/barista.jpg",
-  "scoop-stop": "/Images/coffee-1.jpg",
+  coffee: "/Hero-coffee.png",
+  "scoop-stop": "/Hero-icecream.png",
 };
 
 /* ─── Side config by slug ─── */
@@ -53,28 +53,28 @@ interface SideConfig {
 const SIDE_CONFIGS: Record<string, SideConfig> = {
   coffee: {
     bg: "bg-[#1a1209]",
-    overlay: "from-[#1a1209]/90 via-[#1a1209]/70 to-[#1a1209]/40",
+    overlay: "from-[#1a1209]/80 via-[#1a1209]/50 to-transparent",
     tagBg: "bg-white/10 border-white/20",
     tagText: "text-white/70",
     titleColor: "text-white",
     subtitleColor: "text-amber-300",
     descColor: "text-white/60",
     btnBg: "bg-transparent",
-    btnText: "text-amber-300",
-    btnHover: "hover:bg-amber-300 hover:text-[#1a1209]",
-    btnBorder: "border-amber-300/60",
+    btnText: "text-amber-200",
+    btnHover: "hover:bg-amber-200 hover:text-[#1a1209]",
+    btnBorder: "border-amber-200/70",
   },
   "scoop-stop": {
-    bg: "bg-[#fce4ec]",
-    overlay: "from-[#fce4ec]/90 via-[#fce4ec]/70 to-[#fce4ec]/40",
+    bg: "bg-[#f8d7e0]",
+    overlay: "from-[#f8d7e0]/80 via-[#f8d7e0]/50 to-transparent",
     tagBg: "bg-pink-500/10 border-pink-300/30",
     tagText: "text-pink-600/70",
     titleColor: "text-gray-800",
     subtitleColor: "text-pink-500",
     descColor: "text-gray-600/70",
-    btnBg: "bg-gradient-to-r from-pink-400 to-pink-500",
+    btnBg: "bg-gradient-to-r from-pink-300 to-pink-400",
     btnText: "text-white",
-    btnHover: "hover:from-pink-500 hover:to-pink-600",
+    btnHover: "hover:from-pink-400 hover:to-pink-500",
     btnBorder: "border-transparent",
   },
 };
@@ -126,43 +126,48 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
             initial="hidden"
             animate="visible"
             variants={stagger}
-            className={`relative ${hasTwoSides ? "md:w-1/2" : "w-full"} min-h-[50svh] md:min-h-svh flex flex-col items-center justify-center ${config.bg} overflow-hidden`}
+            className={`relative ${hasTwoSides ? "md:w-1/2" : "w-full"} min-h-[50svh] md:min-h-svh flex flex-col items-start justify-start ${config.bg} overflow-hidden`}
           >
-            {/* Background image */}
+            {/* Background image — positioned to show product at bottom */}
             <motion.div variants={fadeIn} className="absolute inset-0">
               <Image
                 src={heroImage}
                 alt={mc.name}
                 fill
-                className="object-cover"
+                className="object-cover object-bottom"
                 sizes={hasTwoSides ? "50vw" : "100vw"}
                 priority
               />
-              {/* Overlay gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-t ${config.overlay}`} />
-              {/* Extra bottom gradient for text readability */}
-              <div className={`absolute inset-0 bg-gradient-to-b ${config.overlay}`} />
+              {/* Gradient overlay — strong at top for text, fading to transparent at bottom to reveal product */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: isLeft
+                    ? "linear-gradient(to bottom, #1a1209 0%, rgba(26,18,9,0.85) 25%, rgba(26,18,9,0.4) 50%, transparent 70%)"
+                    : "linear-gradient(to bottom, #f8d7e0 0%, rgba(248,215,224,0.85) 25%, rgba(248,215,224,0.4) 50%, transparent 70%)",
+                }}
+              />
             </motion.div>
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 sm:px-10 md:px-12 lg:px-16 py-20 md:py-0 max-w-lg mx-auto">
-              {/* Tag */}
-              <motion.div
+            {/* Content — positioned at top-left, not centered */}
+            <div className={`relative z-10 flex flex-col ${isLeft ? "items-start text-left" : "items-start text-left"} px-8 sm:px-12 md:px-10 lg:px-14 xl:px-20 pt-28 md:pt-32 lg:pt-36 max-w-xl`}>
+              {/* Subtitle — italic script style */}
+              <motion.p
                 variants={fadeUp}
-                className={`inline-flex items-center px-4 py-1.5 rounded-full border text-[11px] tracking-widest uppercase font-body mb-5 ${config.tagBg} ${config.tagText}`}
+                className={`font-display italic text-lg sm:text-xl md:text-2xl mb-1 ${config.subtitleColor}`}
               >
                 {isLeft ? "Freshly Roasted" : "Handcrafted"}
-              </motion.div>
+              </motion.p>
 
               {/* Title */}
               <motion.h1
                 variants={fadeUp}
-                className={`font-display text-5xl sm:text-6xl md:text-5xl lg:text-7xl tracking-tight mb-3 ${config.titleColor}`}
+                className={`font-display text-5xl sm:text-6xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight font-bold mb-4 leading-[0.95] ${config.titleColor}`}
               >
                 {mc.name.toUpperCase()}
               </motion.h1>
 
-              {/* Subtitle */}
+              {/* Description */}
               <motion.p
                 variants={fadeUp}
                 className={`font-body text-sm sm:text-base mb-8 max-w-xs ${config.descColor}`}
@@ -174,32 +179,23 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
               <motion.div variants={fadeUp}>
                 <Link
                   href={`/menu?section=${mc.slug}`}
-                  className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full border text-sm font-display tracking-wide transition-all duration-300 ${config.btnBg} ${config.btnText} ${config.btnHover} ${config.btnBorder}`}
+                  className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full border text-xs sm:text-sm font-body tracking-[0.2em] uppercase transition-all duration-300 ${config.btnBg} ${config.btnText} ${config.btnHover} ${config.btnBorder}`}
                 >
                   Explore {mc.name}
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
                 </Link>
               </motion.div>
             </div>
 
             {/* Wave divider — only on the left panel, desktop only */}
             {isLeft && hasTwoSides && (
-              <div className="hidden md:block absolute top-0 right-0 h-full w-20 lg:w-28 z-20 translate-x-1/2">
+              <div className="hidden md:block absolute top-0 right-0 h-full w-24 lg:w-32 xl:w-40 z-20 translate-x-1/2">
                 <svg
-                  viewBox="0 0 100 800"
+                  viewBox="0 0 120 800"
                   preserveAspectRatio="none"
                   className="h-full w-full"
-                  fill={mc.slug === "coffee" ? "#1a1209" : "#fce4ec"}
+                  fill="#f8d7e0"
                 >
-                  <path d="M100,0 L100,800 L0,800 C30,650 70,550 30,400 C-10,250 50,150 30,0 Z" />
+                  <path d="M120,0 L120,800 L60,800 C80,700 20,600 40,500 C60,400 10,300 40,200 C70,100 30,50 60,0 Z" />
                 </svg>
               </div>
             )}
