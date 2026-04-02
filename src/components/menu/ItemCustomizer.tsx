@@ -125,7 +125,7 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
               {/* Image */}
               <div className="relative h-48 sm:h-56">
                 <Image
-                  src={getProductImage(item.slug)}
+                  src={getProductImage(item.slug, item.imageKey)}
                   alt={item.name}
                   fill
                   sizes="(max-width: 640px) 100vw, 420px"
