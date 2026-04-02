@@ -17,7 +17,7 @@ const DEFAULT_STORY = {
 };
 
 function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLSpanElement>(null!);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   const [count, setCount] = useState(0);
 
@@ -81,7 +81,7 @@ export default function StorySection() {
       .catch(() => {});
   }, []);
 
-  const imgRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress } = useScroll({
     target: imgRef,
     offset: ["start end", "end start"],

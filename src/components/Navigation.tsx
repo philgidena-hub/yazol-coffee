@@ -16,8 +16,9 @@ export default function Navigation() {
   const { itemCount, openCart } = useCart();
   const pathname = usePathname();
 
-  // No transparent mode — landing page uses a light background now
-  const isTransparent = false;
+  // Transparent nav on homepage, solid on other pages
+  const isHome = pathname === "/";
+  const isTransparent = isHome && !isScrolled;
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -69,7 +70,7 @@ export default function Navigation() {
                   href={link.href}
                   className={`font-body text-sm tracking-wider uppercase transition-colors duration-300 ${
                     isTransparent
-                      ? "text-white/70 hover:text-white"
+                      ? "text-brown/70 hover:text-brown"
                       : "text-brown/50 hover:text-brown"
                   }`}
                 >
@@ -102,7 +103,7 @@ export default function Navigation() {
                   href="/menu"
                   className={`inline-block px-6 py-2.5 font-body text-sm tracking-wider uppercase rounded-full transition-all duration-300 ${
                     isTransparent
-                      ? "bg-white/15 backdrop-blur-sm text-white border border-white/20 hover:bg-white/25"
+                      ? "bg-brown/10 backdrop-blur-sm text-brown border border-brown/20 hover:bg-brown/20"
                       : "bg-brown text-white hover:bg-brown-light"
                   }`}
                 >
@@ -140,20 +141,20 @@ export default function Navigation() {
                   animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   className={`w-full h-px block ${
-                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                    "bg-brown"
                   }`}
                 />
                 <motion.span
                   animate={{ opacity: isMobileMenuOpen ? 0 : 1 }}
                   className={`w-full h-px block ${
-                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                    "bg-brown"
                   }`}
                 />
                 <motion.span
                   animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   className={`w-full h-px block ${
-                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
+                    "bg-brown"
                   }`}
                 />
               </button>

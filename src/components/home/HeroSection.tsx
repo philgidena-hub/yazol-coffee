@@ -140,7 +140,7 @@ export default function HeroSection() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Parallax on scroll
-  const heroRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLElement>(null!);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],

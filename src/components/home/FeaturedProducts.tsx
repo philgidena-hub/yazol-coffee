@@ -29,11 +29,15 @@ export default function FeaturedProducts({ items }: FeaturedProductsProps) {
     items.find((i) => i.slug === slug)
   ).filter(Boolean) as MenuItem[];
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  if (featured.length === 0) return null;
+
+  return <FeaturedProductsInner featured={featured} />;
+}
+
+function FeaturedProductsInner({ featured }: { featured: MenuItem[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null!);
   const { scrollXProgress } = useScroll({ container: scrollRef });
   const progressWidth = useTransform(scrollXProgress, [0, 1], ["0%", "100%"]);
-
-  if (featured.length === 0) return null;
 
   return (
     <section className="py-16 sm:py-20 md:py-28 bg-bg overflow-hidden">

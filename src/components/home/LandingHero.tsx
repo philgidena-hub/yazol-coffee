@@ -59,10 +59,10 @@ const SIDE_CONFIGS: Record<string, SideConfig> = {
     titleColor: "text-white",
     subtitleColor: "text-amber-300",
     descColor: "text-white/60",
-    btnBg: "bg-transparent",
+    btnBg: "bg-amber-200/10 md:bg-transparent",
     btnText: "text-amber-200",
     btnHover: "hover:bg-amber-200 hover:text-[#1a1209]",
-    btnBorder: "border-amber-200/70",
+    btnBorder: "border-amber-200",
   },
   "scoop-stop": {
     bg: "bg-[#f8d7e0]",
@@ -139,8 +139,18 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
                 priority
               />
               {/* Gradient overlay — strong at top for text, fading to transparent at bottom to reveal product */}
+              {/* Mobile: stronger gradient so text+button stay readable over the image */}
               <div
-                className="absolute inset-0"
+                className="absolute inset-0 md:hidden"
+                style={{
+                  background: isLeft
+                    ? "linear-gradient(to bottom, #1a1209 0%, rgba(26,18,9,0.92) 30%, rgba(26,18,9,0.7) 55%, rgba(26,18,9,0.3) 75%, transparent 90%)"
+                    : "linear-gradient(to bottom, #f8d7e0 0%, rgba(248,215,224,0.92) 30%, rgba(248,215,224,0.7) 55%, rgba(248,215,224,0.3) 75%, transparent 90%)",
+                }}
+              />
+              {/* Desktop: lighter gradient */}
+              <div
+                className="absolute inset-0 hidden md:block"
                 style={{
                   background: isLeft
                     ? "linear-gradient(to bottom, #1a1209 0%, rgba(26,18,9,0.85) 25%, rgba(26,18,9,0.4) 50%, transparent 70%)"

@@ -27,7 +27,7 @@ const detailVariants = {
 };
 
 export default function ContactContent() {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -35,7 +35,7 @@ export default function ContactContent() {
   const heroImgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
-  const storeRef = useRef<HTMLDivElement>(null);
+  const storeRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress: storeProgress } = useScroll({
     target: storeRef,
     offset: ["start end", "end start"],

@@ -44,7 +44,7 @@ export default function WhyChooseSection() {
       .catch(() => {});
   }, []);
 
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLElement>(null!);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],

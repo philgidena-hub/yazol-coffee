@@ -71,7 +71,7 @@ const infoVariants = {
 };
 
 export default function LocationHours() {
-  const imgRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress } = useScroll({ target: imgRef, offset: ["start end", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], [30, -30]);
   const imgScale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);

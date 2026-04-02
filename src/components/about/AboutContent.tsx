@@ -8,7 +8,7 @@ import TextReveal from "@/components/ui/TextReveal";
 import { LineReveal, FadeUp } from "@/components/ui/TextReveal";
 
 function CountUp({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
+  const ref = useRef<HTMLSpanElement>(null!);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
   const [count, setCount] = useState(0);
 
@@ -61,7 +61,7 @@ const GALLERY_IMAGES = [
 ];
 
 export default function AboutContent() {
-  const heroRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -69,7 +69,7 @@ export default function AboutContent() {
   const heroImgY = useTransform(heroProgress, [0, 1], [0, 150]);
   const heroOpacity = useTransform(heroProgress, [0, 0.6], [1, 0]);
 
-  const mosaicRef = useRef<HTMLDivElement>(null);
+  const mosaicRef = useRef<HTMLDivElement>(null!);
   const { scrollYProgress: mosaicProgress } = useScroll({
     target: mosaicRef,
     offset: ["start end", "end start"],
