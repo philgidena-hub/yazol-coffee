@@ -43,18 +43,18 @@ export default function Navigation() {
         animate={{ y: isHidden ? -100 : 0, opacity: 1 }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isTransparent
+          isTransparent && !isMobileMenuOpen
             ? "bg-transparent"
             : "bg-white/90 backdrop-blur-xl border-b border-black/5 shadow-soft-sm"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
-          <div className="flex items-center justify-between h-[72px]">
+          <div className="flex items-center justify-between h-16 sm:h-[72px]">
             {/* Logo */}
             <Link
               href="/"
               className={`font-display text-2xl transition-colors duration-300 ${
-                isTransparent
+                isTransparent && !isMobileMenuOpen
                   ? "text-white hover:text-white/80"
                   : "text-brown hover:text-gold"
               }`}
@@ -85,7 +85,7 @@ export default function Navigation() {
                 whileTap={{ scale: 0.9 }}
                 className={`relative transition-colors ${
                   isTransparent
-                    ? "text-white/70 hover:text-white"
+                    ? "text-brown/50 hover:text-brown"
                     : "text-brown/50 hover:text-brown"
                 }`}
                 aria-label="Open cart"
@@ -103,7 +103,7 @@ export default function Navigation() {
                   href="/menu"
                   className={`inline-block px-6 py-2.5 font-body text-sm tracking-wider uppercase rounded-full transition-all duration-300 ${
                     isTransparent
-                      ? "bg-brown/10 backdrop-blur-sm text-brown border border-brown/20 hover:bg-brown/20"
+                      ? "bg-brown text-white border border-brown hover:bg-brown-light"
                       : "bg-brown text-white hover:bg-brown-light"
                   }`}
                 >
@@ -113,18 +113,18 @@ export default function Navigation() {
             </div>
 
             {/* Mobile right side */}
-            <div className="flex items-center gap-4 md:hidden">
+            <div className="flex items-center gap-3 md:hidden">
               <motion.button
                 onClick={openCart}
                 whileTap={{ scale: 0.9 }}
-                className={`relative transition-colors ${
-                  isTransparent
+                className={`relative p-2 touch-target flex items-center justify-center transition-colors ${
+                  isTransparent && !isMobileMenuOpen
                     ? "text-white/70 hover:text-white"
                     : "text-brown/50 hover:text-brown"
                 }`}
                 aria-label="Open cart"
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <path d="M16 10a4 4 0 01-8 0" />
@@ -134,27 +134,27 @@ export default function Navigation() {
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="z-50 relative w-8 h-8 flex flex-col justify-center gap-1.5"
+                className="z-50 relative w-10 h-10 flex flex-col justify-center items-center gap-1.5 touch-target"
                 aria-label="Toggle menu"
               >
                 <motion.span
                   animate={{ rotate: isMobileMenuOpen ? 45 : 0, y: isMobileMenuOpen ? 8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className={`w-full h-px block ${
-                    "bg-brown"
+                  className={`w-full h-[1.5px] block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
                   }`}
                 />
                 <motion.span
                   animate={{ opacity: isMobileMenuOpen ? 0 : 1 }}
-                  className={`w-full h-px block ${
-                    "bg-brown"
+                  className={`w-full h-[1.5px] block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
                   }`}
                 />
                 <motion.span
                   animate={{ rotate: isMobileMenuOpen ? -45 : 0, y: isMobileMenuOpen ? -8 : 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className={`w-full h-px block ${
-                    "bg-brown"
+                  className={`w-full h-[1.5px] block ${
+                    isTransparent && !isMobileMenuOpen ? "bg-white" : "bg-brown"
                   }`}
                 />
               </button>
@@ -171,7 +171,7 @@ export default function Navigation() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-40 bg-bg/98 backdrop-blur-xl md:hidden flex flex-col justify-center px-12"
+            className="fixed inset-0 z-40 bg-white backdrop-blur-xl md:hidden flex flex-col justify-center px-8 sm:px-12 pb-safe"
           >
             <nav className="space-y-2">
               {navLinks.map((link, i) => (

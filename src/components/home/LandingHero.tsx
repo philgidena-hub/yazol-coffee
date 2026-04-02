@@ -126,7 +126,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
             initial="hidden"
             animate="visible"
             variants={stagger}
-            className={`relative ${hasTwoSides ? "md:w-1/2" : "w-full"} min-h-[50svh] md:min-h-svh flex flex-col items-start justify-start ${config.bg} overflow-hidden`}
+            className={`relative ${hasTwoSides ? "md:w-1/2" : "w-full"} min-h-[50svh] sm:min-h-[50svh] md:min-h-svh flex flex-col items-start justify-start ${config.bg} overflow-hidden`}
           >
             {/* Background image — positioned to show product at bottom */}
             <motion.div variants={fadeIn} className="absolute inset-0">
@@ -144,8 +144,8 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
                 className="absolute inset-0 md:hidden"
                 style={{
                   background: isLeft
-                    ? "linear-gradient(to bottom, #1a1209 0%, rgba(26,18,9,0.92) 30%, rgba(26,18,9,0.7) 55%, rgba(26,18,9,0.3) 75%, transparent 90%)"
-                    : "linear-gradient(to bottom, #f8d7e0 0%, rgba(248,215,224,0.92) 30%, rgba(248,215,224,0.7) 55%, rgba(248,215,224,0.3) 75%, transparent 90%)",
+                    ? "linear-gradient(to bottom, #1a1209 0%, rgba(26,18,9,0.95) 35%, rgba(26,18,9,0.8) 55%, rgba(26,18,9,0.4) 75%, transparent 92%)"
+                    : "linear-gradient(to bottom, #f8d7e0 0%, rgba(248,215,224,0.95) 35%, rgba(248,215,224,0.8) 55%, rgba(248,215,224,0.4) 75%, transparent 92%)",
                 }}
               />
               {/* Desktop: lighter gradient */}
@@ -160,11 +160,11 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
             </motion.div>
 
             {/* Content — positioned at top-left, not centered */}
-            <div className={`relative z-10 flex flex-col ${isLeft ? "items-start text-left" : "items-start text-left"} px-8 sm:px-12 md:px-10 lg:px-14 xl:px-20 pt-28 md:pt-32 lg:pt-36 max-w-xl`}>
+            <div className={`relative z-10 flex flex-col items-start text-left px-5 sm:px-12 md:px-10 lg:px-14 xl:px-20 pt-20 sm:pt-28 md:pt-32 lg:pt-36 max-w-xl`}>
               {/* Subtitle — italic script style */}
               <motion.p
                 variants={fadeUp}
-                className={`font-display italic text-lg sm:text-xl md:text-2xl mb-1 ${config.subtitleColor}`}
+                className={`font-display italic text-base sm:text-xl md:text-2xl mb-1 ${config.subtitleColor}`}
               >
                 {isLeft ? "Freshly Roasted" : "Handcrafted"}
               </motion.p>
@@ -172,7 +172,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
               {/* Title */}
               <motion.h1
                 variants={fadeUp}
-                className={`font-display text-5xl sm:text-6xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight font-bold mb-4 leading-[0.95] ${config.titleColor}`}
+                className={`font-display text-3xl sm:text-5xl md:text-5xl lg:text-7xl xl:text-8xl tracking-tight font-bold mb-3 sm:mb-4 leading-[0.95] ${config.titleColor}`}
               >
                 {mc.name.toUpperCase()}
               </motion.h1>
@@ -180,7 +180,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
               {/* Description */}
               <motion.p
                 variants={fadeUp}
-                className={`font-body text-sm sm:text-base mb-8 max-w-xs ${config.descColor}`}
+                className={`font-body text-xs sm:text-base mb-5 sm:mb-8 max-w-xs ${config.descColor}`}
               >
                 {description}
               </motion.p>
@@ -189,7 +189,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
               <motion.div variants={fadeUp}>
                 <Link
                   href={`/menu?section=${mc.slug}`}
-                  className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full border text-xs sm:text-sm font-body tracking-[0.2em] uppercase transition-all duration-300 ${config.btnBg} ${config.btnText} ${config.btnHover} ${config.btnBorder}`}
+                  className={`inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-3.5 rounded-full border text-xs sm:text-sm font-body tracking-[0.2em] uppercase transition-all duration-300 touch-target ${config.btnBg} ${config.btnText} ${config.btnHover} ${config.btnBorder}`}
                 >
                   Explore {mc.name}
                 </Link>
@@ -198,14 +198,14 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
 
             {/* Wave divider — only on the left panel, desktop only */}
             {isLeft && hasTwoSides && (
-              <div className="hidden md:block absolute top-0 right-0 h-full w-24 lg:w-32 xl:w-40 z-20 translate-x-1/2">
+              <div className="hidden md:block absolute top-0 right-0 h-full w-48 lg:w-64 xl:w-72 z-20 translate-x-1/2">
                 <svg
-                  viewBox="0 0 120 800"
+                  viewBox="0 0 200 800"
                   preserveAspectRatio="none"
                   className="h-full w-full"
                   fill="#f8d7e0"
                 >
-                  <path d="M120,0 L120,800 L60,800 C80,700 20,600 40,500 C60,400 10,300 40,200 C70,100 30,50 60,0 Z" />
+                  <path d="M60,0 C40,200 20,300 65,400 C110,500 110,600 70,800 L200,800 L200,0 Z" />
                 </svg>
               </div>
             )}
@@ -218,7 +218,7 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.6 }}
-        className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center py-4 md:py-5"
+        className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center py-3 sm:py-4 md:py-5 pb-safe"
       >
         <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/90 backdrop-blur-md shadow-soft-md border border-black/5">
           <svg
