@@ -88,7 +88,7 @@ export default function ProductCard({
             onClick={handleAdd}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.85 }}
-            className="absolute bottom-3 right-3 w-10 h-10 bg-brown text-white rounded-full flex items-center justify-center shadow-soft-md md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-brown-light"
+            className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-11 h-11 sm:w-10 sm:h-10 bg-brown text-white rounded-full flex items-center justify-center shadow-soft-md md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-brown-light touch-target"
           >
             <svg
               className="w-5 h-5"

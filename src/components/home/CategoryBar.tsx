@@ -4,9 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import type { Category } from "@/lib/types";
 
-const NAV_HEIGHT = 72;
 const BAR_HEIGHT = 52;
-const SCROLL_OFFSET = NAV_HEIGHT + BAR_HEIGHT + 16;
+const SCROLL_OFFSET = 64 + BAR_HEIGHT + 16; // 64px = mobile nav height (min)
 
 interface CategoryBarProps {
   categories: Category[];
@@ -71,7 +70,7 @@ export default function CategoryBar({ categories }: CategoryBarProps) {
         opacity: shouldShow ? 1 : 0,
       }}
       transition={{ type: "spring", damping: 30, stiffness: 300 }}
-      className="fixed top-[72px] left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/5"
+      className="fixed top-16 sm:top-[72px] left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-b border-black/5"
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
         <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide mask-fade-x">

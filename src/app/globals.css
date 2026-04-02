@@ -30,6 +30,9 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Safe area insets for notched phones */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 ::selection {
@@ -127,6 +130,21 @@ img {
   .mask-fade-x {
     mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+  }
+
+  /* Safe area bottom padding for fixed bottom elements */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pb-safe-extra {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+
+  /* Minimum touch target sizing */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

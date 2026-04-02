@@ -39,16 +39,16 @@ export default function ScrollText() {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8 }}
-      className="relative py-10 md:py-14 bg-brown overflow-hidden origin-center"
+      className="relative py-8 sm:py-10 md:py-14 bg-brown overflow-hidden origin-center"
     >
       <div className="flex overflow-hidden">
-        <div className="flex shrink-0 gap-8 md:gap-12 animate-marquee items-center whitespace-nowrap">
+        <div className="flex shrink-0 gap-6 sm:gap-8 md:gap-12 animate-marquee items-center whitespace-nowrap">
           {[...words, ...words].map((word, i) => (
-            <span key={i} className="flex items-center gap-8 md:gap-12">
-              <span className="font-display text-2xl md:text-4xl text-white/90 tracking-wide">
+            <span key={i} className="flex items-center gap-6 sm:gap-8 md:gap-12">
+              <span className="font-display text-xl sm:text-2xl md:text-4xl text-white/90 tracking-wide">
                 {word}
               </span>
-              <span className="text-brown-warm text-2xl md:text-4xl">·</span>
+              <span className="text-brown-warm text-xl sm:text-2xl md:text-4xl">·</span>
             </span>
           ))}
         </div>

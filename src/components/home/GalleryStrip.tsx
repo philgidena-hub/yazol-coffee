@@ -54,7 +54,7 @@ export default function GalleryStrip() {
           {[...row1, ...row1].map((src, i) => (
             <div
               key={`r1-${i}`}
-              className="relative w-[160px] sm:w-[220px] md:w-[280px] aspect-[4/3] flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden"
+              className="relative w-[140px] sm:w-[220px] md:w-[280px] lg:w-[320px] aspect-[4/3] flex-shrink-0 rounded-lg sm:rounded-xl overflow-hidden"
             >
               <Image
                 src={src}

@@ -41,7 +41,7 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full max-w-md bg-white border-l border-black/5 z-[9996] flex flex-col shadow-soft-lg"
+            className="fixed top-0 right-0 h-full w-full sm:max-w-md bg-white border-l border-black/5 z-[9996] flex flex-col shadow-soft-lg"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-black/5">
@@ -101,7 +101,7 @@ export default function CartDrawer() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, type: "spring", damping: 20 }}
-                  className="px-6 pb-6"
+                  className="px-6 pb-6 pb-safe-extra"
                 >
                   <CartSummary />
                 </motion.div>
@@ -111,7 +111,7 @@ export default function CartDrawer() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.15, type: "spring", damping: 20 }}
-                className="flex-1 flex flex-col items-center justify-center px-6 text-center"
+                className="flex-1 flex flex-col items-center justify-center px-6 pb-safe text-center"
               >
                 <motion.div
                   animate={{ y: [0, -8, 0] }}

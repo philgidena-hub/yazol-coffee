@@ -197,7 +197,7 @@ export default function OrderTrackingPage() {
                         )}
                       </div>
                       <span
-                        className={`mt-2 text-[10px] font-body text-center ${
+                        className={`mt-2 text-[9px] sm:text-[10px] font-body text-center max-w-[56px] sm:max-w-none leading-tight ${
                           isActive ? "text-brown font-medium" : "text-brown/30"
                         }`}
                       >
@@ -212,7 +212,7 @@ export default function OrderTrackingPage() {
 
           {/* Order Details */}
           <div className="bg-white rounded-2xl p-6 border border-black/5 mb-6">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
               <h2 className="font-display text-lg text-brown">Order Details</h2>
               <div className="flex items-center gap-2 text-xs font-body text-brown/50">
                 <span>Pickup {pickupStr}</span>

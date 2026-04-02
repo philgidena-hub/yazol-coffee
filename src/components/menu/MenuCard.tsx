@@ -84,7 +84,7 @@ export default function MenuCard({ item }: MenuCardProps) {
           {!soldOut && (
             <button
               onClick={handleAdd}
-              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white flex items-center justify-center shadow-lg transition-transform duration-200 active:scale-90 hover:scale-105 z-10"
+              className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-fuchsia-600 hover:bg-fuchsia-700 text-white flex items-center justify-center shadow-lg transition-transform duration-200 active:scale-90 hover:scale-105 z-10 touch-target"
               aria-label={hasCustomization ? `Customize ${item.name}` : `Add ${item.name} to cart`}
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

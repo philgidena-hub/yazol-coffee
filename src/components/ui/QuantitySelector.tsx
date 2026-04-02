@@ -14,11 +14,11 @@ export default function QuantitySelector({
   max = 20,
 }: QuantitySelectorProps) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-0.5">
       <button
         onClick={() => onChange(Math.max(min, quantity - 1))}
         disabled={quantity <= min}
-        className="w-8 h-8 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown"
+        className="w-9 h-9 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown touch-target"
       >
         &minus;
       </button>
@@ -28,7 +28,7 @@ export default function QuantitySelector({
       <button
         onClick={() => onChange(Math.min(max, quantity + 1))}
         disabled={quantity >= max}
-        className="w-8 h-8 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown"
+        className="w-9 h-9 rounded-full bg-surface-light text-brown flex items-center justify-center text-sm font-medium transition-colors hover:bg-brown hover:text-white disabled:opacity-30 disabled:hover:bg-surface-light disabled:hover:text-brown touch-target"
       >
         +
       </button>

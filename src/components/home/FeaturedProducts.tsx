@@ -42,7 +42,7 @@ function FeaturedProductsInner({ featured }: { featured: MenuItem[] }) {
   return (
     <section className="py-16 sm:py-20 md:py-28 bg-bg overflow-hidden">
       {/* Header */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-12">
         <div className="flex items-end justify-between mb-8 sm:mb-10 md:mb-12">
           <div>
             <LineReveal>
@@ -77,7 +77,7 @@ function FeaturedProductsInner({ featured }: { featured: MenuItem[] }) {
       </div>
 
       {/* Horizontal scroll carousel */}
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-12">
         <div
           ref={scrollRef}
           className="flex gap-4 sm:gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-2 px-2"

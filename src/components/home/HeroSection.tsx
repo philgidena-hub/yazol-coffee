@@ -170,7 +170,7 @@ export default function HeroSection() {
   return (
     <section
       ref={heroRef}
-      className="relative h-svh min-h-[550px] overflow-hidden"
+      className="relative h-svh min-h-[500px] overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -248,7 +248,7 @@ export default function HeroSection() {
           >
             <Link
               href="/menu"
-              className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-brown font-body text-sm tracking-wider uppercase rounded-full overflow-hidden transition-all duration-300 hover:shadow-soft-lg"
+              className="group relative inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 bg-white text-brown font-body text-sm tracking-wider uppercase rounded-full overflow-hidden transition-all duration-300 hover:shadow-soft-lg touch-target"
             >
               <span className="relative z-10">Order Now</span>
               <svg
@@ -263,7 +263,7 @@ export default function HeroSection() {
             </Link>
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-3.5 border border-white/30 text-white/80 font-body text-sm tracking-wider uppercase rounded-full hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 border border-white/30 text-white/80 font-body text-sm tracking-wider uppercase rounded-full hover:bg-white/10 hover:border-white/50 transition-all duration-300 touch-target"
             >
               Our Story
             </Link>
@@ -275,7 +275,7 @@ export default function HeroSection() {
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className="group relative h-8 flex items-center"
+                className="group relative h-10 flex items-center touch-target"
                 aria-label={`Go to slide ${i + 1}`}
               >
                 <div className="relative w-8 sm:w-12 md:w-16 h-[2px] rounded-full overflow-hidden bg-white/20">

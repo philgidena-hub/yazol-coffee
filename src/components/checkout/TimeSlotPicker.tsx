@@ -143,7 +143,7 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
               setSelectedDay(i);
               onChange("");
             }}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-body transition-colors ${
+            className={`flex-shrink-0 px-4 py-2.5 rounded-full text-sm font-body transition-colors touch-target ${
               selectedDay === i
                 ? "bg-brown text-white"
                 : !day.hasSlots
@@ -173,7 +173,7 @@ export default function TimeSlotPicker({ value, onChange }: TimeSlotPickerProps)
                   key={slot.value}
                   type="button"
                   onClick={() => onChange(slot.value)}
-                  className={`py-2.5 px-2 rounded-xl text-sm font-body text-center transition-colors ${
+                  className={`py-3 px-2 rounded-xl text-sm font-body text-center transition-colors touch-target ${
                     value === slot.value
                       ? "bg-brown text-white"
                       : "bg-white border border-black/10 text-brown/50 hover:border-brown/30 hover:text-brown"

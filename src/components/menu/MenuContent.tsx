@@ -178,7 +178,7 @@ export default function MenuContent({
   return (
     <>
       {/* Sticky header area */}
-      <div className="sticky top-[72px] z-30 bg-bg/95 backdrop-blur-sm pb-3 -mx-5 px-5 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20">
+      <div className="sticky top-16 sm:top-[72px] z-30 bg-bg/95 backdrop-blur-sm pb-3 -mx-5 px-5 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20">
         {/* Main Category Toggle */}
         {mainCategories.length > 1 && (
           <div className="flex justify-center pt-3 mb-3">
@@ -218,7 +218,7 @@ export default function MenuContent({
                 key={category.slug}
                 data-slug={category.slug}
                 onClick={() => scrollToCategory(category.slug)}
-                className={`relative flex-shrink-0 px-4 sm:px-5 py-2 rounded-full font-body text-sm whitespace-nowrap transition-all duration-200 ${
+                className={`relative flex-shrink-0 px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-body text-sm whitespace-nowrap transition-all duration-200 touch-target ${
                   isActive
                     ? `${pillBg} text-white font-medium shadow-sm`
                     : "text-brown/50 hover:text-brown bg-surface-light/50"

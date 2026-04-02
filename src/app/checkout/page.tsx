@@ -226,7 +226,67 @@ export default function CheckoutPage() {
           Checkout
         </motion.h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
+          {/* Mobile Order Summary - shown at top on small screens */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="lg:hidden"
+          >
+            <details className="bg-white rounded-2xl border border-black/5 overflow-hidden">
+              <summary className="flex items-center justify-between px-5 py-4 cursor-pointer select-none">
+                <span className="font-display text-base text-brown">
+                  Order Summary ({state.items.length} {state.items.length === 1 ? "item" : "items"})
+                </span>
+                <span className="text-gold font-display text-base">${total.toFixed(2)}</span>
+              </summary>
+              <div className="px-5 pb-5 border-t border-black/5">
+                <div className="space-y-3 pt-4 mb-4">
+                  {state.items.map((item) => {
+                    const price = getCartItemPrice(item);
+                    const selSummary = formatSelectionSummary(item);
+                    return (
+                      <div key={item.cartKey} className="flex gap-3">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src={getProductImage(item.menuItem.slug)}
+                            alt={item.menuItem.name}
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-brown text-sm font-body truncate">{item.menuItem.name}</p>
+                          {selSummary && (
+                            <p className="text-brown/40 text-[11px] font-body truncate">{selSummary}</p>
+                          )}
+                          <p className="text-brown/50 text-xs">x{item.quantity}</p>
+                        </div>
+                        <p className="text-brown text-sm font-body">${(price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="border-t border-black/5 pt-3 space-y-2">
+                  <div className="flex justify-between text-sm font-body">
+                    <span className="text-brown/50">Subtotal</span>
+                    <span className="text-brown">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-body">
+                    <span className="text-brown/50">HST (13%)</span>
+                    <span className="text-brown">${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-display pt-2 border-t border-black/5">
+                    <span className="text-brown">Total</span>
+                    <span className="text-gold">${total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </motion.div>
+
           {/* Form */}
           <motion.form
             initial={{ opacity: 0, y: 20 }}
@@ -319,12 +379,12 @@ export default function CheckoutPage() {
             </button>
           </motion.form>
 
-          {/* Order Summary */}
+          {/* Order Summary - desktop sidebar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-2"
+            className="hidden lg:block lg:col-span-2"
           >
             <div className="bg-white rounded-2xl p-6 sticky top-24 border border-black/5">
               <h2 className="font-display text-lg text-brown mb-4">
