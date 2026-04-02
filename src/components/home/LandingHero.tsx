@@ -3,146 +3,88 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import type { MainCategory } from "@/lib/types";
 
-/* ─── Icons ─── */
-function CoffeeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 8h1a4 4 0 110 8h-1" />
-      <path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" />
-      <line x1="6" y1="2" x2="6" y2="4" />
-      <line x1="10" y1="2" x2="10" y2="4" />
-      <line x1="14" y1="2" x2="14" y2="4" />
-    </svg>
-  );
-}
-
-function IceCreamIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2a5 5 0 015 5v1H7V7a5 5 0 015-5z" />
-      <path d="M7 8l5 14 5-14" />
-    </svg>
-  );
-}
-
-function SparkleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z" />
-    </svg>
-  );
-}
-
-function LocationIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-      <circle cx="12" cy="10" r="3" />
-    </svg>
-  );
-}
-
-function ClockIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
-  coffee: CoffeeIcon,
-  "ice-cream": IceCreamIcon,
-};
-
-/** Map accent color → decorative blob class + icon container + bullet + CTA text */
-const ACCENT_STYLES: Record<string, { blob: string; iconBg: string; iconText: string; bullet: string; cta: string; ctaHover: string; subtitleText: string }> = {
-  brown: {
-    blob: "bg-brown-warm/15",
-    iconBg: "bg-surface-light",
-    iconText: "text-brown",
-    bullet: "bg-brown-warm",
-    cta: "text-brown",
-    ctaHover: "group-hover:text-gold",
-    subtitleText: "text-gold",
-  },
-  "teal-600": {
-    blob: "bg-teal-100/40",
-    iconBg: "bg-teal-50",
-    iconText: "text-teal-600",
-    bullet: "bg-teal-400",
-    cta: "text-teal-600",
-    ctaHover: "group-hover:text-teal-700",
-    subtitleText: "text-teal-600",
-  },
-  "indigo-600": {
-    blob: "bg-indigo-100/40",
-    iconBg: "bg-indigo-50",
-    iconText: "text-indigo-600",
-    bullet: "bg-indigo-400",
-    cta: "text-indigo-600",
-    ctaHover: "group-hover:text-indigo-700",
-    subtitleText: "text-indigo-600",
-  },
-  "rose-600": {
-    blob: "bg-rose-100/40",
-    iconBg: "bg-rose-50",
-    iconText: "text-rose-600",
-    bullet: "bg-rose-400",
-    cta: "text-rose-600",
-    ctaHover: "group-hover:text-rose-700",
-    subtitleText: "text-rose-600",
-  },
-  "amber-600": {
-    blob: "bg-amber-100/40",
-    iconBg: "bg-amber-50",
-    iconText: "text-amber-600",
-    bullet: "bg-amber-400",
-    cta: "text-amber-600",
-    ctaHover: "group-hover:text-amber-700",
-    subtitleText: "text-amber-600",
-  },
-  "emerald-600": {
-    blob: "bg-emerald-100/40",
-    iconBg: "bg-emerald-50",
-    iconText: "text-emerald-600",
-    bullet: "bg-emerald-400",
-    cta: "text-emerald-600",
-    ctaHover: "group-hover:text-emerald-700",
-    subtitleText: "text-emerald-600",
-  },
-};
-
-const DEFAULT_ACCENT = ACCENT_STYLES["brown"];
-
-/* ─── Stagger animation variants ─── */
-const container = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.2 },
-  },
-};
-
+/* ─── Animation variants ─── */
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
-const cardVariant = {
-  hidden: { opacity: 0, y: 40, scale: 0.97 },
+const fadeIn = {
+  hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 1, delay: 0.3 },
   },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+};
+
+/* ─── Image map for main categories ─── */
+const HERO_IMAGES: Record<string, string> = {
+  coffee: "/Images/barista.jpg",
+  "scoop-stop": "/Images/coffee-1.jpg",
+};
+
+/* ─── Side config by slug ─── */
+interface SideConfig {
+  bg: string;
+  overlay: string;
+  tagBg: string;
+  tagText: string;
+  titleColor: string;
+  subtitleColor: string;
+  descColor: string;
+  btnBg: string;
+  btnText: string;
+  btnHover: string;
+  btnBorder: string;
+}
+
+const SIDE_CONFIGS: Record<string, SideConfig> = {
+  coffee: {
+    bg: "bg-[#1a1209]",
+    overlay: "from-[#1a1209]/90 via-[#1a1209]/70 to-[#1a1209]/40",
+    tagBg: "bg-white/10 border-white/20",
+    tagText: "text-white/70",
+    titleColor: "text-white",
+    subtitleColor: "text-amber-300",
+    descColor: "text-white/60",
+    btnBg: "bg-transparent",
+    btnText: "text-amber-300",
+    btnHover: "hover:bg-amber-300 hover:text-[#1a1209]",
+    btnBorder: "border-amber-300/60",
+  },
+  "scoop-stop": {
+    bg: "bg-[#fce4ec]",
+    overlay: "from-[#fce4ec]/90 via-[#fce4ec]/70 to-[#fce4ec]/40",
+    tagBg: "bg-pink-500/10 border-pink-300/30",
+    tagText: "text-pink-600/70",
+    titleColor: "text-gray-800",
+    subtitleColor: "text-pink-500",
+    descColor: "text-gray-600/70",
+    btnBg: "bg-gradient-to-r from-pink-400 to-pink-500",
+    btnText: "text-white",
+    btnHover: "hover:from-pink-500 hover:to-pink-600",
+    btnBorder: "border-transparent",
+  },
+};
+
+const DEFAULT_CONFIG = SIDE_CONFIGS["coffee"];
+
+/* ─── Default descriptions ─── */
+const DESCRIPTIONS: Record<string, string> = {
+  coffee: "Rich aroma. Bold flavor. Perfectly brewed.",
+  "scoop-stop": "Creamy, dreamy, made to delight.",
 };
 
 /* ─── Main component ─── */
@@ -152,7 +94,6 @@ interface LandingHeroProps {
 
 export default function LandingHero({ mainCategories }: LandingHeroProps) {
   const [address, setAddress] = useState("2857 Danforth Ave, Toronto");
-  const [hours, setHours] = useState("Open 7am - 10pm Daily");
 
   useEffect(() => {
     fetch("/api/settings")
@@ -167,129 +108,127 @@ export default function LandingHero({ mainCategories }: LandingHeroProps) {
       .catch(() => {});
   }, []);
 
+  // Ensure we have exactly 2 categories for the split layout
+  // Fall back to a single full-width layout if not
+  const hasTwoSides = mainCategories.length >= 2;
+
   return (
-    <section className="relative min-h-svh md:min-h-0 md:py-0 flex flex-col items-center justify-center overflow-hidden px-5 sm:px-6 md:px-12 lg:px-20 pt-24 pb-8 sm:pt-28 sm:pb-10 md:pt-32 md:pb-16 lg:min-h-svh">
-      {/* ── Gradient background ── */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#f8e8d8] via-[#faf0e8] to-[#e8f0e8]" />
+    <section className="relative w-full min-h-svh flex flex-col md:flex-row overflow-hidden">
+      {mainCategories.slice(0, 2).map((mc, idx) => {
+        const config = SIDE_CONFIGS[mc.slug] || DEFAULT_CONFIG;
+        const heroImage = HERO_IMAGES[mc.slug] || "/Images/hero-spread.jpg";
+        const description = DESCRIPTIONS[mc.slug] || mc.subtitle;
+        const isLeft = idx === 0;
 
-      {/* ── Decorative blobs ── */}
-      <div className="absolute top-0 left-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-pink-200/40 to-purple-200/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/3" />
-      <div className="absolute bottom-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-tl from-green-100/30 to-teal-100/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+        return (
+          <motion.div
+            key={mc.slug}
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+            className={`relative ${hasTwoSides ? "md:w-1/2" : "w-full"} min-h-[50svh] md:min-h-svh flex flex-col items-center justify-center ${config.bg} overflow-hidden`}
+          >
+            {/* Background image */}
+            <motion.div variants={fadeIn} className="absolute inset-0">
+              <Image
+                src={heroImage}
+                alt={mc.name}
+                fill
+                className="object-cover"
+                sizes={hasTwoSides ? "50vw" : "100vw"}
+                priority
+              />
+              {/* Overlay gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-t ${config.overlay}`} />
+              {/* Extra bottom gradient for text readability */}
+              <div className={`absolute inset-0 bg-gradient-to-b ${config.overlay}`} />
+            </motion.div>
 
-      {/* ── Content ── */}
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center"
-      >
-        {/* Badge */}
-        <motion.div
-          variants={fadeUp}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brown/10 bg-white/60 backdrop-blur-sm shadow-soft-sm mb-4 sm:mb-5"
-        >
-          <SparkleIcon className="w-3.5 h-3.5 text-gold" />
-          <span className="text-brown/70 text-xs font-body tracking-wide">
-            Ethiopian Heritage, Modern Experience
-          </span>
-        </motion.div>
+            {/* Content */}
+            <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 sm:px-10 md:px-12 lg:px-16 py-20 md:py-0 max-w-lg mx-auto">
+              {/* Tag */}
+              <motion.div
+                variants={fadeUp}
+                className={`inline-flex items-center px-4 py-1.5 rounded-full border text-[11px] tracking-widest uppercase font-body mb-5 ${config.tagBg} ${config.tagText}`}
+              >
+                {isLeft ? "Freshly Roasted" : "Handcrafted"}
+              </motion.div>
 
-        {/* Brand name */}
-        <motion.h1
-          variants={fadeUp}
-          className="font-display text-display-lg sm:text-display-xl text-plum mb-2 sm:mb-3"
-        >
-          Yazol
-        </motion.h1>
+              {/* Title */}
+              <motion.h1
+                variants={fadeUp}
+                className={`font-display text-5xl sm:text-6xl md:text-5xl lg:text-7xl tracking-tight mb-3 ${config.titleColor}`}
+              >
+                {mc.name.toUpperCase()}
+              </motion.h1>
 
-        {/* Subtitle */}
-        <motion.h2
-          variants={fadeUp}
-          className="font-display text-display-sm text-brown mb-3 sm:mb-4 text-center"
-        >
-          {mainCategories.map((mc, i) => (
-            <span key={mc.slug}>
-              {i > 0 && " & "}
-              {mc.name}
-            </span>
-          ))}
-        </motion.h2>
+              {/* Subtitle */}
+              <motion.p
+                variants={fadeUp}
+                className={`font-body text-sm sm:text-base mb-8 max-w-xs ${config.descColor}`}
+              >
+                {description}
+              </motion.p>
 
-        {/* Description */}
-        <motion.p
-          variants={fadeUp}
-          className="text-brown/50 text-sm sm:text-base font-body max-w-lg text-center leading-relaxed mb-8 sm:mb-10"
-        >
-          Where Ethiopian coffee tradition meets artisan ice cream. Choose your experience below.
-        </motion.p>
-
-        {/* ── Dynamic cards ── */}
-        <motion.div
-          variants={fadeUp}
-          className={`grid grid-cols-2 ${mainCategories.length > 1 ? "sm:grid-cols-2" : ""} gap-4 sm:gap-6 w-full max-w-2xl`}
-        >
-          {mainCategories.map((mc) => {
-            const Icon = ICON_MAP[mc.iconType] || CoffeeIcon;
-            const styles = ACCENT_STYLES[mc.accentColor] || DEFAULT_ACCENT;
-
-            return (
-              <Link key={mc.slug} href={`/menu?section=${mc.slug}`} className="block">
-                <motion.div
-                  variants={cardVariant}
-                  whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                  className="group relative bg-white rounded-2xl p-5 sm:p-7 shadow-card hover:shadow-card-hover transition-shadow duration-500 overflow-hidden h-full"
+              {/* CTA Button */}
+              <motion.div variants={fadeUp}>
+                <Link
+                  href={`/menu?section=${mc.slug}`}
+                  className={`inline-flex items-center gap-2 px-8 py-3.5 rounded-full border text-sm font-display tracking-wide transition-all duration-300 ${config.btnBg} ${config.btnText} ${config.btnHover} ${config.btnBorder}`}
                 >
-                  {/* Decorative blob */}
-                  <div className={`absolute -top-6 -right-6 w-24 h-24 sm:w-28 sm:h-28 rounded-full ${styles.blob}`} />
+                  Explore {mc.name}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </motion.div>
+            </div>
 
-                  <div className="relative z-10">
-                    {/* Icon */}
-                    <div className={`w-11 h-11 rounded-xl ${styles.iconBg} flex items-center justify-center mb-4`}>
-                      <Icon className={`w-5 h-5 ${styles.iconText}`} />
-                    </div>
+            {/* Wave divider — only on the left panel, desktop only */}
+            {isLeft && hasTwoSides && (
+              <div className="hidden md:block absolute top-0 right-0 h-full w-20 lg:w-28 z-20 translate-x-1/2">
+                <svg
+                  viewBox="0 0 100 800"
+                  preserveAspectRatio="none"
+                  className="h-full w-full"
+                  fill={mc.slug === "coffee" ? "#1a1209" : "#fce4ec"}
+                >
+                  <path d="M100,0 L100,800 L0,800 C30,650 70,550 30,400 C-10,250 50,150 30,0 Z" />
+                </svg>
+              </div>
+            )}
+          </motion.div>
+        );
+      })}
 
-                    {/* Title */}
-                    <h3 className="font-display text-xl sm:text-2xl text-brown mb-1">
-                      {mc.name}
-                    </h3>
-                    <p className={`${styles.subtitleText} text-sm font-body tracking-wide mb-3`}>
-                      {mc.subtitle}
-                    </p>
-
-                    {/* CTA */}
-                    <span className={`inline-flex items-center gap-2 ${styles.cta} font-body text-sm font-semibold tracking-wide ${styles.ctaHover} transition-colors`}>
-                      Order Now
-                      <svg
-                        className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </span>
-                  </div>
-                </motion.div>
-              </Link>
-            );
-          })}
-        </motion.div>
-
-        {/* ── Bottom info ── */}
-        <motion.div
-          variants={fadeUp}
-          className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 mt-8 sm:mt-10"
-        >
-          <div className="flex items-center gap-2 text-brown/40">
-            <LocationIcon className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-body">{address}</span>
-          </div>
-          <div className="flex items-center gap-2 text-brown/40">
-            <ClockIcon className="w-4 h-4" />
-            <span className="text-xs sm:text-sm font-body">{hours}</span>
-          </div>
-        </motion.div>
+      {/* Bottom bar with address — floating on desktop */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, duration: 0.6 }}
+        className="absolute bottom-0 left-0 right-0 z-30 flex items-center justify-center py-4 md:py-5"
+      >
+        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/90 backdrop-blur-md shadow-soft-md border border-black/5">
+          <svg
+            className="w-3.5 h-3.5 text-brown/50"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          <span className="text-brown/60 text-xs font-body">{address}</span>
+        </div>
       </motion.div>
     </section>
   );
