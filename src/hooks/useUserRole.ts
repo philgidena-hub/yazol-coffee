@@ -9,14 +9,19 @@ interface UserInfo {
   name: string;
 }
 
-export function useUserRole(): UserInfo | null {
-  const { data: session } = useSession();
+export function useUserRole(): { userInfo: UserInfo | null; isLoading: boolean } {
+  const { data: session, status } = useSession();
 
-  if (!session?.user?.role) return null;
+  if (status === "loading" || !session?.user?.role) {
+    return { userInfo: null, isLoading: status === "loading" };
+  }
 
   return {
-    role: session.user.role as UserRole,
-    username: session.user.username as string,
-    name: session.user.name as string,
+    userInfo: {
+      role: session.user.role as UserRole,
+      username: session.user.username as string,
+      name: session.user.name as string,
+    },
+    isLoading: false,
   };
 }

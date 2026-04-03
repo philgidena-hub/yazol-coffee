@@ -250,7 +250,7 @@ export default function CheckoutPage() {
                       <div key={item.cartKey} className="flex gap-3">
                         <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
-                            src={getProductImage(item.menuItem.slug)}
+                            src={getProductImage(item.menuItem.slug, item.menuItem.imageKey)}
                             alt={item.menuItem.name}
                             fill
                             sizes="48px"
@@ -399,7 +399,7 @@ export default function CheckoutPage() {
                     <div key={item.cartKey} className="flex gap-3">
                       <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
-                          src={getProductImage(item.menuItem.slug)}
+                          src={getProductImage(item.menuItem.slug, item.menuItem.imageKey)}
                           alt={item.menuItem.name}
                           fill
                           sizes="48px"

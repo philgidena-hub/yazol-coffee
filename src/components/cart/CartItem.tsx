@@ -15,7 +15,7 @@ interface CartItemProps {
 export default function CartItemRow({ item }: CartItemProps) {
   const { updateQuantity, updateAllergyNotes, removeItem } = useCart();
   const [showNotes, setShowNotes] = useState(false);
-  const imageSrc = getProductImage(item.menuItem.slug);
+  const imageSrc = getProductImage(item.menuItem.slug, item.menuItem.imageKey);
   const unitPrice = getCartItemPrice(item);
   const lineTotal = unitPrice * item.quantity;
   const selectionSummary = formatSelectionSummary(item);

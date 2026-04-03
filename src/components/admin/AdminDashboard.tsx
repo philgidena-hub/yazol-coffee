@@ -105,7 +105,7 @@ const TAB_CONFIG: Record<AdminTab, { label: string; icon: React.ReactNode }> = {
 
 export default function AdminDashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const userInfo = useUserRole();
+  const { userInfo, isLoading: isRoleLoading } = useUserRole();
   const role = userInfo?.role ?? "cashier";
 
   const visibleTabs = getVisibleTabs(role);
@@ -126,6 +126,19 @@ export default function AdminDashboard() {
     id,
     ...TAB_CONFIG[id],
   }));
+
+  if (isRoleLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0e1a] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 animate-pulse">
+            <span className="text-white text-sm font-display font-bold">Y</span>
+          </div>
+          <p className="text-slate-400 text-sm font-body">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0e1a]">

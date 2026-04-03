@@ -44,7 +44,7 @@ export default function UserManager() {
   const [deleteTarget, setDeleteTarget] = useState<SafeUser | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const currentUser = useUserRole();
+  const { userInfo: currentUser } = useUserRole();
   const { toast } = useToast();
 
   const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
