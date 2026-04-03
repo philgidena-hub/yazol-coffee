@@ -170,7 +170,7 @@ export default function StorySection() {
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.4, type: "spring", damping: 20 }}
-                className="relative -mt-12 sm:-mt-16 md:-mt-24 ml-4 sm:ml-6 md:ml-12 w-32 sm:w-40 md:w-56 rounded-lg sm:rounded-xl overflow-hidden shadow-soft-lg border-[3px] sm:border-4 border-white z-10"
+                className="relative -mt-12 sm:-mt-16 md:-mt-20 lg:-mt-24 ml-4 sm:ml-6 md:ml-10 lg:ml-12 w-32 sm:w-40 md:w-48 lg:w-56 rounded-lg sm:rounded-xl overflow-hidden shadow-soft-lg border-[3px] sm:border-4 border-white z-10"
               >
                 <div className="aspect-[3/4] relative">
                   <Image
@@ -190,7 +190,7 @@ export default function StorySection() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
-            className="grid grid-cols-3 md:grid-cols-4 gap-6 sm:gap-8 mt-12 sm:mt-16 md:mt-24 pt-10 sm:pt-12 border-t border-black/10"
+            className="grid grid-cols-3 md:grid-cols-4 gap-6 sm:gap-8 md:gap-6 lg:gap-8 mt-12 sm:mt-16 md:mt-20 lg:mt-24 pt-10 sm:pt-12 border-t border-black/10"
           >
             {[
               { number: 17, suffix: "+", label: "Menu items" },
@@ -204,7 +204,7 @@ export default function StorySection() {
                 variants={statVariants}
                 className={stat.hideOnMobile ? "hidden md:block" : ""}
               >
-                <p className="font-display text-2xl sm:text-3xl md:text-5xl text-brown tabular-nums">
+                <p className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-brown tabular-nums">
                   <CountUp target={stat.number} suffix={stat.suffix} />
                 </p>
                 <p className="font-body text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-brown/40 mt-1">
