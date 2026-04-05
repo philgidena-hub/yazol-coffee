@@ -123,13 +123,13 @@ export default function ItemCustomizer({ item, open, onClose, onAddToCart }: Ite
         >
             <div className="overflow-y-auto max-h-[90vh] sm:max-h-[85vh]">
               {/* Image */}
-              <div className="relative h-48 sm:h-56">
+              <div className="relative h-56 sm:h-64">
                 <Image
                   src={getProductImage(item.slug, item.imageKey)}
                   alt={item.name}
                   fill
                   sizes="(max-width: 640px) 100vw, 420px"
-                  className="object-cover"
+                  className="object-cover object-center"
                 />
                 <button
                   onClick={onClose}

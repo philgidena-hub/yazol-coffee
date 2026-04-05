@@ -69,13 +69,13 @@ export default function MenuCard({ item }: MenuCardProps) {
         </div>
 
         {/* Image area */}
-        <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden">
+        <div className="relative h-40 sm:h-48 md:h-56 overflow-hidden">
           <Image
             src={imageSrc}
             alt={item.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className={`object-cover ${
+            className={`object-cover object-center ${
               soldOut ? "grayscale" : ""
             }`}
           />

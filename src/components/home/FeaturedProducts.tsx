@@ -191,7 +191,7 @@ function FeaturedCard({
               alt={item.name}
               fill
               sizes="(max-width: 640px) 240px, (max-width: 768px) 280px, (max-width: 1024px) 340px, 380px"
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
             />
           </div>
 

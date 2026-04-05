@@ -67,13 +67,13 @@ export default function ProductCard({
         whileHover={{ y: -6 }}
       >
         {/* Image */}
-        <div className="relative overflow-hidden rounded-xl aspect-[4/5] mb-3 bg-surface-light">
+        <div className="relative overflow-hidden rounded-xl aspect-[3/4] mb-3 bg-surface-light">
           <Image
             src={imageSrc}
             alt={item.name}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
           />
 
           {/* Customize badge */}
