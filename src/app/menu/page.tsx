@@ -24,17 +24,11 @@ export default async function MenuPage({ searchParams }: MenuPageProps) {
   const initialSection = params.section || sortedMainCategories[0]?.slug || "";
 
   return (
-    <main className="min-h-screen bg-bg relative overflow-hidden">
-      <div className="relative z-10 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
-          <MenuContent
-            menuItems={menuItems}
-            categories={categories}
-            mainCategories={sortedMainCategories}
-            initialSection={initialSection}
-          />
-        </div>
-      </div>
-    </main>
+    <MenuContent
+      menuItems={menuItems}
+      categories={categories}
+      mainCategories={sortedMainCategories}
+      initialSection={initialSection}
+    />
   );
 }

@@ -31,22 +31,54 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   "ice-cream": IceCreamIcon,
 };
 
-const ACCENT_BG: Record<string, string> = {
-  brown: "bg-brown",
-  "teal-600": "bg-teal-600",
-  "indigo-600": "bg-indigo-600",
-  "rose-600": "bg-rose-600",
-  "amber-600": "bg-amber-600",
-  "emerald-600": "bg-emerald-600",
-};
+/* ─── Section Themes (mirrors landing page) ─── */
+type SectionTheme = "coffee" | "ice-cream";
 
-const ACCENT_TEXT_ACTIVE: Record<string, string> = {
-  brown: "bg-brown text-white",
-  "teal-600": "bg-teal-600 text-white",
-  "indigo-600": "bg-indigo-600 text-white",
-  "rose-600": "bg-rose-600 text-white",
-  "amber-600": "bg-amber-600 text-white",
-  "emerald-600": "bg-emerald-600 text-white",
+const THEME: Record<SectionTheme, {
+  pageBg: string;
+  stickyBg: string;
+  toggleBg: string;
+  toggleActiveStyle: string;
+  toggleInactiveStyle: string;
+  pillActive: string;
+  pillInactive: string;
+  heading: string;
+  subtitle: string;
+  subheading: string;
+  count: string;
+  emptyTitle: string;
+  emptySub: string;
+}> = {
+  coffee: {
+    pageBg: "#1a1209",
+    stickyBg: "rgba(26,18,9,0.97)",
+    toggleBg: "bg-[#2a1f12] border border-amber-900/30",
+    toggleActiveStyle: "bg-amber-200 text-[#1a1209] shadow-md",
+    toggleInactiveStyle: "text-amber-200/60 hover:text-amber-100",
+    pillActive: "bg-amber-200 text-[#1a1209] font-medium shadow-sm",
+    pillInactive: "text-amber-200/50 hover:text-amber-200 bg-amber-200/5",
+    heading: "text-white",
+    subtitle: "text-amber-300/70",
+    subheading: "text-amber-100",
+    count: "text-amber-300/40",
+    emptyTitle: "text-white/50",
+    emptySub: "text-white/30",
+  },
+  "ice-cream": {
+    pageBg: "#f8d7e0",
+    stickyBg: "rgba(248,215,224,0.97)",
+    toggleBg: "bg-pink-100/70 border border-pink-200/50",
+    toggleActiveStyle: "bg-pink-500 text-white shadow-md",
+    toggleInactiveStyle: "text-pink-400/70 hover:text-pink-500",
+    pillActive: "bg-pink-500 text-white font-medium shadow-sm",
+    pillInactive: "text-pink-500/50 hover:text-pink-600 bg-pink-200/30",
+    heading: "text-gray-800",
+    subtitle: "text-pink-500/70",
+    subheading: "text-gray-700",
+    count: "text-pink-400/50",
+    emptyTitle: "text-gray-600/50",
+    emptySub: "text-gray-500/40",
+  },
 };
 
 const slugify = (s: string) =>
@@ -73,6 +105,8 @@ export default function MenuContent({
   const isScrolling = useRef(false);
 
   const activeMain = mainCategories.find((m) => m.slug === activeSection) || mainCategories[0];
+  const themeKey: SectionTheme = (activeMain?.iconType as SectionTheme) || "coffee";
+  const t = THEME[themeKey];
 
   const sectionCategories = useMemo(() => {
     const filtered = categories.filter((c) => c.section === activeSection);
@@ -112,14 +146,12 @@ export default function MenuContent({
     return groups;
   }, [sectionCategories, sectionItems]);
 
-  // Set first subcategory as active on section change
   useEffect(() => {
     if (sectionCategories.length > 0) {
       setActiveSubcategory(sectionCategories[0].slug);
     }
   }, [sectionCategories]);
 
-  // Scroll spy — update active pill based on scroll position
   useEffect(() => {
     const catsSnapshot = sectionCategories;
 
@@ -146,7 +178,6 @@ export default function MenuContent({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [sectionCategories]);
 
-  // Scroll active pill horizontally in the pill bar (no scrollIntoView — it hijacks page scroll on mobile)
   useEffect(() => {
     if (!activeSubcategory || !pillBarRef.current) return;
     const pill = pillBarRef.current.querySelector(`[data-slug="${activeSubcategory}"]`) as HTMLElement | null;
@@ -173,78 +204,81 @@ export default function MenuContent({
     setActiveSubcategory(null);
   }
 
-  const pillBg = activeMain ? (ACCENT_BG[activeMain.accentColor] || "bg-brown") : "bg-brown";
-
   return (
-    <>
-      {/* Sticky header area */}
-      <div className="sticky top-16 sm:top-[72px] z-30 bg-bg/95 backdrop-blur-sm pb-3 -mx-5 px-5 sm:-mx-6 sm:px-6 md:-mx-12 md:px-12 lg:-mx-20 lg:px-20">
-        {/* Main Category Toggle */}
-        {mainCategories.length > 1 && (
-          <div className="flex justify-center pt-3 mb-3">
-            <div className="inline-flex items-center bg-surface-light rounded-full p-1 gap-0.5">
-              {mainCategories.map((mc) => {
-                const Icon = ICON_MAP[mc.iconType] || CoffeeIcon;
-                const isActive = activeSection === mc.slug;
-                const activeClass = ACCENT_TEXT_ACTIVE[mc.accentColor] || "bg-brown text-white";
-                return (
-                  <button
-                    key={mc.slug}
-                    onClick={() => handleSectionChange(mc.slug)}
-                    className={`inline-flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-body text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? `${activeClass} shadow-sm`
-                        : "text-brown/50 hover:text-brown"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="hidden sm:inline">{mc.name}</span>
-                  </button>
-                );
-              })}
+    <main
+      className="min-h-screen relative overflow-hidden transition-colors duration-500"
+      style={{ backgroundColor: t.pageBg }}
+    >
+      {/* Sticky header — full width */}
+      <div
+        className="sticky top-16 sm:top-[72px] z-30 backdrop-blur-sm pb-3 transition-colors duration-500"
+        style={{ backgroundColor: t.stickyBg }}
+      >
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20">
+          {/* Main Category Toggle */}
+          {mainCategories.length > 1 && (
+            <div className="flex justify-center pt-3 mb-3">
+              <div className={`inline-flex items-center rounded-full p-1 gap-0.5 transition-colors duration-500 ${t.toggleBg}`}>
+                {mainCategories.map((mc) => {
+                  const Icon = ICON_MAP[mc.iconType] || CoffeeIcon;
+                  const isActive = activeSection === mc.slug;
+                  const mcTheme = THEME[(mc.iconType as SectionTheme) || "coffee"];
+                  return (
+                    <button
+                      key={mc.slug}
+                      onClick={() => handleSectionChange(mc.slug)}
+                      className={`inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-body text-sm font-medium transition-all duration-300 ${
+                        isActive
+                          ? mcTheme.toggleActiveStyle
+                          : t.toggleInactiveStyle
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="hidden sm:inline">{mc.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Subcategory Pill Bar — horizontal scroll on mobile */}
-        <div
-          ref={pillBarRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1"
-        >
-          {sectionCategories.map((category) => {
-            const isActive = activeSubcategory === category.slug;
-            return (
-              <button
-                key={category.slug}
-                data-slug={category.slug}
-                onClick={() => scrollToCategory(category.slug)}
-                className={`relative flex-shrink-0 px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-body text-sm whitespace-nowrap transition-all duration-200 touch-target ${
-                  isActive
-                    ? `${pillBg} text-white font-medium shadow-sm`
-                    : "text-brown/50 hover:text-brown bg-surface-light/50"
-                }`}
-              >
-                {category.name}
-              </button>
-            );
-          })}
+          {/* Subcategory Pill Bar */}
+          <div
+            ref={pillBarRef}
+            className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1"
+          >
+            {sectionCategories.map((category) => {
+              const isActive = activeSubcategory === category.slug;
+              return (
+                <button
+                  key={category.slug}
+                  data-slug={category.slug}
+                  onClick={() => scrollToCategory(category.slug)}
+                  className={`relative flex-shrink-0 px-4 sm:px-5 py-2.5 sm:py-2 rounded-full font-body text-sm whitespace-nowrap transition-all duration-200 touch-target ${
+                    isActive ? t.pillActive : t.pillInactive
+                  }`}
+                >
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Section Header + Content */}
-      <div className="mt-6">
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-12 lg:px-20 pt-32 pb-20">
         {activeMain && (
           <div className="mb-6 sm:mb-8">
-            <h1 className="font-display text-2xl sm:text-display-md md:text-display-lg text-brown mb-0.5">
+            <h1 className={`font-display text-2xl sm:text-display-md md:text-display-lg ${t.heading} mb-0.5 transition-colors duration-500`}>
               {activeMain.name}
             </h1>
-            <p className="text-brown/50 text-sm font-body">
+            <p className={`${t.subtitle} text-sm font-body transition-colors duration-500`}>
               {activeMain.subtitle}
             </p>
           </div>
         )}
 
-        {/* Grouped items by subcategory */}
         {groupedItems.length > 0 ? (
           <div className="space-y-8 sm:space-y-10 md:space-y-12">
             {groupedItems.map(({ category, items }) => (
@@ -252,15 +286,15 @@ export default function MenuContent({
                 key={category.slug}
                 ref={(el) => { sectionRefs.current[category.slug] = el; }}
               >
-                <h2 className="font-display text-lg md:text-xl text-brown mb-1">
+                <h2 className={`font-display text-lg md:text-xl ${t.subheading} mb-1 transition-colors duration-500`}>
                   {category.name}{" "}
-                  <span className="text-brown/40 text-sm font-body">
+                  <span className={`${t.count} text-sm font-body`}>
                     ({items.length} {items.length === 1 ? "item" : "items"})
                   </span>
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5 mt-3">
                   {items.map((item) => (
-                    <MenuCard key={item.PK} item={item} />
+                    <MenuCard key={item.PK} item={item} theme={themeKey} />
                   ))}
                 </div>
               </section>
@@ -268,13 +302,13 @@ export default function MenuContent({
           </div>
         ) : (
           <div className="text-center py-20">
-            <p className="text-brown/50 text-xl font-display">No items found</p>
-            <p className="text-brown/40 text-sm font-body mt-2">
+            <p className={`${t.emptyTitle} text-xl font-display`}>No items found</p>
+            <p className={`${t.emptySub} text-sm font-body mt-2`}>
               Try selecting a different category
             </p>
           </div>
         )}
       </div>
-    </>
+    </main>
   );
 }
